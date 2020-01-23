@@ -77,5 +77,41 @@ namespace SV.ActionApi.Tests
 
             Assert.ThrowsAsync<ArgumentNullException>(() => controller.GetRequestBodyAsync(null, null));
         }
+
+        [Fact]
+        public void CombinePaths_Throws_Exception_When_Param1_IsNull_Or_Whitespace()
+        {
+            BaseController controller = new BaseController(null);
+
+            Assert.Throws<Exception>(() => controller.CombinePaths(null, "abc"));
+
+            Assert.Throws<Exception>(() => controller.CombinePaths("", "abc"));
+
+            Assert.Throws<Exception>(() => controller.CombinePaths(" ", "abc"));
+        }
+
+        [Fact]
+        public void CombinePaths_Throws_Exception_When_Param2_IsNull_Or_Whitespace()
+        {
+            BaseController controller = new BaseController(null);
+
+            Assert.Throws<Exception>(() => controller.CombinePaths("abc", null));
+
+            Assert.Throws<Exception>(() => controller.CombinePaths("abc", ""));
+
+            Assert.Throws<Exception>(() => controller.CombinePaths("abc", " "));
+        }
+
+        [Fact]
+        public void CombinePaths_ReturnsCorrectPath()
+        {
+            BaseController controller = new BaseController(null);
+
+            Assert.Equal("post/comments", controller.CombinePaths("post", "comments"));
+
+            Assert.Equal("http://address/posts/comments", controller.CombinePaths("http://address/posts/", "/comments"));
+        }
+
+
     }
 }
