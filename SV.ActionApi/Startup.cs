@@ -10,6 +10,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using SV.Core;
+using SV.Core.Interfaces;
+using AspNetCore.Proxy;
 
 namespace SV.ActionApi
 {
@@ -26,6 +29,13 @@ namespace SV.ActionApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            services.AddHttpClient();
+            
+            services.Configure<DatabaseSettings>(Configuration.GetSection("DatabaseSettings"));
+            
+
+            services.AddSingleton<IRepository, Repository>();
+            services.AddProxies();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -46,6 +56,7 @@ namespace SV.ActionApi
             {
                 endpoints.MapControllers();
             });
+
         }
     }
 }
