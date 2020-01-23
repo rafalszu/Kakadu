@@ -51,7 +51,10 @@ namespace SV.ActionApi.Controllers
 
             relativeUrl = string.Format("/{0}{1}", routeValues ?? string.Empty, Request.QueryString.HasValue ? Request.QueryString.Value : string.Empty);
 
-            var body = GetRequestBodyAsync(Request).GetAwaiter().GetResult();
+            // Allows using several time the stream in ASP.Net Core
+            Request.EnableBuffering(); 
+
+            var body = GetRequestBodyAsync(Request.Method, Request.Body).GetAwaiter().GetResult();
             if(string.IsNullOrWhiteSpace(body))
             {
                 _logger.LogInformation("Request body empty, returning BadRequest");

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,6 +15,7 @@ using SV.ActionApi.Extensions;
 using SV.Core.Interfaces;
 using SV.Core.Models;
 
+[assembly: InternalsVisibleTo("SV.ActionApi.Tests")]
 namespace SV.ActionApi.Controllers
 {
     public class BaseController : ControllerBase
@@ -73,23 +75,23 @@ namespace SV.ActionApi.Controllers
             return string.Format("{0}/{1}", s.TrimEnd('/'), v.TrimStart('/'));
         }
 
-        internal async Task<string> GetRequestBodyAsync(HttpRequest request)
+        
+        internal async Task<string> GetRequestBodyAsync(string httpRequestMethod, Stream httpRequestBody)
         {
-            if(request == null)
-                throw new ArgumentNullException(nameof(request));
+            if(string.IsNullOrWhiteSpace(httpRequestMethod))
+                throw new ArgumentNullException(nameof(httpRequestMethod));
+            if(httpRequestBody == null)
+                throw new ArgumentNullException(nameof(httpRequestBody));
             
-            if (request.Method.Equals("GET", StringComparison.InvariantCultureIgnoreCase) ||
-                request.Method.Equals("HEAD", StringComparison.InvariantCultureIgnoreCase) ||
-                request.Method.Equals("DELETE", StringComparison.InvariantCultureIgnoreCase))
+            if (httpRequestMethod.Equals("GET", StringComparison.InvariantCultureIgnoreCase) ||
+                httpRequestMethod.Equals("HEAD", StringComparison.InvariantCultureIgnoreCase) ||
+                httpRequestMethod.Equals("DELETE", StringComparison.InvariantCultureIgnoreCase))
                 return string.Empty;
 
             string body = string.Empty;
 
-            // Allows using several time the stream in ASP.Net Core
-            Request.EnableBuffering(); 
-
             using (StreamReader reader  = new StreamReader(
-                stream: HttpContext.Request.Body,
+                stream: httpRequestBody,
                 encoding: System.Text.Encoding.UTF8,
                 detectEncodingFromByteOrderMarks: true,
                 bufferSize: 1024, 
@@ -99,7 +101,7 @@ namespace SV.ActionApi.Controllers
             }
 
             // Rewind, so the core is not lost when it looks the body for the request
-            HttpContext.Request.Body.Position = 0;
+            httpRequestBody.Position = 0;
 
             return body;
         }
