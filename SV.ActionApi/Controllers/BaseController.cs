@@ -37,6 +37,8 @@ namespace SV.ActionApi.Controllers
                 throw new ArgumentNullException(nameof(serviceModel));
             if(relativePath == null)
                 throw new ArgumentNullException(nameof(relativePath));
+            if (interceptKnownRouteAsync == null)
+                throw new ArgumentNullException(nameof(interceptKnownRouteAsync));
             if(logger == null)
                 throw new ArgumentNullException(nameof(logger));
 
