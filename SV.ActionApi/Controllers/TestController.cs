@@ -10,11 +10,11 @@ namespace SV.ActionApi.Controllers
     [Route("test")]
     public class TestController : ControllerBase
     {
-        private readonly IRepository repository;
+        private readonly IDataProvider dataProvider;
 
-        public TestController(IRepository repository)
+        public TestController(IDataProvider dataProvider)
         {
-            this.repository = repository;
+            this.dataProvider = dataProvider;
         }
 
         [HttpGet]
@@ -45,7 +45,7 @@ namespace SV.ActionApi.Controllers
                 // }
             };
 
-            repository.CreateService(jsonModel);
+            dataProvider.CreateService(jsonModel);
 
             var soapModel = new ServiceModel
             {
@@ -73,7 +73,7 @@ namespace SV.ActionApi.Controllers
                 // }
             };
 
-            repository.CreateService(soapModel);
+            dataProvider.CreateService(soapModel);
 
             return Ok();
         }

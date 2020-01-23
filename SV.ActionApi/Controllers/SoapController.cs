@@ -18,16 +18,16 @@ namespace SV.ActionApi.Controllers
     public class SoapController : BaseController, IRequestProcessor
     {
         private readonly ILogger<SoapController> _logger;
-        private readonly IRepository repository;
+        private readonly IDataProvider dataProvider;
 
         private string action;
         private string relativeUrl;
         private ServiceModel service;
 
-        public SoapController(ILogger<SoapController> logger, IRepository repository) : base(repository)
+        public SoapController(ILogger<SoapController> logger, IDataProvider dataProvider) : base(dataProvider)
         {
             _logger = logger;
-            this.repository = repository;
+            this.dataProvider = dataProvider;
         }
 
         [Route("{**catchAll}")]
@@ -37,7 +37,7 @@ namespace SV.ActionApi.Controllers
             if(string.IsNullOrWhiteSpace(serviceCode))
                 throw new ArgumentNullException(nameof(serviceCode));
                 
-            service = repository.GetService(serviceCode);
+            service = dataProvider.GetService(serviceCode);
             if(service == null)
             {
                 _logger.LogError($"No service found by given code: {serviceCode}");

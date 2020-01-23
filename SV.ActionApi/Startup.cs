@@ -34,7 +34,7 @@ namespace SV.ActionApi
             services.Configure<DatabaseSettings>(Configuration.GetSection("DatabaseSettings"));
             
 
-            services.AddSingleton<IRepository, Repository>();
+            services.AddSingleton<IDataProvider, DataProviderLiteDB>();
             services.AddProxies();
         }
 

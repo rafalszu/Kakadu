@@ -8,12 +8,12 @@ using SV.Core.Models;
 
 namespace SV.Core
 {
-    public class Repository : IRepository
+    public class DataProviderLiteDB : IDataProvider
     {
-        private readonly ILogger<Repository> logger;
+        private readonly ILogger<DataProviderLiteDB> logger;
         private readonly LiteRepository database;
 
-        public Repository(IOptions<DatabaseSettings> databaseSettings, ILogger<Repository> logger)
+        public DataProviderLiteDB(IOptions<DatabaseSettings> databaseSettings, ILogger<DataProviderLiteDB> logger)
         {
             database = new LiteRepository(databaseSettings.Value.ConnectionString);
             this.logger = logger;

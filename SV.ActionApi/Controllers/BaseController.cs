@@ -22,11 +22,11 @@ namespace SV.ActionApi.Controllers
     {
         private ServiceModel serviceModel;
         private string relativePath;
-        private readonly IRepository repository;
+        private readonly IDataProvider dataProvider;
 
-        public BaseController(IRepository repository)
+        public BaseController(IDataProvider dataProvider)
         {
-            this.repository = repository;
+            this.dataProvider = dataProvider;
         }
 
         [NonAction]
@@ -56,7 +56,7 @@ namespace SV.ActionApi.Controllers
 
                         // TODO: try match already existing knownroute and update it just-received data
                         (serviceModel.KnownRoutes ??= new List<KnownRouteModel>()).Add(response.ToKnownRoute());
-                        repository.UpdateService(serviceModel);
+                        dataProvider.UpdateService(serviceModel);
 
                         logger.LogInformation($"{serviceModel.Code} known routes updated");
                     }

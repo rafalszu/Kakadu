@@ -17,15 +17,15 @@ namespace SV.ActionApi.Controllers
     public class RestController : BaseController, IRequestProcessor
     {
         private readonly ILogger<RestController> _logger;
-        private readonly IRepository repository;
+        private readonly IDataProvider dataProvider;
 
         private string relativeUrl;
         private ServiceModel service;
 
-        public RestController(ILogger<RestController> logger, IRepository repository) : base(repository)
+        public RestController(ILogger<RestController> logger, IDataProvider dataProvider) : base(dataProvider)
         {
             _logger = logger;
-            this.repository = repository;
+            this.dataProvider = dataProvider;
         }
 
         [HttpGet]
@@ -35,7 +35,7 @@ namespace SV.ActionApi.Controllers
             if(string.IsNullOrWhiteSpace(serviceCode))
                 throw new ArgumentNullException(nameof(serviceCode));
                 
-            service = repository.GetService(serviceCode);
+            service = dataProvider.GetService(serviceCode);
             if(service == null)
             {
                 _logger.LogError($"No service found by given code: {serviceCode}");

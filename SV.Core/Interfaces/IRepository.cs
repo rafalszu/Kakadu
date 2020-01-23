@@ -2,7 +2,7 @@ using SV.Core.Models;
 
 namespace SV.Core.Interfaces
 {
-    public interface IRepository
+    public interface IDataProvider
     {
         ServiceModel GetService(string serviceCode);
 
