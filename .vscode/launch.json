@@ -10,9 +10,9 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/SV.WebApp/bin/Debug/netcoreapp3.1/SV.WebApp.dll",
+            "program": "${workspaceFolder}/Kakadu.WebApp/bin/Debug/netcoreapp3.1/Kakadu.WebApp.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/SV.WebApp",
+            "cwd": "${workspaceFolder}/Kakadu.WebApp",
             "stopAtEntry": false,
             // Enable launching a web browser when ASP.NET Core starts. For more information: https://aka.ms/VSCode-CS-LaunchJson-WebBrowser
             "serverReadyAction": {
@@ -32,9 +32,9 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/SV.ActionApi/bin/Debug/netcoreapp3.1/SV.ActionApi.dll",
+            "program": "${workspaceFolder}/Kakadu.ActionApi/bin/Debug/netcoreapp3.1/Kakadu.ActionApi.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/SV.ActionApi",
+            "cwd": "${workspaceFolder}/Kakadu.ActionApi",
             "stopAtEntry": false,
             // Enable launching a web browser when ASP.NET Core starts. For more information: https://aka.ms/VSCode-CS-LaunchJson-WebBrowser
             "serverReadyAction": {
