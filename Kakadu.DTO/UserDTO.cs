@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace Kakadu.DTO
 {
@@ -10,6 +11,7 @@ namespace Kakadu.DTO
 
         public string LastName { get; set; }
 
+        [Required(AllowEmptyStrings = false)]
         public string Username { get; set; }
         
         public string Token { get; set; }
