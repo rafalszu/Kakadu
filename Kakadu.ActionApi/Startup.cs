@@ -10,8 +10,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Kakadu.Core;
-using Kakadu.Core.Interfaces;
 using AspNetCore.Proxy;
 
 namespace Kakadu.ActionApi
@@ -31,10 +29,6 @@ namespace Kakadu.ActionApi
             services.AddControllers();
             services.AddHttpClient();
             
-            services.Configure<DatabaseSettings>(Configuration.GetSection("DatabaseSettings"));
-            
-
-            services.AddSingleton<IDataProvider, DataProviderLiteDB>();
             services.AddProxies();
         }
 

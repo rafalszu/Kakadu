@@ -9,5 +9,6 @@ namespace Kakadu.Core.Models
         PATCH,
         TRACE,
         SOAP,
+        Uknown
     }
 }

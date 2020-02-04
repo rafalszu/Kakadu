@@ -5,47 +5,52 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Kakadu.Core.Interfaces;
 using Kakadu.Core.Models;
+using System.Threading;
 
 namespace Kakadu.Core
 {
-    public class DataProviderLiteDB : IDataProvider
+    public static class LiteDbDataProvider 
     {
-        private readonly ILogger<DataProviderLiteDB> logger;
-        private readonly LiteRepository database;
+        // private static string _connectionString;
+        // public static string ConnectionString
+        // {
+        //     get { return _connectionString; }
+        //     set
+        //     {
+        //         if(_connectionString == value)
+        //             return;
+                
+        //         _connectionString = value;
 
-        public DataProviderLiteDB(IOptions<DatabaseSettings> databaseSettings, ILogger<DataProviderLiteDB> logger)
-        {
-            database = new LiteRepository(databaseSettings.Value.ConnectionString);
-            this.logger = logger;
-        }
+        //         if(_database != null)
+        //         {
+        //             _database.Dispose();
+        //             _database = null;
+        //         }
+        //     }
+        // }
 
-        public ServiceModel GetService(string serviceCode)
-        {
-            if(string.IsNullOrWhiteSpace(serviceCode))
-                throw new ArgumentNullException(nameof(serviceCode));
+        // private static LiteRepository _database;
 
-            return database.Query<ServiceModel>()
-                           .Include(x => x.KnownRoutes)
-                           .Where(x => x.Code.Equals(serviceCode, StringComparison.InvariantCultureIgnoreCase))
-                           .FirstOrDefault();
-        }
+        // public static LiteRepository Database
+        // {
+        //     get
+        //     {
+        //         if(_database == null)
+        //             LazyInitializer.EnsureInitialized(ref _database, CreateConnection);
 
-        public ServiceModel CreateService(ServiceModel model)
-        {
-            if(model == null)
-                throw new ArgumentNullException(nameof(model));
+        //         return _database;
+        //     }
+        // }
 
-            database.Insert<ServiceModel>(model);
-            return model;
-        }
-
-        public ServiceModel UpdateService(ServiceModel model)
-        {
-            if(database.Update<ServiceModel>(model))
-                return model;
+        // private static LiteRepository CreateConnection()
+        // {
+        //     if(string.IsNullOrWhiteSpace(_connectionString))
+        //         throw new Exception("connection string not set");
             
-            return null;
-        }
+        //     var db = new LiteRepository(_connectionString);
+        //     return db;
+        // }
 
         // private ServiceModel GetDummyService()
         // {
