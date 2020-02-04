@@ -1,8 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Kakadu.DTO
 {
-    public class ServiceDTO
+    public class ServiceDTO : IEntityDTO
     {
         public Guid Id { get; set; }
         
@@ -13,5 +14,7 @@ namespace Kakadu.DTO
         public Uri Address { get; set; }
 
         public bool UnkownRoutesPassthrough { get; set; }
+
+        public List<KnownRouteDTO> KnownRoutes { get; set; }
     }
 }

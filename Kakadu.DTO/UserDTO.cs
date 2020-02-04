@@ -2,7 +2,7 @@ using System;
 
 namespace Kakadu.DTO
 {
-    public class UserDTO
+    public class UserDTO : IEntityDTO
     {
         public Guid Id { get; set; }
 
