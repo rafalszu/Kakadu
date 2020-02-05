@@ -3,11 +3,13 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks;
 using AutoMapper;
 using Kakadu.ConfigurationApi.Settings;
 using Kakadu.Core.Interfaces;
 using Kakadu.DTO;
 using Kakadu.DTO.HttpExceptions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -18,6 +20,7 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{v:apiVersion}/[controller]")]
+    [Authorize]
     public class TokenController : ControllerBase
     {
         private readonly ILogger<TokenController> _logger;
@@ -33,8 +36,9 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
             _mapper = mapper;
         }
 
-        [HttpPost]
-        public ActionResult<UserDTO> Post([FromBody]JwtTokenDTO dto)
+        [HttpPost("authenticate")]
+        [AllowAnonymous]
+        public ActionResult<UserDTO> Authenticate([FromBody]JwtTokenDTO dto)
         {
             if(dto == null)
                 throw new ArgumentNullException(nameof(dto));
@@ -62,5 +66,10 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
 
             return Ok(_mapper.Map<UserDTO>(user));            
         }
+
+        [HttpPost("validate")]
+        public ActionResult Validate() => Ok();
+        // since we're here without exceptions, return ok
+            
     }
 }
