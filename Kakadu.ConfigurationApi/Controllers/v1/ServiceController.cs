@@ -49,6 +49,7 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
             return results;
         }
 
+        [AllowAnonymous]
         [HttpGet("{serviceCode}")]
         public async Task<ActionResult<ServiceDTO>> Get(string serviceCode)
         {
