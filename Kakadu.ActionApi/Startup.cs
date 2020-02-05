@@ -17,6 +17,7 @@ using Kakadu.ActionApi.Clients;
 using Kakadu.ActionApi.Handlers;
 using Kakadu.ActionApi.Middleware;
 using LazyCache;
+using Kakadu.ActionApi.Services;
 
 namespace Kakadu.ActionApi
 {
@@ -62,6 +63,11 @@ namespace Kakadu.ActionApi
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
             });
 
+            services.AddHttpClient<IActionApiClient, ActionApiClient>(client => {
+                client.BaseAddress = new Uri(apiConfiguration.Address);
+                client.DefaultRequestHeaders.Add("Accept", "application/json");
+            });
+
             services.AddLazyCache(a => {
                 var cache = new CachingService();
                 cache.DefaultCachePolicy.DefaultCacheDurationSeconds = 180;
@@ -70,6 +76,8 @@ namespace Kakadu.ActionApi
             });
             
             services.AddProxies();
+
+            services.AddHostedService<RegistrationHostedService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
