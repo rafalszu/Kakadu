@@ -22,5 +22,7 @@ namespace Kakadu.DTO
         public Dictionary<string, string> Headers { get; set; }
 
         public string ContentTypeString { get; set; }
+
+        public byte[] ContentRaw => string.IsNullOrEmpty(ContentBase64) ? null : Convert.FromBase64String(ContentBase64);
     }
 }
