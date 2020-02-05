@@ -4,7 +4,6 @@ using System.Net;
 using System.Security.Claims;
 using System.Text;
 using AutoMapper;
-using Kakadu.ConfigurationApi.Models;
 using Kakadu.ConfigurationApi.Settings;
 using Kakadu.Core.Interfaces;
 using Kakadu.DTO;

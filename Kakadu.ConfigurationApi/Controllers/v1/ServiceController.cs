@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
-using Kakadu.ConfigurationApi.Models;
 using Kakadu.Core.Interfaces;
 using Kakadu.Core.Models;
 using Kakadu.DTO;
