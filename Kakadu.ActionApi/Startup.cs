@@ -55,6 +55,7 @@ namespace Kakadu.ActionApi
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
             }).AddHttpMessageHandler<ApiBearerTokenHandler>();
 
+            //services.AddRouting();
             
             services.AddProxies();
         }
@@ -70,7 +71,7 @@ namespace Kakadu.ActionApi
 
             app.UseHttpsRedirection();
 
-            app.UseRouting();
+            app.UseRouting();            
 
             app.UseAuthorization();
 
@@ -78,7 +79,7 @@ namespace Kakadu.ActionApi
             {
                 endpoints.MapControllers();
             });
-
+            
         }
     }
 }

@@ -6,54 +6,51 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Kakadu.ActionApi.Interfaces;
+using Kakadu.DTO;
+using System.Threading;
 
 namespace Kakadu.ActionApi.Controllers
 {
-    // [ApiController]
-    // [Consumes("application/json")]
-    // [Route("rest/{serviceCode}")]
-    // public class RestController : BaseController, IRequestProcessor
-    // {
-    //     private readonly ILogger<RestController> _logger;
-    //     private readonly IDataProvider dataProvider;
+    [ApiController]
+    [Consumes("application/json")]
+    [Route("rest/{serviceCode}")]
+    public class RestController : BaseActionApiController
+    {
+        private readonly ILogger<RestController> _logger;
 
-    //     private string relativeUrl;
-    //     private ServiceModel service;
+        public RestController(ILogger<RestController> logger, IServiceClient serviceClient) : base(logger, serviceClient) => _logger = logger;
 
-    //     public RestController(ILogger<RestController> logger, IDataProvider dataProvider) : base(dataProvider)
-    //     {
-    //         _logger = logger;
-    //         this.dataProvider = dataProvider;
-    //     }
+        [HttpGet]
+        [HttpPost]
+        [HttpPut]
+        [HttpPatch]
+        [HttpDelete]
+        [Route("{**catchAll}")]
+        public async Task ProcessRequest(string serviceCode, CancellationToken cancellationToken)
+        {
+            if(string.IsNullOrWhiteSpace(serviceCode))
+                throw new ArgumentNullException(nameof(serviceCode));
 
-    //     [HttpGet]
-    //     [Route("{**catchAll}")]
-    //     public Task ProcessRequest(string serviceCode)
-    //     {
-    //         if(string.IsNullOrWhiteSpace(serviceCode))
-    //             throw new ArgumentNullException(nameof(serviceCode));
-                
-    //         service = dataProvider.GetService(serviceCode);
-    //         if(service == null)
-    //         {
-    //             _logger.LogError($"No service found by given code: {serviceCode}");
-    //             throw new Exception($"No service found by given code: {serviceCode}");
-    //         }
+            object routeValues = null;
+            if(Request.RouteValues.ContainsKey("catchAll")) {
+                routeValues = Request.RouteValues["catchAll"];
+            }
 
-    //         object routeValues = null;
-    //         if(Request.RouteValues.ContainsKey("catchAll")) {
-    //             routeValues = Request.RouteValues["catchAll"];
-    //         }
+            string relativePath = string.Format("/{0}{1}", routeValues ?? string.Empty, Request.QueryString.HasValue ? Request.QueryString.Value : string.Empty);
 
-    //         relativeUrl = string.Format("/{0}{1}", routeValues ?? string.Empty, Request.QueryString.HasValue ? Request.QueryString.Value : string.Empty);
+            await ProxyCall(serviceCode, relativePath, cancellationToken).ConfigureAwait(false);
+        }
 
-    //         return ProxyCall(
-    //             serviceModel: service,
-    //             relativePath: relativeUrl,
-    //             logger: _logger,
-    //             interceptKnownRouteAsync: InterceptKnownRouteAsync);
-    //     }
+        public override KnownRouteDTO GetKnownRoute(ServiceDTO service, string relativePath, string action)
+        {
+            if(service == null)
+                throw new ArgumentNullException(nameof(service));
 
+            return service.KnownRoutes?.FirstOrDefault(r => !string.IsNullOrWhiteSpace(r.RelativeUrl) && r.RelativeUrl.Equals(relativePath, StringComparison.InvariantCultureIgnoreCase));
+        }
+    }
+    
+    
     //     private async Task<bool> InterceptKnownRouteAsync(HttpContext context)
     //     {
     //         var knownRoute = service.KnownRoutes?.FirstOrDefault(r => !string.IsNullOrWhiteSpace(r.RelativeUrl) && r.RelativeUrl.Equals(relativeUrl, StringComparison.InvariantCultureIgnoreCase));
