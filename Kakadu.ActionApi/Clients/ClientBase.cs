@@ -50,7 +50,7 @@ namespace Kakadu.ActionApi.Clients
                 {
                     request.Content = httpContent;
 
-                    using(var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken))
+                    using(var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false))
                     {
                         var stream = await response.Content.ReadAsStreamAsync();
                         if(response.IsSuccessStatusCode)
