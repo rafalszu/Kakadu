@@ -6,6 +6,7 @@ using AutoMapper;
 using Kakadu.ConfigurationApi.Middleware;
 using Kakadu.ConfigurationApi.Settings;
 using Kakadu.Core;
+using LazyCache;
 using LiteDB;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -69,6 +70,13 @@ namespace Kakadu.ConfigurationApi
                     ValidateIssuer = false,
                     ValidateAudience = false
                 };
+            });
+
+            services.AddLazyCache(a => {
+                var cache = new CachingService();
+                cache.DefaultCachePolicy.DefaultCacheDurationSeconds = 180;
+
+                return cache;
             });
 
             services.RegisterKakaduServices();

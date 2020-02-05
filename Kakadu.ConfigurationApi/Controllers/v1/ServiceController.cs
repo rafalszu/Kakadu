@@ -7,9 +7,11 @@ using Kakadu.Core.Interfaces;
 using Kakadu.Core.Models;
 using Kakadu.DTO;
 using Kakadu.DTO.HttpExceptions;
+using LazyCache;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
 namespace Kakadu.ConfigurationApi.Controllers.v1
@@ -24,19 +26,25 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
         private readonly ILogger<ServiceController> _logger;
         private readonly IServiceService _service;
         private readonly IMapper _mapper;
+        private readonly IAppCache _cache;
 
-        public ServiceController(ILogger<ServiceController> logger, IServiceService service, IMapper mapper)
+        public ServiceController(ILogger<ServiceController> logger, IServiceService service, IAppCache cache, IMapper mapper)
         {
             _logger = logger;
             _service = service;
             _mapper = mapper;
+            _cache = cache;
         }
 
         [HttpGet]
         public async Task<List<ServiceDTO>> Get()
         {
-            var entities = await Task.Run(_service.GetAll);
-            var results = _mapper.Map<List<ServiceDTO>>(entities);
+            var results = await _cache.GetOrAddAsync<List<ServiceDTO>>("services", async entry => {
+                entry.AbsoluteExpiration = DateTimeOffset.UtcNow.AddMinutes(3);
+
+                var entities = await Task.Run(() => _service.GetAll());
+                return _mapper.Map<List<ServiceDTO>>(entities);
+            });
 
             return results;
         }
@@ -47,13 +55,17 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
             if(string.IsNullOrWhiteSpace(serviceCode))
                 throw new ArgumentNullException(nameof(serviceCode));
 
-            var entity = await Task.Run(() => _service.Get(serviceCode));
-            if(entity == null)
-                throw new HttpNotFoundException($"No service definition found for '{serviceCode}'");
+            var dto = await _cache.GetOrAddAsync(serviceCode, async entry => {
+                entry.AbsoluteExpiration = DateTimeOffset.UtcNow.AddMinutes(3);
 
-            var result = _mapper.Map<ServiceDTO>(entity);
+                var entity = await Task.Run(() => _service.Get(serviceCode));
+                if(entity == null)
+                    throw new HttpNotFoundException($"No service definition found for '{serviceCode}'");
+
+                return _mapper.Map<ServiceDTO>(entity);
+            });
             
-            return result;
+            return dto;
         }
 
         [HttpPost("{serviceCode}")]
@@ -108,6 +120,9 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
             var result = await Task.Run(() => _service.Delete(serviceCode));
             if(result)
             {
+                // remove from cache
+                _cache.Remove(serviceCode);
+
                 _logger.LogInformation($"Service '{serviceCode}' removed");
                 return Ok();
             }
