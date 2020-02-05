@@ -11,6 +11,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using AspNetCore.Proxy;
+using Kakadu.ActionApi.Configuration;
+using Kakadu.ActionApi.Interfaces;
+using Kakadu.ActionApi.Clients;
+using Kakadu.ActionApi.Handlers;
 
 namespace Kakadu.ActionApi
 {
@@ -26,8 +30,30 @@ namespace Kakadu.ActionApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // this contains default username/password, ideally overriden by environment variables
+            ApiConfiguration apiConfiguration = new ApiConfiguration();
+            Configuration.GetSection("ConfigurationAPI").Bind(apiConfiguration);
+
+            services.Configure<ApiConfiguration>(Configuration.GetSection("ConfigurationAPI"));
+
+            if(string.IsNullOrWhiteSpace(apiConfiguration.Address))
+                throw new Exception("ConfigurationAPI address can't be empty");
+
             services.AddControllers();
-            services.AddHttpClient();
+
+            services.AddHttpClient<IAuthenticationClient, AuthenticationClient>(client => {
+                client.BaseAddress = new Uri(apiConfiguration.Address);
+                client.DefaultRequestHeaders.Add("Accept", "application/json");
+            });
+
+            // this would issue a new token on each call
+            // services.AddTransient<ApiBearerTokenHandler>();
+            services.AddScoped<ApiBearerTokenHandler>();
+            services.AddHttpClient<IServiceClient, ServiceClient>(client => {
+                client.BaseAddress = new Uri(apiConfiguration.Address);
+                client.DefaultRequestHeaders.Add("Accept", "application/json");
+            }).AddHttpMessageHandler<ApiBearerTokenHandler>();
+
             
             services.AddProxies();
         }

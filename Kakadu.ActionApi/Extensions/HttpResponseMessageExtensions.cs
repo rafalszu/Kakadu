@@ -2,26 +2,26 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using Kakadu.Core.Models;
+using Kakadu.DTO;
 
 namespace Kakadu.ActionApi.Extensions
 {
     public static class HttpResponseMessageExtensions
     {
-        public static KnownRouteModel ToKnownRoute(this HttpResponseMessage msg)
+        public static KnownRouteDTO ToKnownRouteDTO(this HttpResponseMessage msg)
         {
             if(msg == null)
                 return null;
 
-            KnownRouteModel result = new KnownRouteModel
+            KnownRouteDTO result = new KnownRouteDTO
             {
                 Id = Guid.NewGuid(),
-                Method = Enum.Parse<MethodTypeEnum>(msg.RequestMessage.Method.Method, true),
+                MethodName = msg.RequestMessage.Method.Method,
                 RelativeUrl = $"{msg.RequestMessage.RequestUri.PathAndQuery}{msg.RequestMessage.RequestUri.Fragment}",
                 Action = msg.RequestMessage.GetActionHeaderValue(),
-                Replies = new List<KnownRouteReplyModel>
+                Replies = new List<KnownRouteReplyDTO>
                 {
-                    new KnownRouteReplyModel
+                    new KnownRouteReplyDTO
                     {
                         Id = Guid.NewGuid(),
                         StatusCode = (int)msg.StatusCode,

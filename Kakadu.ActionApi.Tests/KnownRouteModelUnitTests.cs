@@ -25,11 +25,11 @@ namespace Kakadu.ActionApi.Tests
                 Content = new StringContent("{\"test\": \"value\"}", System.Text.Encoding.UTF8, "application/json")
             };
             
-            var knownRoute = msg.ToKnownRoute();
+            var knownRoute = msg.ToKnownRouteDTO();
 
             Assert.NotNull(knownRoute);
         
-            Assert.Equal(MethodTypeEnum.GET, knownRoute.Method);
+            Assert.Equal(MethodTypeEnum.GET.ToString(), knownRoute.MethodName);
 
             Assert.Empty(knownRoute.Action);
 

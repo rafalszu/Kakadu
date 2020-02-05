@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Kakadu.ActionApi\Kakadu.ActionApi.csproj" />
+    <ProjectReference Include="..\Kakadu.DTO\Kakadu.DTO.csproj" />
   </ItemGroup>
 
 </Project>
