@@ -16,6 +16,7 @@ using Kakadu.ActionApi.Interfaces;
 using Kakadu.ActionApi.Clients;
 using Kakadu.ActionApi.Handlers;
 using Kakadu.ActionApi.Middleware;
+using LazyCache;
 
 namespace Kakadu.ActionApi
 {
@@ -55,7 +56,12 @@ namespace Kakadu.ActionApi
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
             }).AddHttpMessageHandler<ApiBearerTokenHandler>();
 
-            //services.AddRouting();
+            services.AddLazyCache(a => {
+                var cache = new CachingService();
+                cache.DefaultCachePolicy.DefaultCacheDurationSeconds = 180;
+
+                return cache;
+            });
             
             services.AddProxies();
         }
