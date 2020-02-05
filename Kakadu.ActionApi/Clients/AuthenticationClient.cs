@@ -39,7 +39,7 @@ namespace Kakadu.ActionApi.Clients
 
             using (var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(30)))
             {
-                var dto = await this.PostAsync<UserDTO>(tokenRequest, "token", cancellationTokenSource.Token);
+                var dto = await this.PostAsync<UserDTO>(tokenRequest, "token/authenticate", cancellationTokenSource.Token);
                 return dto?.Token;
             }
         }
