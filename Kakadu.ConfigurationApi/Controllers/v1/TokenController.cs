@@ -1,12 +1,14 @@
 using System;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net;
 using System.Security.Claims;
 using System.Text;
 using AutoMapper;
-using Kakadu.ConfigurationApi.Models.V1;
+using Kakadu.ConfigurationApi.Models;
 using Kakadu.ConfigurationApi.Settings;
 using Kakadu.Core.Interfaces;
 using Kakadu.DTO;
+using Kakadu.DTO.HttpExceptions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -33,17 +35,14 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
         }
 
         [HttpPost]
-        public ActionResult<UserDTO> Post([FromBody]JwtTokenModel model)
+        public ActionResult<UserDTO> Post([FromBody]JwtTokenDTO dto)
         {
-            if(model == null)
-                throw new ArgumentNullException(nameof(model));
+            if(dto == null)
+                throw new ArgumentNullException(nameof(dto));
 
-            var user = _userService.Authenticate(model.Username, model.Password);
+            var user = _userService.Authenticate(dto.Username, dto.Password);
             if(user == null)
-            {
-                _logger.LogError($"Wrong username or password for user '{model.Username}'");
-                return Unauthorized("Wrong username or password");
-            }
+               throw new HttpUnauthorizedException("Wrong username or password");
 
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_jwtSettings.Value.Secret);
@@ -60,7 +59,7 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
             var token = tokenHandler.CreateToken(tokenDescriptor);
             user.Token = tokenHandler.WriteToken(token);
 
-            _logger.LogInformation($"Creating JWT token for '{model.Username}'");
+            _logger.LogInformation($"Creating JWT token for '{dto.Username}'");
 
             return Ok(_mapper.Map<UserDTO>(user));            
         }

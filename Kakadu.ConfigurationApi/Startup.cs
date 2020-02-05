@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Kakadu.ConfigurationApi.Middleware;
 using Kakadu.ConfigurationApi.Settings;
 using Kakadu.Core;
 using LiteDB;
@@ -34,15 +35,23 @@ namespace Kakadu.ConfigurationApi
             services.AddCors();
             services.AddControllers()
                     .AddNewtonsoftJson();
+            services.AddApiVersioning(options => {
+                options.ReportApiVersions = true;
+                options.AssumeDefaultVersionWhenUnspecified = true;
+                options.DefaultApiVersion = new ApiVersion(1, 0);
+            });
                     
             services.AddAutoMapper(typeof(Startup));
 
             services.Configure<JwtSettings>(Configuration.GetSection("JwtSettings"));
-            var jwtSettings = Configuration.GetSection("JwtSettings") as JwtSettings;
+            JwtSettings jwtSettings = new JwtSettings();
+            Configuration.GetSection("JwtSettings").Bind(jwtSettings);
+            
             var key = System.Text.Encoding.ASCII.GetBytes(jwtSettings.Secret);
 
-            var section = Configuration.GetSection("DatabaseSettings") as DatabaseSettings;
-            services.AddSingleton<LiteRepository>(_ => new LiteRepository(section.ConnectionString));
+            DatabaseSettings databaseSettings = new DatabaseSettings();
+            Configuration.GetSection("DatabaseSettings").Bind(databaseSettings);
+            services.AddSingleton<LiteRepository>(_ => new LiteRepository(databaseSettings.ConnectionString));
 
             services.AddAuthentication(x =>
             {
@@ -84,6 +93,7 @@ namespace Kakadu.ConfigurationApi
 
             app.UseAuthentication();
             app.UseAuthorization();
+            app.UseMiddleware<HttpResponseExceptionHandler>();
 
             app.UseEndpoints(endpoints =>
             {

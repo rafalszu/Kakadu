@@ -1,10 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
+using Kakadu.ConfigurationApi.Models;
 using Kakadu.Core.Interfaces;
 using Kakadu.Core.Models;
 using Kakadu.DTO;
+using Kakadu.DTO.HttpExceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -47,10 +50,7 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
 
             var entity = await Task.Run(() => _service.Get(serviceCode));
             if(entity == null)
-            {
-                _logger.LogWarning($"No service definition found for '{serviceCode}'");
-                return NotFound(serviceCode);
-            }
+                throw new HttpNotFoundException($"No service definition found for '{serviceCode}'");
 
             var result = _mapper.Map<ServiceDTO>(entity);
             
@@ -66,7 +66,7 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
 
             var model = _mapper.Map<ServiceModel>(dto);
             if(model == null)
-                throw new Exception("Unable to map dto");
+                throw new HttpResponseException("Unable to map dto");
 
             model =  await Task.Run(() => _service.Create(model));
 
@@ -85,10 +85,7 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
 
             var entity = await Task.Run(() => _service.Get(serviceCode));
             if(entity == null)
-            {
-                _logger.LogWarning($"No service definition found for '{serviceCode}'");
-                return NotFound(serviceCode);
-            }
+                throw new HttpNotFoundException($"No service definition found for '{serviceCode}'");
 
             var dto = _mapper.Map<ServiceDTO>(entity);
             patch.ApplyTo(dto);
@@ -107,10 +104,7 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
 
             var entity = await Task.Run(() => _service.Get(serviceCode));
             if(entity == null)
-            {
-                _logger.LogWarning($"No service definition found for '{serviceCode}'");
-                return NotFound(serviceCode);
-            }
+                throw new HttpNotFoundException($"No service definition found for '{serviceCode}'");
 
             var result = await Task.Run(() => _service.Delete(serviceCode));
             if(result)
