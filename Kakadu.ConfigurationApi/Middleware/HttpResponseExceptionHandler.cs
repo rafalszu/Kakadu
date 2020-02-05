@@ -57,38 +57,4 @@ namespace Kakadu.ConfigurationApi.Middleware
             }
         }
     }
-    // public static class ExceptionMiddlewareExtensions
-    // {
-    //     public static void ConfigureExceptionHandler(this IApplicationBuilder app, ILogger<Startup> logger)
-    //     {
-    //         app.UseExceptionHandler(appError =>
-    //         {
-    //             appError.Run(async context =>
-    //             {
-    //                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-    //                 context.Response.ContentType = "application/json";
- 
-    //                 var contextFeature = context.Features.Get<IExceptionHandlerFeature>();
-    //                 if(contextFeature != null)
-    //                 { 
-    //                     logger.LogError($"Exception occurred: {contextFeature.Error?.Message}");
-    //                     logger.LogDebug(contextFeature.Error.ToString());
-                        
-    //                     int statusCode = context.Response.StatusCode;
-    //                     if(contextFeature.Error is HttpResponseException httpResponseException)
-    //                     {
-    //                         statusCode = ((HttpResponseException)httpResponseException).StatusCode;
-    //                         context.Response.StatusCode = statusCode;
-    //                     }
-
-    //                     await context.Response.WriteAsync(new ApiError
-    //                     {
-    //                         StatusCode = statusCode,
-    //                         Message = contextFeature.Error?.Message ?? "Internal server error"
-    //                     }.ToString());
-    //                 }
-    //             });
-    //         });
-    //     }
-    // }
 }
