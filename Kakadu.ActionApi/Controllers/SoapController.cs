@@ -19,7 +19,7 @@ namespace Kakadu.ActionApi.Controllers
     {
         private readonly ILogger<SoapController> _logger;
 
-        public SoapController(ILogger<SoapController> logger, IServiceClient serviceClient) : base(logger, serviceClient) => _logger = logger;
+        public SoapController(ILogger<SoapController> logger, IAnonymousServiceClient serviceClient) : base(logger, serviceClient) => _logger = logger;
 
         [Route("{**catchAll}")]
         [HttpPost]

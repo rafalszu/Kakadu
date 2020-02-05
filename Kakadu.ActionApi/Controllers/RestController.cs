@@ -18,7 +18,7 @@ namespace Kakadu.ActionApi.Controllers
     {
         private readonly ILogger<RestController> _logger;
 
-        public RestController(ILogger<RestController> logger, IServiceClient serviceClient) : base(logger, serviceClient) => _logger = logger;
+        public RestController(ILogger<RestController> logger, IAnonymousServiceClient serviceClient) : base(logger, serviceClient) => _logger = logger;
 
         [HttpGet]
         [HttpPost]

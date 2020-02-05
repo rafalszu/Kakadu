@@ -23,9 +23,9 @@ namespace Kakadu.ActionApi.Controllers
     public abstract class BaseActionApiController : ControllerBase
     {
         private readonly ILogger<BaseActionApiController> _logger;
-        private readonly IServiceClient _serviceClient;
+        private readonly IAnonymousServiceClient _serviceClient;
 
-        public BaseActionApiController(ILogger<BaseActionApiController> logger, IServiceClient serviceClient)
+        public BaseActionApiController(ILogger<BaseActionApiController> logger, IAnonymousServiceClient serviceClient)
         {
             _logger = logger;
             _serviceClient = serviceClient;

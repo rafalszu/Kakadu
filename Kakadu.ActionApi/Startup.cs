@@ -51,10 +51,16 @@ namespace Kakadu.ActionApi
             // this would issue a new token on each call
             // services.AddTransient<ApiBearerTokenHandler>();
             services.AddScoped<ApiBearerTokenHandler>();
-            services.AddHttpClient<IServiceClient, ServiceClient>(client => {
+            
+            services.AddHttpClient<IAnonymousServiceClient, AnonymousServiceClient>(client => {
                 client.BaseAddress = new Uri(apiConfiguration.Address);
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
-            }).AddHttpMessageHandler<ApiBearerTokenHandler>();
+            }); //.AddHttpMessageHandler<ApiBearerTokenHandler>();
+
+            services.AddHttpClient<IAuthenticatedServiceClient, AuthenticatedServiceClient>(client => {
+                client.BaseAddress = new Uri(apiConfiguration.Address);
+                client.DefaultRequestHeaders.Add("Accept", "application/json");
+            });
 
             services.AddLazyCache(a => {
                 var cache = new CachingService();
