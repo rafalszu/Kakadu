@@ -1,7 +1,5 @@
-using Kakadu.ConfigurationApi.Models;
+using Kakadu.DTO;
 using Kakadu.DTO.HttpExceptions;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System;
@@ -47,13 +45,11 @@ namespace Kakadu.ConfigurationApi.Middleware
                 context.Response.StatusCode = statusCode;
                 context.Response.ContentType = "application/json";
  
-                await context.Response.WriteAsync(new ApiError
+                await context.Response.WriteAsync(new ApiErrorDTO
                 {
                     StatusCode = statusCode,
                     Message = message
                 }.ToString()).ConfigureAwait(false);
-                
-                context.Response.Headers.Clear();
             }
         }
     }
