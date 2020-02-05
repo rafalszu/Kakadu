@@ -12,14 +12,9 @@ namespace Kakadu.ActionApi.Clients
 {
     public class AnonymousServiceClient : ClientBase, IAnonymousServiceClient
     {
-        private readonly HttpClient _httpClient;
         private readonly IAppCache _cache;
 
-        public AnonymousServiceClient(HttpClient httpClient, ILogger<AnonymousServiceClient> logger, IAppCache cache) : base(httpClient, logger)
-        {
-            _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-            _cache = cache ?? throw new ArgumentNullException(nameof(cache));
-        }
+        public AnonymousServiceClient(HttpClient httpClient, ILogger<AnonymousServiceClient> logger, IAppCache cache) : base(httpClient, logger) => _cache = cache;
 
         public async Task<ServiceDTO> GetByCodeAsync(string serviceCode, CancellationToken cancellationToken)
         {
