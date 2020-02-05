@@ -1,8 +1,8 @@
 using Newtonsoft.Json;
 
-namespace Kakadu.ConfigurationApi.Models
+namespace Kakadu.DTO
 {
-    public class ApiError
+    public class ApiErrorDTO
     {
         public int StatusCode { get; set; }
         public string Message { get; set; }
