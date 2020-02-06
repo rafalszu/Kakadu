@@ -31,17 +31,18 @@ namespace Kakadu.ActionApi.Clients
 
         public async Task<string> RequestTokenAsync()
         {
-            var tokenRequest = new JwtTokenDTO
-            {
-                Username = _options.Value.Username,
-                Password = _options.Value.Password
-            };
+            // var tokenRequest = new JwtTokenDTO
+            // {
+            //     Username = _options.Value.Username,
+            //     Password = _options.Value.Password
+            // };
 
-            using (var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(30)))
-            {
-                var dto = await this.PostAsync<UserDTO>(tokenRequest, "token/authenticate", cancellationTokenSource.Token);
-                return dto?.Token;
-            }
+            // using (var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(30)))
+            // {
+            //     var dto = await this.PostAsync<UserDTO>(tokenRequest, "token/authenticate", cancellationTokenSource.Token);
+            //     return dto?.Token;
+            // }
+            throw new NotImplementedException();
         }
     }
 }
