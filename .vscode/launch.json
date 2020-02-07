@@ -63,9 +63,7 @@
                 "action": "openExternally",
                 "pattern": "^\\s*Now listening on:\\s+(https?://\\S+)"                
             },
-            "env": {
-                "ASPNETCORE_ENVIRONMENT": "Development"
-            },
+            "envFile": "${workspaceFolder}/envvariables",
             "sourceFileMap": {
                 "/Views": "${workspaceFolder}/Views"
             }
