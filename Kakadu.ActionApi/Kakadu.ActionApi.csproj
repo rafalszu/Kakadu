@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Kakadu.DTO\Kakadu.DTO.csproj" />
+    <ProjectReference Include="..\Kakadu.Common\Kakadu.Common.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

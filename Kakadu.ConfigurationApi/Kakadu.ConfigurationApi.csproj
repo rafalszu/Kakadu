@@ -3,6 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Kakadu.Core\Kakadu.Core.csproj" />
     <ProjectReference Include="..\Kakadu.DTO\Kakadu.DTO.csproj" />
+    <ProjectReference Include="..\Kakadu.Common\Kakadu.Common.csproj" />
   </ItemGroup>
 
   <ItemGroup>
