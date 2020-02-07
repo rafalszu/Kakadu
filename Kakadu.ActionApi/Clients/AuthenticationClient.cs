@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Kakadu.ActionApi.Configuration;
 using Kakadu.ActionApi.Interfaces;
+using Kakadu.Common.HttpClients;
 using Kakadu.DTO;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -12,7 +13,7 @@ using Newtonsoft.Json;
 
 namespace Kakadu.ActionApi.Clients
 {
-    public class AuthenticationClient : ClientBase, IAuthenticationClient
+    public class AuthenticationClient : HttpClientBase, IAuthenticationClient
     {
         private readonly HttpClient _httpClient;
         private readonly ILogger<AuthenticationClient> _logger;

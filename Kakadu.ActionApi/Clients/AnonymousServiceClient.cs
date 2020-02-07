@@ -3,14 +3,14 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Kakadu.ActionApi.Interfaces;
+using Kakadu.Common.HttpClients;
 using Kakadu.DTO;
 using LazyCache;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 
 namespace Kakadu.ActionApi.Clients
 {
-    public class AnonymousServiceClient : ClientBase, IAnonymousServiceClient
+    public class AnonymousServiceClient : HttpClientBase, IAnonymousServiceClient
     {
         private readonly IAppCache _cache;
 

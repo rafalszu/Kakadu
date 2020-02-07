@@ -3,14 +3,15 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Kakadu.ActionApi.Interfaces;
+using Kakadu.Common.HttpClients;
 using LazyCache;
 using Microsoft.Extensions.Logging;
 
 namespace Kakadu.ActionApi.Clients
 {
-    public class ActionApiClient : ClientBase, IActionApiClient
+    public class ActionApiClient : HttpClientBase, IActionApiClient
     {
-        public ActionApiClient(HttpClient client, ILogger<ClientBase> logger, IAppCache cache) : base(client, logger)
+        public ActionApiClient(HttpClient client, ILogger<HttpClientBase> logger, IAppCache cache) : base(client, logger)
         {
         }
 
