@@ -15,9 +15,9 @@ using Kakadu.ActionApi.Configuration;
 using Kakadu.ActionApi.Interfaces;
 using Kakadu.ActionApi.Clients;
 using Kakadu.ActionApi.Handlers;
-using Kakadu.ActionApi.Middleware;
 using LazyCache;
 using Kakadu.ActionApi.Services;
+using Kakadu.Common.Middleware;
 
 namespace Kakadu.ActionApi
 {
@@ -93,7 +93,7 @@ namespace Kakadu.ActionApi
             {
                 app.UseDeveloperExceptionPage();
             }
-            app.UseMiddleware<HttpExceptionHandler>();
+            app.UseMiddleware<HttpResponseExceptionHandler>();
 
             app.UseHttpsRedirection();
 
