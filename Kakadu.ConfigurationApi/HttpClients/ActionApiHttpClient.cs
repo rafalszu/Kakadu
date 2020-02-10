@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,9 +14,18 @@ namespace Kakadu.ConfigurationApi.HttpClients
         private readonly ILogger<ActionApiHttpClient> _logger;
         public ActionApiHttpClient(HttpClient httpClient, ILogger<ActionApiHttpClient> logger) : base(httpClient, logger) => _logger = logger;
 
-        public Task<bool> StartRecording(string url, CancellationToken cancellationToken)
+        public async Task<bool> StartRecording(string host, string serviceCode, string accessToken, CancellationToken cancellationToken)
         {
-            return Task.FromResult(false);
+            var uri = new Uri(string.Format("{0}{1}api/v1/record/start/{2}", 
+                host,
+                host.EndsWith('/') ? string.Empty : "/",
+                serviceCode), UriKind.Absolute);
+
+            this.CustomRequestHeaders = new Dictionary<string, IEnumerable<string>> {
+                { "Authorization", new List<string> { accessToken } }
+            };
+
+            return await this.GetAsync<bool>(uri, cancellationToken);
         }
     }
 }
