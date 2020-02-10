@@ -37,7 +37,7 @@ namespace Kakadu.ActionApi.Controllers
             if(!HttpContext.Request.Headers.TryGetValue("Authorization", out StringValues authToken))
                 throw new HttpBadRequestException("missing authorization header");
 
-            string recordCacheKey = $"{serviceCode}|{KakaduConstants.RECORD}";
+            string recordCacheKey = KakaduConstants.GetRecordKey(serviceCode);
 
             // verify bearer token from headers with configuration api
             var isValid = await _serviceClient.ValidateTokenAsync(authToken, cancellationToken);
@@ -66,7 +66,7 @@ namespace Kakadu.ActionApi.Controllers
             if(!HttpContext.Request.Headers.TryGetValue("Authorization", out StringValues authToken))
                 throw new HttpBadRequestException("missing authorization header");
 
-            string recordCacheKey = $"{serviceCode}|{KakaduConstants.RECORD}";
+            string recordCacheKey = KakaduConstants.GetRecordKey(serviceCode);
 
             // verify bearer token from headers with configuration api
             var isValid = await _serviceClient.ValidateTokenAsync(authToken, cancellationToken);
