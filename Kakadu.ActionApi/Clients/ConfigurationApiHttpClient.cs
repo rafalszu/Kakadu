@@ -9,9 +9,9 @@ using Microsoft.Extensions.Logging;
 
 namespace Kakadu.ActionApi.Clients
 {
-    public class ActionApiClient : HttpClientBase, IActionApiClient
+    public class ConfigurationApiHttpClient : HttpClientBase, IConfigurationApiHttpClient
     {
-        public ActionApiClient(HttpClient client, ILogger<HttpClientBase> logger, IAppCache cache) : base(client, logger)
+        public ConfigurationApiHttpClient(HttpClient client, ILogger<HttpClientBase> logger, IAppCache cache) : base(client, logger)
         {
         }
 

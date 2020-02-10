@@ -21,7 +21,7 @@ namespace Kakadu.ActionApi.Services
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            var service = _serviceProvider.GetRequiredService<IActionApiClient>();
+            var service = _serviceProvider.GetRequiredService<IConfigurationApiHttpClient>();
             string url = _configuration[WebHostDefaults.ServerUrlsKey];
             
             await service.Register(url, cancellationToken);
@@ -29,7 +29,7 @@ namespace Kakadu.ActionApi.Services
 
         public async Task StopAsync(CancellationToken cancellationToken)
         {
-            var service = _serviceProvider.GetRequiredService<IActionApiClient>();
+            var service = _serviceProvider.GetRequiredService<IConfigurationApiHttpClient>();
 
             string url = _configuration[WebHostDefaults.ServerUrlsKey];
             await service.Unregister(url, cancellationToken);
