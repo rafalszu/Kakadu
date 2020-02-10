@@ -68,8 +68,7 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
         }
 
         [HttpPost("validate")]
-        public ActionResult Validate() => Ok();
-        // since we're here without exceptions, middleware validated it -> return ok
-            
+        public ActionResult Validate() => Ok("true");
+        // since we're here without exceptions, middleware validated it -> return ok            
     }
 }
