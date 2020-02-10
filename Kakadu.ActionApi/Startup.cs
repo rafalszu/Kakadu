@@ -13,7 +13,7 @@ using Microsoft.Extensions.Logging;
 using AspNetCore.Proxy;
 using Kakadu.ActionApi.Configuration;
 using Kakadu.ActionApi.Interfaces;
-using Kakadu.ActionApi.Clients;
+using Kakadu.ActionApi.HttpClients;
 using Kakadu.ActionApi.Handlers;
 using LazyCache;
 using Kakadu.ActionApi.Services;

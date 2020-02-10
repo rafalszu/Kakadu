@@ -9,7 +9,7 @@ using Kakadu.DTO;
 using LazyCache;
 using Microsoft.Extensions.Logging;
 
-namespace Kakadu.ActionApi.Clients
+namespace Kakadu.ActionApi.HttpClients
 {
     public class AnonymousServiceHttpClient : HttpClientBase, IAnonymousServiceHttpClient
     {

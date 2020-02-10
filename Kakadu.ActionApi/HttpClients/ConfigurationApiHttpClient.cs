@@ -7,7 +7,7 @@ using Kakadu.Common.HttpClients;
 using LazyCache;
 using Microsoft.Extensions.Logging;
 
-namespace Kakadu.ActionApi.Clients
+namespace Kakadu.ActionApi.HttpClients
 {
     public class ConfigurationApiHttpClient : HttpClientBase, IConfigurationApiHttpClient
     {

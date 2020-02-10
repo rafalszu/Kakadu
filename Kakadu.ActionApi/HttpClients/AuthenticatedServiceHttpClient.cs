@@ -9,7 +9,7 @@ using LazyCache;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
-namespace Kakadu.ActionApi.Clients
+namespace Kakadu.ActionApi.HttpClients
 {
     public class AuthenticatedServiceHttpClient : AnonymousServiceHttpClient, IAuthenticatedServiceHttpClient
     {

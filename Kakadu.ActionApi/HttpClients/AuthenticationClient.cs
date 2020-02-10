@@ -11,7 +11,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 
-namespace Kakadu.ActionApi.Clients
+namespace Kakadu.ActionApi.HttpClients
 {
     // public class AuthenticationClient : HttpClientBase, IAuthenticationClient
     // {
