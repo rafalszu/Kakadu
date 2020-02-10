@@ -43,7 +43,7 @@ namespace Kakadu.ActionApi.Controllers
             var isValid = await _serviceClient.ValidateTokenAsync(authToken, cancellationToken);
             if(isValid)
             {
-                _cache.Add(KakaduConstants.ACCESS_TOKEN, authToken, new Microsoft.Extensions.Caching.Memory.MemoryCacheEntryOptions {
+                _cache.Add(KakaduConstants.ACCESS_TOKEN, authToken.ToString(), new Microsoft.Extensions.Caching.Memory.MemoryCacheEntryOptions {
                     AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10) 
                 });
 
