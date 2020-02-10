@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Kakadu.ActionApi.Interfaces;
 using Kakadu.DTO;
 using System.Threading;
+using LazyCache;
 
 namespace Kakadu.ActionApi.Controllers
 {
@@ -18,7 +19,8 @@ namespace Kakadu.ActionApi.Controllers
     {
         private readonly ILogger<RestController> _logger;
 
-        public RestController(ILogger<RestController> logger, IAnonymousServiceClient serviceClient) : base(logger, serviceClient) => _logger = logger;
+        public RestController(ILogger<RestController> logger, IAnonymousServiceClient anonymousServiceClient, IAuthenticatedServiceClient authenticatedServiceClient, IAppCache cache) 
+            : base(logger, anonymousServiceClient, authenticatedServiceClient, cache) => _logger = logger;
 
         [HttpGet]
         [HttpPost]

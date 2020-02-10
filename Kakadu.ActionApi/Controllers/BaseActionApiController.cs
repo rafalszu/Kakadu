@@ -16,6 +16,8 @@ using Kakadu.DTO;
 using Microsoft.Extensions.Primitives;
 using Kakadu.ActionApi.Interfaces;
 using System.Threading;
+using Kakadu.DTO.Constants;
+using LazyCache;
 
 [assembly: InternalsVisibleTo("Kakadu.ActionApi.Tests")]
 namespace Kakadu.ActionApi.Controllers
@@ -23,48 +25,73 @@ namespace Kakadu.ActionApi.Controllers
     public abstract class BaseActionApiController : ControllerBase
     {
         private readonly ILogger<BaseActionApiController> _logger;
-        private readonly IAnonymousServiceClient _serviceClient;
+        private readonly IAnonymousServiceClient _anonymousServiceClient;
+        private readonly IAuthenticatedServiceClient _authenticatedServiceClient;
+        private readonly IAppCache _cache;
 
-        public BaseActionApiController(ILogger<BaseActionApiController> logger, IAnonymousServiceClient serviceClient)
+        public BaseActionApiController(ILogger<BaseActionApiController> logger, 
+                                       IAnonymousServiceClient anonymousServiceClient,
+                                       IAuthenticatedServiceClient authenticatedServiceClient,
+                                       IAppCache cache)
         {
             _logger = logger;
-            _serviceClient = serviceClient;
+            _anonymousServiceClient = anonymousServiceClient;
+            _authenticatedServiceClient = authenticatedServiceClient;
+            _cache = cache;
         }
 
         public abstract KnownRouteDTO GetKnownRoute(ServiceDTO service, string relativePath, string action = "");
 
         [NonAction]
-        public async Task ProxyCall(string serviceCode, string relativePath, CancellationToken cancellationToken, bool saveResponse = false)
+        public async Task ProxyCall(string serviceCode, string relativePath, CancellationToken cancellationToken)
         {
             if(string.IsNullOrWhiteSpace(serviceCode))
                 throw new ArgumentNullException(serviceCode);
             if(string.IsNullOrWhiteSpace(relativePath))
                 throw new Exception($"No service found by given code: '{serviceCode}'");
 
-            var service = await _serviceClient.GetByCodeAsync(serviceCode, cancellationToken);
+            var service = await _anonymousServiceClient.GetByCodeAsync(serviceCode, cancellationToken);
 
             var options = ProxyOptions.Instance
                 .WithHttpClientName("KakaduVirtualizationClient")
                 .WithShouldAddForwardedHeaders(true)
                 .WithIntercept(async (context) => await InterceptKnownRouteAsync(context, relativePath, service))                
                 //.WithBeforeSend
-                .WithAfterReceive((context, response) => {
+                .WithAfterReceive(async (context, response) => {
+                    bool saveResponse = ShouldSaveResponse(serviceCode);
                     if(saveResponse) {
                         _logger.LogInformation($"Saving response from {relativePath}");
 
-                        // TODO: try match already existing knownroute and update it just-received data
-                        // (serviceModel.KnownRoutes ??= new List<KnownRouteModel>()).Add(response.ToKnownRoute());
-                        // dataProvider.UpdateService(serviceModel);
+                        var dto = response.ToKnownRouteDTO();
+                        await StoreReply(dto);
 
-                        _logger.LogInformation($"{service.Code} known routes updated");
+                        _logger.LogInformation($"{service.Code} known routes stored");
                     }
 
-                    return Task.CompletedTask;
+                    //return Task.CompletedTask;
                 });
 
             var url = CombinePaths(service.Address.AbsoluteUri, relativePath);
 
             await this.ProxyAsync(url, options);
+        }
+
+        private async Task StoreReply(KnownRouteDTO dto)
+        {
+            if(dto == null)
+                throw new ArgumentNullException(nameof(dto));
+
+            await _authenticatedServiceClient.StoreReply(dto); // this can throw 401 or something
+        }
+
+        private bool ShouldSaveResponse(string serviceCode)
+        {
+            if(string.IsNullOrWhiteSpace(serviceCode))
+                throw new ArgumentNullException(nameof(serviceCode));
+
+            var recordCacheKey = KakaduConstants.GetRecordKey(serviceCode);
+            
+            return _cache.Get<bool?>(recordCacheKey) ?? false;
         }
 
         private async Task<bool> InterceptKnownRouteAsync(HttpContext context, string relativePath, ServiceDTO dto)

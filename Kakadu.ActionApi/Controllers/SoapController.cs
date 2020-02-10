@@ -9,6 +9,7 @@ using Kakadu.ActionApi.Extensions;
 using Kakadu.ActionApi.Interfaces;
 using Kakadu.DTO;
 using System.Threading;
+using LazyCache;
 
 namespace Kakadu.ActionApi.Controllers
 {
@@ -19,7 +20,8 @@ namespace Kakadu.ActionApi.Controllers
     {
         private readonly ILogger<SoapController> _logger;
 
-        public SoapController(ILogger<SoapController> logger, IAnonymousServiceClient serviceClient) : base(logger, serviceClient) => _logger = logger;
+        public SoapController(ILogger<SoapController> logger, IAnonymousServiceClient anonymousServiceClient, IAuthenticatedServiceClient authenticatedServiceClient, IAppCache cache) 
+            : base(logger, anonymousServiceClient, authenticatedServiceClient, cache) => _logger = logger;
 
         [Route("{**catchAll}")]
         [HttpPost]
