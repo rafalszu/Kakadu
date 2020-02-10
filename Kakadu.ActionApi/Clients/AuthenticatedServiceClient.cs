@@ -5,6 +5,7 @@ using Kakadu.ActionApi.Interfaces;
 using Kakadu.DTO;
 using Kakadu.DTO.Constants;
 using LazyCache;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 namespace Kakadu.ActionApi.Clients
@@ -15,6 +16,11 @@ namespace Kakadu.ActionApi.Clients
         {
             string accessToken = cache.Get<string>(KakaduConstants.ACCESS_TOKEN);
             client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+        }
+
+        public async Task StoreRecoredReplies()
+        {
+            // TODO: send recorded replies to config api
         }
     }
 }
