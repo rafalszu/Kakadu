@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -15,6 +17,8 @@ namespace Kakadu.Common.HttpClients
     {
         private readonly HttpClient _httpClient;
         private readonly ILogger<HttpClientBase> _logger;
+
+        public Dictionary<string, IEnumerable<string>> CustomRequestHeaders { get; set; }
 
         public HttpClientBase(HttpClient client, ILogger<HttpClientBase> logger)
         {
@@ -48,6 +52,11 @@ namespace Kakadu.Common.HttpClients
                 using(var httpContent = CreateHttpContent(obj))
                 {
                     request.Content = httpContent;
+                    if(CustomRequestHeaders != null && CustomRequestHeaders.Keys.Any())
+                    {
+                        foreach(var customHeader in CustomRequestHeaders.Keys)
+                            request.Headers.Add(customHeader, CustomRequestHeaders[customHeader]);
+                    }
 
                     using(var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false))
                     {
