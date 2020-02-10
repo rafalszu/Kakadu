@@ -51,7 +51,7 @@ namespace Kakadu.ActionApi.Controllers
                     Priority = Microsoft.Extensions.Caching.Memory.CacheItemPriority.NeverRemove
                 });
 
-                return Ok();
+                return Ok(true);
             }
 
             return Unauthorized();
@@ -73,7 +73,7 @@ namespace Kakadu.ActionApi.Controllers
             if(isValid)
             {
                 _cache.Remove(recordCacheKey);
-                return Ok();
+                return Ok(true);
             }
             
             return Unauthorized();
