@@ -38,6 +38,29 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
             if (string.IsNullOrWhiteSpace(serviceCode))
                 throw new ArgumentNullException(nameof(serviceCode));
 
+            return await ToggleRecording(
+                apiCall: async (instance, accessToken) => {
+                    return await _actionApiHttpClient.StartRecordingAsync(instance, serviceCode, accessToken, cancellationToken);
+                },
+                cancellationToken: cancellationToken
+            );
+        }
+
+        [HttpPost("stop/{serviceCode}")]
+        public async Task<ActionResult> StopRecording(string serviceCode, CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrWhiteSpace(serviceCode))
+                throw new ArgumentNullException(nameof(serviceCode));
+
+            return await ToggleRecording(
+                apiCall: async(instance, accessToken) => {
+                    return await _actionApiHttpClient.StopRecordingAsync(instance, serviceCode, accessToken, cancellationToken);
+                },
+                cancellationToken: cancellationToken);
+        }
+
+        private async Task<ActionResult> ToggleRecording(Func<string, string, Task<bool>> apiCall, CancellationToken cancellationToken)
+        {
             List<string> instances = await _cache.GetAsync<List<string>>(KakaduConstants.ACTIONAPI_INSTANCES);
             if (instances == null || !instances.Any())
                 throw new HttpResponseException(HttpStatusCode.UnprocessableEntity, "No Action API instances registered within Configuration API. Ensure at least Action API instance is running and can connect to Configuration API");
@@ -46,7 +69,11 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
                 throw new HttpBadRequestException("missing authorization header");
 
             var tasks = Task.WhenAll(
-                instances.Select(instance => StartRecordingOnActionApi(instance, serviceCode, authToken, cancellationToken))
+                instances.Select(instance => 
+                    CallActionApi(async () => {
+                        return await apiCall(instance, authToken);
+                    })
+                )
             );
 
             List<string> errors = new List<string>();
@@ -65,34 +92,19 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
             return Ok(errors);
         }
 
-        private async Task<bool> StartRecordingOnActionApi(string instance, string serviceCode, string accessToken, CancellationToken cancellationToken)
+        private async Task<bool> CallActionApi(Func<Task<bool>> func)
         {
-            if (string.IsNullOrWhiteSpace(instance))
-                throw new ArgumentNullException(nameof(instance));
+            if(func == null)
+                throw new ArgumentNullException(nameof(func));
 
             try
             {
-                return await _actionApiHttpClient.StartRecording(instance, serviceCode, accessToken, cancellationToken);
+                return await func();
             }
             catch (Exception ex)
             {
-                throw new Exception($"Unable to start recording on node '{instance}': {ex.Message}");
+                throw new Exception($"Unable to start recording: {ex.Message}");
             }
-        }
-
-        [HttpPost("stop/{serviceCode}")]
-        public async Task<ActionResult> StopRecording(string serviceCode)
-        {
-            if (string.IsNullOrWhiteSpace(serviceCode))
-                throw new ArgumentNullException(nameof(serviceCode));
-
-            List<string> instances = await _cache.GetAsync<List<string>>(KakaduConstants.ACTIONAPI_INSTANCES);
-            if (instances == null || !instances.Any())
-                throw new HttpResponseException(HttpStatusCode.UnprocessableEntity, "No Action API instances registered within Configuration API. Ensure at least Action API instance is running and can connect to Configuration API");
-
-            // TODO: send request to each action api to stop reporting back routes
-
-            return Ok();
         }
     }
 }
