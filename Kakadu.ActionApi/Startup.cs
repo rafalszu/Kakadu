@@ -95,7 +95,7 @@ namespace Kakadu.ActionApi
             }
             app.UseMiddleware<HttpResponseExceptionHandler>();
 
-            app.UseHttpsRedirection();
+            // app.UseHttpsRedirection();
 
             app.UseRouting();            
 
