@@ -44,14 +44,14 @@ namespace Kakadu.ActionApi
 
             services.AddControllers();
 
-            services.AddHttpClient<IAuthenticationClient, AuthenticationClient>(client => {
-                client.BaseAddress = new Uri(apiConfiguration.Address);
-                client.DefaultRequestHeaders.Add("Accept", "application/json");
-            });
+            // services.AddHttpClient<IAuthenticationClient, AuthenticationClient>(client => {
+            //     client.BaseAddress = new Uri(apiConfiguration.Address);
+            //     client.DefaultRequestHeaders.Add("Accept", "application/json");
+            // });
 
             // this would issue a new token on each call
             // services.AddTransient<ApiBearerTokenHandler>();
-            services.AddScoped<ApiBearerTokenHandler>();
+            // services.AddScoped<ApiBearerTokenHandler>();
             
             services.AddHttpClient<IAnonymousServiceClient, AnonymousServiceClient>(client => {
                 client.BaseAddress = new Uri(apiConfiguration.Address);
