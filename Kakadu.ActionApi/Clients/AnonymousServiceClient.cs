@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -25,6 +26,21 @@ namespace Kakadu.ActionApi.Clients
                 return await this.GetAsync<ServiceDTO>($"service/{serviceCode}", cancellationToken);
             });
             return dto;
+        }
+
+        public async Task<bool> ValidateTokenAsync(string accessToken, CancellationToken cancellationToken)
+        {
+            if(string.IsNullOrWhiteSpace(accessToken))
+                return false;
+
+            this.CustomRequestHeaders = new Dictionary<string, IEnumerable<string>> {
+                { 
+                    "Authorization", new List<string> { accessToken } 
+                }
+            };
+
+            var result = await this.PostAsync<bool>(null, "token/validate", cancellationToken);
+            return result;
         }
     }
 }
