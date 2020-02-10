@@ -18,6 +18,7 @@ using Kakadu.ActionApi.Interfaces;
 using System.Threading;
 using Kakadu.DTO.Constants;
 using LazyCache;
+using Kakadu.DTO.HttpExceptions;
 
 [assembly: InternalsVisibleTo("Kakadu.ActionApi.Tests")]
 namespace Kakadu.ActionApi.Controllers
@@ -63,9 +64,7 @@ namespace Kakadu.ActionApi.Controllers
                         _logger.LogInformation($"Saving response from {relativePath}");
 
                         var dto = response.ToKnownRouteDTO();
-                        await StoreReply(dto);
-
-                        _logger.LogInformation($"{service.Code} known routes stored");
+                        await StoreReply(serviceCode, dto, cancellationToken);
                     }
 
                     //return Task.CompletedTask;
@@ -76,12 +75,24 @@ namespace Kakadu.ActionApi.Controllers
             await this.ProxyAsync(url, options);
         }
 
-        private async Task StoreReply(KnownRouteDTO dto)
+        private async Task StoreReply(string serviceCode, KnownRouteDTO dto, CancellationToken cancellationToken)
         {
             if(dto == null)
                 throw new ArgumentNullException(nameof(dto));
 
-            await _authenticatedServiceClient.StoreReply(dto); // this can throw 401 or something
+            try
+            {
+                await _authenticatedServiceClient.StoreReply(serviceCode, dto, cancellationToken); // this can throw 401 or something
+                _logger.LogInformation($"{serviceCode} known routes stored");
+            }
+            catch(HttpResponseException ex)
+            {
+                _logger.LogError($"Unable to store reply: {ex.StatusCode}/{ex.Body}");
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(ex.Message);
+            }
         }
 
         private bool ShouldSaveResponse(string serviceCode)
