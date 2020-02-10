@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Kakadu.DTO;
+using Kakadu.DTO.Constants;
 using LazyCache;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -31,7 +32,7 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
             if(dto == null)
                 throw new ArgumentNullException();
 
-            string cachekey = $"{serviceCode}-foundroutes";
+            string cachekey = KakaduConstants.GetFoundRoutesKey(serviceCode);
             List<KnownRouteDTO> list = await _cache.GetAsync<List<KnownRouteDTO>>(cachekey);
             if(list == null)
                 list = new List<KnownRouteDTO>();
