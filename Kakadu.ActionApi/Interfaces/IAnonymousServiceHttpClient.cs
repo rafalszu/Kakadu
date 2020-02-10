@@ -4,7 +4,7 @@ using Kakadu.DTO;
 
 namespace Kakadu.ActionApi.Interfaces
 {
-    public interface IAnonymousServiceClient
+    public interface IAnonymousServiceHttpClient
     {
         Task<ServiceDTO> GetByCodeAsync(string serviceCode, CancellationToken cancellationToken);
 

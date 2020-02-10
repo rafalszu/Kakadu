@@ -11,7 +11,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Kakadu.ActionApi.Clients
 {
-    public class AuthenticatedServiceClient : AnonymousServiceClient, IAuthenticatedServiceClient
+    public class AuthenticatedServiceClient : AnonymousServiceHttpClient, IAuthenticatedServiceClient
     {
         private readonly ILogger<AuthenticatedServiceClient> _logger;
 

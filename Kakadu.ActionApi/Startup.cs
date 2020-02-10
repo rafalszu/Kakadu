@@ -53,7 +53,7 @@ namespace Kakadu.ActionApi
             // services.AddTransient<ApiBearerTokenHandler>();
             // services.AddScoped<ApiBearerTokenHandler>();
             
-            services.AddHttpClient<IAnonymousServiceClient, AnonymousServiceClient>(client => {
+            services.AddHttpClient<IAnonymousServiceHttpClient, AnonymousServiceHttpClient>(client => {
                 client.BaseAddress = new Uri(apiConfiguration.Address);
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
             }); //.AddHttpMessageHandler<ApiBearerTokenHandler>();

@@ -11,11 +11,11 @@ using Microsoft.Extensions.Logging;
 
 namespace Kakadu.ActionApi.Clients
 {
-    public class AnonymousServiceClient : HttpClientBase, IAnonymousServiceClient
+    public class AnonymousServiceHttpClient : HttpClientBase, IAnonymousServiceHttpClient
     {
         private readonly IAppCache _cache;
 
-        public AnonymousServiceClient(HttpClient httpClient, ILogger<AnonymousServiceClient> logger, IAppCache cache) : base(httpClient, logger) => _cache = cache;
+        public AnonymousServiceHttpClient(HttpClient httpClient, ILogger<AnonymousServiceHttpClient> logger, IAppCache cache) : base(httpClient, logger) => _cache = cache;
 
         public async Task<ServiceDTO> GetByCodeAsync(string serviceCode, CancellationToken cancellationToken)
         {

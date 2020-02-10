@@ -18,10 +18,10 @@ namespace Kakadu.ActionApi.Controllers
     public class RecordController : ControllerBase
     {
         private readonly ILogger<RecordController> _logger;
-        private readonly IAnonymousServiceClient _serviceClient;
+        private readonly IAnonymousServiceHttpClient _serviceClient;
         private readonly IAppCache _cache;
 
-        public RecordController(ILogger<RecordController> logger, IAnonymousServiceClient serviceClient, IAppCache cache)
+        public RecordController(ILogger<RecordController> logger, IAnonymousServiceHttpClient serviceClient, IAppCache cache)
         {
             _logger = logger;
             _serviceClient = serviceClient;
