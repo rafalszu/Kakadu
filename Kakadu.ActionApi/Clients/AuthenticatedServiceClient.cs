@@ -18,7 +18,7 @@ namespace Kakadu.ActionApi.Clients
             client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
         }
 
-        public async Task StoreRecoredReplies()
+        public async Task StoreReply()
         {
             // TODO: send recorded replies to config api
         }

@@ -5,6 +5,6 @@ namespace Kakadu.ActionApi.Interfaces
 {
     public interface IAuthenticatedServiceClient : IAnonymousServiceClient
     {
-        Task StoreRecoredReplies();
+        Task StoreReply();
     }
 }
