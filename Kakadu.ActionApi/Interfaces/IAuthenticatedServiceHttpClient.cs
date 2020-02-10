@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Kakadu.ActionApi.Interfaces
 {
-    public interface IAuthenticatedServiceClient : IAnonymousServiceHttpClient
+    public interface IAuthenticatedServiceHttpClient : IAnonymousServiceHttpClient
     {
         Task StoreReply(KnownRouteDTO dto);
     }

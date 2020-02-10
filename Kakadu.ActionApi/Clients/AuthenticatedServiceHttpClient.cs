@@ -11,11 +11,11 @@ using Microsoft.Extensions.Logging;
 
 namespace Kakadu.ActionApi.Clients
 {
-    public class AuthenticatedServiceClient : AnonymousServiceHttpClient, IAuthenticatedServiceClient
+    public class AuthenticatedServiceHttpClient : AnonymousServiceHttpClient, IAuthenticatedServiceHttpClient
     {
-        private readonly ILogger<AuthenticatedServiceClient> _logger;
+        private readonly ILogger<AuthenticatedServiceHttpClient> _logger;
 
-        public AuthenticatedServiceClient(HttpClient client, ILogger<AuthenticatedServiceClient> logger, IAppCache cache) : base(client, logger, cache)
+        public AuthenticatedServiceHttpClient(HttpClient client, ILogger<AuthenticatedServiceHttpClient> logger, IAppCache cache) : base(client, logger, cache)
         {
             _logger = logger;
 

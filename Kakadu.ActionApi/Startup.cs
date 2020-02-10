@@ -58,7 +58,7 @@ namespace Kakadu.ActionApi
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
             }); //.AddHttpMessageHandler<ApiBearerTokenHandler>();
 
-            services.AddHttpClient<IAuthenticatedServiceClient, AuthenticatedServiceClient>(client => {
+            services.AddHttpClient<IAuthenticatedServiceHttpClient, AuthenticatedServiceHttpClient>(client => {
                 client.BaseAddress = new Uri(apiConfiguration.Address);
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
             });

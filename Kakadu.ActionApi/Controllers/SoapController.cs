@@ -20,7 +20,7 @@ namespace Kakadu.ActionApi.Controllers
     {
         private readonly ILogger<SoapController> _logger;
 
-        public SoapController(ILogger<SoapController> logger, IAnonymousServiceHttpClient anonymousServiceClient, IAuthenticatedServiceClient authenticatedServiceClient, IAppCache cache) 
+        public SoapController(ILogger<SoapController> logger, IAnonymousServiceHttpClient anonymousServiceClient, IAuthenticatedServiceHttpClient authenticatedServiceClient, IAppCache cache) 
             : base(logger, anonymousServiceClient, authenticatedServiceClient, cache) => _logger = logger;
 
         [Route("{**catchAll}")]

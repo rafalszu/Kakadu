@@ -26,12 +26,12 @@ namespace Kakadu.ActionApi.Controllers
     {
         private readonly ILogger<BaseActionApiController> _logger;
         private readonly IAnonymousServiceHttpClient _anonymousServiceClient;
-        private readonly IAuthenticatedServiceClient _authenticatedServiceClient;
+        private readonly IAuthenticatedServiceHttpClient _authenticatedServiceClient;
         private readonly IAppCache _cache;
 
         public BaseActionApiController(ILogger<BaseActionApiController> logger, 
                                        IAnonymousServiceHttpClient anonymousServiceClient,
-                                       IAuthenticatedServiceClient authenticatedServiceClient,
+                                       IAuthenticatedServiceHttpClient authenticatedServiceClient,
                                        IAppCache cache)
         {
             _logger = logger;
