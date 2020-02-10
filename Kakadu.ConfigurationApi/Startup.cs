@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Kakadu.Common.Middleware;
+using Kakadu.ConfigurationApi.HttpClients;
+using Kakadu.ConfigurationApi.Interfaces;
 using Kakadu.ConfigurationApi.Settings;
 using Kakadu.Core;
 using LazyCache;
@@ -77,6 +79,10 @@ namespace Kakadu.ConfigurationApi
                 cache.DefaultCachePolicy.DefaultCacheDurationSeconds = 180;
 
                 return cache;
+            });
+
+            services.AddHttpClient<IActionApiHttpClient, ActionApiHttpClient>(client => {
+                client.DefaultRequestHeaders.Add("Accept", "application/json");
             });
 
             services.RegisterKakaduServices();
