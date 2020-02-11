@@ -287,7 +287,7 @@ namespace Kakadu.ActionApi.Tests
         }
 
             [Fact]
-            public void IntercepKnownRouteAsync_ThrowsExceptionForNullHttpContext()
+            public void IntercepKnownRouteAsync_ThrowsExceptionForNullParameters()
             {
                 var controller = new RestController(loggerMock.Object, anonymousServiceClientMock.Object, authenticatedServiceClientMock.Object, cacheMock.Object);
                 var service = new ServiceDTO();
@@ -301,6 +301,8 @@ namespace Kakadu.ActionApi.Tests
                 var task = (Task<bool>)method.Invoke(controller, new object[] { null, "/comments", service });
 
                 Assert.ThrowsAsync<ArgumentNullException>(async () => await task);
+
+                task = (Task<bool>)method.Invoke(controller, new object[] { null, "/comments", service });
             }
     }
 }
