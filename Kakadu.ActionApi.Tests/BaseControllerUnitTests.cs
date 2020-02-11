@@ -16,6 +16,7 @@ using System.Linq;
 using System.Collections.Generic;
 using Microsoft.Extensions.Primitives;
 using System.Threading.Tasks;
+using Kakadu.DTO;
 
 namespace Kakadu.ActionApi.Tests
 {
@@ -284,5 +285,22 @@ namespace Kakadu.ActionApi.Tests
 
             Assert.Equal("http://address/posts/comments", result);
         }
+
+            [Fact]
+            public void IntercepKnownRouteAsync_ThrowsExceptionForNullHttpContext()
+            {
+                var controller = new RestController(loggerMock.Object, anonymousServiceClientMock.Object, authenticatedServiceClientMock.Object, cacheMock.Object);
+                var service = new ServiceDTO();
+
+                var type = typeof(BaseActionApiController);
+
+                MethodInfo method = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
+                    .Where(x => x.Name == "InterceptKnownRouteAsync" && x.IsPrivate)
+                    .First();
+
+                var task = (Task<bool>)method.Invoke(controller, new object[] { null, "/comments", service });
+
+                Assert.ThrowsAsync<ArgumentNullException>(async () => await task);
+            }
     }
 }

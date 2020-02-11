@@ -12,10 +12,6 @@ using System.Threading;
 using System;
 using Kakadu.DTO;
 using System.Collections.Generic;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Primitives;
-using System.Linq;
 
 namespace Kakadu.ActionApi.Tests
 {
