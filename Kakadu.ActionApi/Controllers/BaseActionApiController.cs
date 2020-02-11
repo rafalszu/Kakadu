@@ -17,8 +17,9 @@ using Microsoft.Extensions.Primitives;
 using Kakadu.ActionApi.Interfaces;
 using System.Threading;
 using Kakadu.DTO.Constants;
-using LazyCache;
 using Kakadu.DTO.HttpExceptions;
+using Microsoft.Extensions.Caching.Distributed;
+using Kakadu.Common.Extensions;
 
 [assembly: InternalsVisibleTo("Kakadu.ActionApi.Tests")]
 namespace Kakadu.ActionApi.Controllers
@@ -28,12 +29,12 @@ namespace Kakadu.ActionApi.Controllers
         private readonly ILogger<BaseActionApiController> _logger;
         private readonly IAnonymousServiceHttpClient _anonymousServiceClient;
         private readonly IAuthenticatedServiceHttpClient _authenticatedServiceClient;
-        private readonly IAppCache _cache;
+        private readonly IDistributedCache _cache;
 
         public BaseActionApiController(ILogger<BaseActionApiController> logger, 
                                        IAnonymousServiceHttpClient anonymousServiceClient,
                                        IAuthenticatedServiceHttpClient authenticatedServiceClient,
-                                       IAppCache cache)
+                                       IDistributedCache cache)
         {
             _logger = logger;
             _anonymousServiceClient = anonymousServiceClient;
@@ -102,7 +103,7 @@ namespace Kakadu.ActionApi.Controllers
 
             var recordCacheKey = KakaduConstants.GetRecordKey(serviceCode);
             
-            return _cache.Get<bool?>(recordCacheKey) ?? false;
+            return _cache.GetAsync<bool?>(recordCacheKey).GetAwaiter().GetResult() ?? false;
         }
 
         private async Task<bool> InterceptKnownRouteAsync(HttpContext context, string relativePath, ServiceDTO dto)

@@ -10,17 +10,18 @@ using Kakadu.ActionApi.Interfaces;
 using Kakadu.DTO;
 using System.Threading;
 using LazyCache;
+using Microsoft.Extensions.Caching.Distributed;
 
 namespace Kakadu.ActionApi.Controllers
 {
     [ApiController]
-    [Consumes("text/xml")] // application/soap+xml, application/soap, application/xml, text/xml
+    [Consumes("text/xml", "application/soap+xml", "application/soap", "application/xml", "text/xml")]
     [Route("soap/{serviceCode}")]
     public class SoapController : BaseActionApiController
     {
         private readonly ILogger<SoapController> _logger;
 
-        public SoapController(ILogger<SoapController> logger, IAnonymousServiceHttpClient anonymousServiceClient, IAuthenticatedServiceHttpClient authenticatedServiceClient, IAppCache cache) 
+        public SoapController(ILogger<SoapController> logger, IAnonymousServiceHttpClient anonymousServiceClient, IAuthenticatedServiceHttpClient authenticatedServiceClient, IDistributedCache cache) 
             : base(logger, anonymousServiceClient, authenticatedServiceClient, cache) => _logger = logger;
 
         [Route("{**catchAll}")]

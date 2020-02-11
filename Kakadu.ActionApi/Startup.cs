@@ -1,21 +1,14 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using AspNetCore.Proxy;
 using Kakadu.ActionApi.Configuration;
 using Kakadu.ActionApi.Interfaces;
 using Kakadu.ActionApi.HttpClients;
-using Kakadu.ActionApi.Handlers;
-using LazyCache;
 using Kakadu.ActionApi.Services;
 using Kakadu.Common.Middleware;
 
@@ -68,12 +61,7 @@ namespace Kakadu.ActionApi
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
             });
 
-            services.AddLazyCache(a => {
-                var cache = new CachingService();
-                cache.DefaultCachePolicy.DefaultCacheDurationSeconds = 180;
-
-                return cache;
-            });
+            services.AddDistributedMemoryCache();
 
             services.AddApiVersioning(options => {
                 options.ReportApiVersions = true;

@@ -9,6 +9,7 @@ using Kakadu.ActionApi.Interfaces;
 using Kakadu.DTO;
 using System.Threading;
 using LazyCache;
+using Microsoft.Extensions.Caching.Distributed;
 
 namespace Kakadu.ActionApi.Controllers
 {
@@ -19,7 +20,7 @@ namespace Kakadu.ActionApi.Controllers
     {
         private readonly ILogger<RestController> _logger;
 
-        public RestController(ILogger<RestController> logger, IAnonymousServiceHttpClient anonymousServiceClient, IAuthenticatedServiceHttpClient authenticatedServiceClient, IAppCache cache) 
+        public RestController(ILogger<RestController> logger, IAnonymousServiceHttpClient anonymousServiceClient, IAuthenticatedServiceHttpClient authenticatedServiceClient, IDistributedCache cache) 
             : base(logger, anonymousServiceClient, authenticatedServiceClient, cache) => _logger = logger;
 
         [HttpGet]
@@ -51,61 +52,4 @@ namespace Kakadu.ActionApi.Controllers
             return service.KnownRoutes?.FirstOrDefault(r => !string.IsNullOrWhiteSpace(r.RelativeUrl) && r.RelativeUrl.Equals(relativePath, StringComparison.InvariantCultureIgnoreCase));
         }
     }
-    
-    
-    //     private async Task<bool> InterceptKnownRouteAsync(HttpContext context)
-    //     {
-    //         var knownRoute = service.KnownRoutes?.FirstOrDefault(r => !string.IsNullOrWhiteSpace(r.RelativeUrl) && r.RelativeUrl.Equals(relativeUrl, StringComparison.InvariantCultureIgnoreCase));
-    //         if(knownRoute != null)
-    //         {
-    //             _logger.LogInformation($"Found known route for '{relativeUrl}', intercepting http call");
-
-    //             var knownResponse = knownRoute.Replies?.FirstOrDefault();
-    //             if(knownResponse != null) 
-    //             {
-    //                 _logger.LogInformation($"Found matching response for '{relativeUrl}' request");
-
-    //                 if(knownResponse.Headers?.Any() ?? false)
-    //                 {
-    //                     foreach(var headerKey in knownResponse.Headers.Keys)
-    //                         context.Response.Headers[headerKey] = knownResponse.Headers[headerKey];
-    //                 }
-
-    //                 context.Response.StatusCode = knownResponse.StatusCode;
-    //                 context.Response.ContentType = knownResponse.ContentTypeString;
-    //                 context.Response.ContentLength = knownResponse.ContentLength;
-    //                 if(!string.IsNullOrWhiteSpace(knownResponse.ContentEncoding))
-    //                     context.Response.Headers["Content-Encoding"] = knownResponse.ContentEncoding;
-
-    //                 await context.Response.Body.WriteAsync(knownResponse.ContentRaw, 0, knownResponse.ContentRaw.Length);
-
-    //                 return true;
-    //             }
-                
-    //             // no replies stored, can passthrough the call?
-    //             if(service.UnkownRoutesPassthrough)
-    //             {
-    //                 _logger.LogInformation($"No responses found for '{relativeUrl}', passing http call through");
-    //                 return false;
-    //             }
-
-    //             // intercept call, return 200 with no content
-    //             _logger.LogInformation($"No respones found for '{relativeUrl}', can't pass through as configured; returning NoContent");
-    //             context.Response.StatusCode = 200;
-    //             return true;
-    //         }
-            
-    //         // route not known, but dont intercept and play ball
-    //         if(service.UnkownRoutesPassthrough)
-    //         {
-    //             _logger.LogInformation($"No known routes found for '{relativeUrl}', passign http call through");
-    //             return false;
-    //         }
-
-    //         // route not known, no passthrough, intercept with 404
-    //         _logger.LogInformation($"No known routes found for '{relativeUrl}', can't pass through as configured; returning NotFound");
-    //         context.Response.StatusCode = 404;
-    //         return true;
-    //     }
-    // }
 }
