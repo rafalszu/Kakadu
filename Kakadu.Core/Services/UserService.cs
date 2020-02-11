@@ -22,7 +22,7 @@ namespace Kakadu.Core.Services
         {
             var user = _instance.SingleOrDefault<UserModel>(x => x.Username == username);
             if(user == null)
-                throw new Exception("No user found");
+                return null;
 
             if(BCrypt.Net.BCrypt.Verify(password, user.Password))
                 return user;
