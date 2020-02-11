@@ -299,10 +299,14 @@ namespace Kakadu.ActionApi.Tests
                     .First();
 
                 var task = (Task<bool>)method.Invoke(controller, new object[] { null, "/comments", service });
-
                 Assert.ThrowsAsync<ArgumentNullException>(async () => await task);
 
-                task = (Task<bool>)method.Invoke(controller, new object[] { null, "/comments", service });
+                var response = new Mock<HttpResponse>();
+                task = (Task<bool>)method.Invoke(controller, new object[] { response.Object, null, service });
+                Assert.ThrowsAsync<ArgumentNullException>(async () => await task);
+
+                task = (Task<bool>)method.Invoke(controller, new object[] { response.Object, "/comments", null });
+                Assert.ThrowsAsync<ArgumentNullException>(async () => await task);
             }
     }
 }

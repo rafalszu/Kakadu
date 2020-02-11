@@ -57,7 +57,7 @@ namespace Kakadu.ActionApi.Controllers
             var options = ProxyOptions.Instance
                 .WithHttpClientName("KakaduVirtualizationClient")
                 .WithShouldAddForwardedHeaders(true)
-                .WithIntercept(async (context) => await InterceptKnownRouteAsync(context, relativePath, service))                
+                .WithIntercept(async (context) => await InterceptKnownRouteAsync(context.Response, relativePath, service))                
                 //.WithBeforeSend
                 .WithAfterReceive(async (context, response) => {
                     bool saveResponse = ShouldSaveResponse(serviceCode);
@@ -106,8 +106,15 @@ namespace Kakadu.ActionApi.Controllers
             return _cache.GetAsync<bool?>(recordCacheKey).GetAwaiter().GetResult() ?? false;
         }
 
-        private async Task<bool> InterceptKnownRouteAsync(HttpContext context, string relativePath, ServiceDTO dto)
+        private async Task<bool> InterceptKnownRouteAsync(HttpResponse httpResponse, string relativePath, ServiceDTO dto)
         {
+            if(httpResponse == null)
+                throw new ArgumentNullException(nameof(httpResponse));
+            if(string.IsNullOrWhiteSpace(relativePath))
+                throw new ArgumentNullException(nameof(relativePath));
+            if(dto == null)
+                throw new ArgumentNullException(nameof(dto));
+
             var knownRoute = GetKnownRoute(dto, relativePath, GetSoapActionHeader(Request.Headers));
             if(knownRoute != null)
             {
@@ -121,16 +128,16 @@ namespace Kakadu.ActionApi.Controllers
                     if(knownResponse.Headers?.Any() ?? false)
                     {
                         foreach(var headerKey in knownResponse.Headers.Keys)
-                            context.Response.Headers[headerKey] = knownResponse.Headers[headerKey];
+                            httpResponse.Headers[headerKey] = knownResponse.Headers[headerKey];
                     }
 
-                    context.Response.StatusCode = knownResponse.StatusCode;
-                    context.Response.ContentType = knownResponse.ContentTypeString;
-                    context.Response.ContentLength = knownResponse.ContentLength;
+                    httpResponse.StatusCode = knownResponse.StatusCode;
+                    httpResponse.ContentType = knownResponse.ContentTypeString;
+                    httpResponse.ContentLength = knownResponse.ContentLength;
                     if(!string.IsNullOrWhiteSpace(knownResponse.ContentEncoding))
-                        context.Response.Headers["Content-Encoding"] = knownResponse.ContentEncoding;
+                        httpResponse.Headers["Content-Encoding"] = knownResponse.ContentEncoding;
 
-                    await context.Response.Body.WriteAsync(knownResponse.ContentRaw, 0, knownResponse.ContentRaw.Length);
+                    await httpResponse.Body.WriteAsync(knownResponse.ContentRaw, 0, knownResponse.ContentRaw.Length);
 
                     return true;
                 }
@@ -144,7 +151,7 @@ namespace Kakadu.ActionApi.Controllers
 
                 // intercept call, return 200 with no content
                 _logger.LogInformation($"No respones found for '{relativePath}', can't pass through as configured; returning NoContent");
-                context.Response.StatusCode = 200;
+                httpResponse.StatusCode = 200;
                 return true;
             }
             
@@ -157,7 +164,7 @@ namespace Kakadu.ActionApi.Controllers
 
             // route not known, no passthrough, intercept with 404
             _logger.LogInformation($"No known routes found for '{relativePath}', can't pass through as configured; returning NotFound");
-            context.Response.StatusCode = 404;
+            httpResponse.StatusCode = 404;
             return true;
         }
 
