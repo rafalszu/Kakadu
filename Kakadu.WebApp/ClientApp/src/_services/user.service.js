@@ -13,7 +13,7 @@ function login(username, password) {
         body: JSON.stringify({ username, password })
     };
 
-    return fetch(`/users/authenticate`, requestOptions)
+    return fetch(`${process.env.REACT_APP_API_URL}/token/authenticate`, requestOptions)
         .then(handleResponse)
         .then(user => {
             // login successful if there's a jwt token in the response
@@ -37,7 +37,7 @@ function getAll() {
         headers: authHeader()
     };
 
-    return fetch(`/users`, requestOptions).then(handleResponse);
+    return fetch(`${process.env.REACT_APP_API_URL}/users`, requestOptions).then(handleResponse);
 }
 
 function handleResponse(response) {
