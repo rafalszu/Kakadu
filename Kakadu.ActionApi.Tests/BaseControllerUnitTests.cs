@@ -13,7 +13,7 @@ namespace Kakadu.ActionApi.Tests
         [Fact]
         public void GetRequestBodyAsync_Returns_Content_For_POST()
         {
-            BaseController controller = new BaseController(null);
+            BaseActionApiController controller = new BaseActionApiController(null, null, null, null);
 
             string httpRequestMethod = "POST";
             Stream body = new MemoryStream(Encoding.UTF8.GetBytes(@"
@@ -39,7 +39,7 @@ namespace Kakadu.ActionApi.Tests
         [Fact]
         public void GetRequestBodyAsync_Returns_EmptyString_For_GET()
         {
-            BaseController controller = new BaseController(null);
+            BaseActionApiController controller = new BaseActionApiController(null);
 
             string httpRequestMethod = "GET";
             Stream body = new MemoryStream(Encoding.UTF8.GetBytes(@"
@@ -65,7 +65,7 @@ namespace Kakadu.ActionApi.Tests
         [Fact]
         public void GetRequestBodyAsync_ThrowsException_WhenStream_Is_Null()
         {
-            BaseController controller = new BaseController(null);
+            BaseActionApiController controller = new BaseActionApiController(null);
 
             Assert.ThrowsAsync<ArgumentNullException>(() => controller.GetRequestBodyAsync("POST", null));
         }
@@ -73,7 +73,7 @@ namespace Kakadu.ActionApi.Tests
         [Fact]
         public void GetRequestBodyAsync_ThrowsException_WhenMethod_Is_Null()
         {
-            BaseController controller = new BaseController(null);
+            BaseActionApiController controller = new BaseActionApiController(null);
 
             Assert.ThrowsAsync<ArgumentNullException>(() => controller.GetRequestBodyAsync(null, null));
         }
@@ -81,7 +81,7 @@ namespace Kakadu.ActionApi.Tests
         [Fact]
         public void CombinePaths_Throws_Exception_When_Param1_IsNull_Or_Whitespace()
         {
-            BaseController controller = new BaseController(null);
+            BaseActionApiController controller = new BaseActionApiController(null);
 
             Assert.Throws<Exception>(() => controller.CombinePaths(null, "abc"));
 
@@ -93,7 +93,7 @@ namespace Kakadu.ActionApi.Tests
         [Fact]
         public void CombinePaths_Throws_Exception_When_Param2_IsNull_Or_Whitespace()
         {
-            BaseController controller = new BaseController(null);
+            BaseActionApiController controller = new BaseActionApiController(null);
 
             Assert.Throws<Exception>(() => controller.CombinePaths("abc", null));
 
@@ -105,7 +105,7 @@ namespace Kakadu.ActionApi.Tests
         [Fact]
         public void CombinePaths_ReturnsCorrectPath()
         {
-            BaseController controller = new BaseController(null);
+            BaseActionApiController controller = new BaseActionApiController(null);
 
             Assert.Equal("post/comments", controller.CombinePaths("post", "comments"));
 
