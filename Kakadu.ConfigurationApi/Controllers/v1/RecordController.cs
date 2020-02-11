@@ -7,11 +7,12 @@ using System.Threading.Tasks;
 using Kakadu.ConfigurationApi.Interfaces;
 using Kakadu.DTO.Constants;
 using Kakadu.DTO.HttpExceptions;
-using LazyCache;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
+using Kakadu.Common.Extensions;
 
 namespace Kakadu.ConfigurationApi.Controllers.v1
 {
@@ -21,11 +22,11 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
     [Authorize]
     public class RecordController : ControllerBase
     {
-        private readonly IAppCache _cache;
+        private readonly IDistributedCache _cache;
         private readonly IActionApiHttpClient _actionApiHttpClient;
         private readonly ILogger<RecordController> _logger;
 
-        public RecordController(IAppCache cache, IActionApiHttpClient actionApiHttpClient, ILogger<RecordController> logger)
+        public RecordController(IDistributedCache cache, IActionApiHttpClient actionApiHttpClient, ILogger<RecordController> logger)
         {
             _logger = logger;
             _actionApiHttpClient = actionApiHttpClient;

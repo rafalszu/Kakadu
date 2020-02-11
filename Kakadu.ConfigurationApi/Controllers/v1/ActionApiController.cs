@@ -2,9 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Kakadu.DTO.Constants;
-using LazyCache;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
+using Kakadu.Common.Extensions;
 
 namespace Kakadu.ConfigurationApi.Controllers.v1
 {
@@ -14,9 +15,9 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
     public class ActionApiController : ControllerBase
     {
         private readonly ILogger<ActionApiController> _logger;
-        private readonly IAppCache _cache;
+        private readonly IDistributedCache _cache;
 
-        public ActionApiController(ILogger<ActionApiController> logger, IAppCache cache)
+        public ActionApiController(ILogger<ActionApiController> logger, IDistributedCache cache)
         {
             _logger = logger;
             _cache = cache;
@@ -42,8 +43,8 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
 
             if(changed)
             {
-                _cache.Add(KakaduConstants.ACTIONAPI_INSTANCES, instances, new Microsoft.Extensions.Caching.Memory.MemoryCacheEntryOptions {
-                    Priority = Microsoft.Extensions.Caching.Memory.CacheItemPriority.NeverRemove
+                await _cache.SetAsync<List<string>>(KakaduConstants.ACTIONAPI_INSTANCES, instances, new DistributedCacheEntryOptions() {
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromDays(365) // hacky way of never removing?
                 });
             }
 
@@ -70,8 +71,8 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
 
             if(changed)
             {
-                _cache.Add(KakaduConstants.ACTIONAPI_INSTANCES, instances, new Microsoft.Extensions.Caching.Memory.MemoryCacheEntryOptions {
-                    Priority = Microsoft.Extensions.Caching.Memory.CacheItemPriority.NeverRemove
+                await _cache.SetAsync<List<string>>(KakaduConstants.ACTIONAPI_INSTANCES, instances, new DistributedCacheEntryOptions {
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromDays(365)
                 });
             }
 

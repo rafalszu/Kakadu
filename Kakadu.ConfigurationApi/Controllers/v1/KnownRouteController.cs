@@ -4,10 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using Kakadu.DTO;
 using Kakadu.DTO.Constants;
-using LazyCache;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
+using Kakadu.Common.Extensions;
 
 namespace Kakadu.ConfigurationApi.Controllers.v1
 {
@@ -17,10 +18,10 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
     [Authorize]
     public class KnownRouteController : ControllerBase
     {
-        private readonly IAppCache _cache;
+        private readonly IDistributedCache _cache;
         private readonly ILogger<KnownRouteController> _logger;
 
-        public KnownRouteController(ILogger<KnownRouteController> logger, IAppCache cache)
+        public KnownRouteController(ILogger<KnownRouteController> logger, IDistributedCache cache)
         {
             _logger = logger;
             _cache = cache;
@@ -41,8 +42,8 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
             if(!contains)
             {
                 list.Add(dto);
-                _cache.Add(cachekey, list, new Microsoft.Extensions.Caching.Memory.MemoryCacheEntryOptions {
-                    Priority = Microsoft.Extensions.Caching.Memory.CacheItemPriority.NeverRemove
+                await _cache.SetAsync<List<KnownRouteDTO>>(cachekey, list, new DistributedCacheEntryOptions {
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(4)
                 });
             }
 

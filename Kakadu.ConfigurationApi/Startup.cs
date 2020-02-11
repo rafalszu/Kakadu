@@ -1,24 +1,17 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using AutoMapper;
 using Kakadu.Common.Middleware;
 using Kakadu.ConfigurationApi.HttpClients;
 using Kakadu.ConfigurationApi.Interfaces;
 using Kakadu.ConfigurationApi.Settings;
 using Kakadu.Core;
-using LazyCache;
 using LiteDB;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Kakadu.ConfigurationApi
@@ -74,12 +67,7 @@ namespace Kakadu.ConfigurationApi
                 };
             });
 
-            services.AddLazyCache(a => {
-                var cache = new CachingService();
-                cache.DefaultCachePolicy.DefaultCacheDurationSeconds = 180;
-
-                return cache;
-            });
+            services.AddDistributedMemoryCache();
 
             services.AddHttpClient<IActionApiHttpClient, ActionApiHttpClient>(client => {
                 client.DefaultRequestHeaders.Add("Accept", "application/json");

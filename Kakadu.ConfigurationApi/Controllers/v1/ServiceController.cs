@@ -7,12 +7,12 @@ using Kakadu.Core.Interfaces;
 using Kakadu.Core.Models;
 using Kakadu.DTO;
 using Kakadu.DTO.HttpExceptions;
-using LazyCache;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
+using Kakadu.Common.Extensions;
 
 namespace Kakadu.ConfigurationApi.Controllers.v1
 {
@@ -26,9 +26,9 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
         private readonly ILogger<ServiceController> _logger;
         private readonly IServiceService _service;
         private readonly IMapper _mapper;
-        private readonly IAppCache _cache;
+        private readonly IDistributedCache _cache;
 
-        public ServiceController(ILogger<ServiceController> logger, IServiceService service, IAppCache cache, IMapper mapper)
+        public ServiceController(ILogger<ServiceController> logger, IServiceService service, IDistributedCache cache, IMapper mapper)
         {
             _logger = logger;
             _service = service;
@@ -39,8 +39,8 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
         [HttpGet]
         public async Task<List<ServiceDTO>> Get()
         {
-            var results = await _cache.GetOrAddAsync<List<ServiceDTO>>("services", async entry => {
-                entry.AbsoluteExpiration = DateTimeOffset.UtcNow.AddMinutes(3);
+            var results = await _cache.GetOrAddAsync<List<ServiceDTO>>("services", async (options) => {
+                options.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(3);
 
                 var entities = await Task.Run(() => _service.GetAll());
                 return _mapper.Map<List<ServiceDTO>>(entities);
@@ -56,8 +56,8 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
             if(string.IsNullOrWhiteSpace(serviceCode))
                 throw new ArgumentNullException(nameof(serviceCode));
 
-            var dto = await _cache.GetOrAddAsync(serviceCode, async entry => {
-                entry.AbsoluteExpiration = DateTimeOffset.UtcNow.AddMinutes(3);
+            var dto = await _cache.GetOrAddAsync(serviceCode, async (options) => {
+                options.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(3);
 
                 var entity = await Task.Run(() => _service.Get(serviceCode));
                 if(entity == null)
