@@ -36,10 +36,10 @@ namespace Kakadu.ActionApi.Controllers
                                        IAuthenticatedServiceHttpClient authenticatedServiceClient,
                                        IDistributedCache cache)
         {
-            _logger = logger;
-            _anonymousServiceClient = anonymousServiceClient;
-            _authenticatedServiceClient = authenticatedServiceClient;
-            _cache = cache;
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _anonymousServiceClient = anonymousServiceClient ?? throw new ArgumentNullException(nameof(anonymousServiceClient));
+            _authenticatedServiceClient = authenticatedServiceClient ?? throw new ArgumentNullException(nameof(authenticatedServiceClient));
+            _cache = cache ?? throw new ArgumentNullException(nameof(cache));
         }
 
         public abstract KnownRouteDTO GetKnownRoute(ServiceDTO service, string relativePath, string action = "");

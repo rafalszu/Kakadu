@@ -20,7 +20,7 @@ namespace Kakadu.ActionApi.Controllers
         private readonly ILogger<RestController> _logger;
 
         public RestController(ILogger<RestController> logger, IAnonymousServiceHttpClient anonymousServiceClient, IAuthenticatedServiceHttpClient authenticatedServiceClient, IDistributedCache cache) 
-            : base(logger, anonymousServiceClient, authenticatedServiceClient, cache) => _logger = logger;
+            : base(logger, anonymousServiceClient, authenticatedServiceClient, cache) => _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         [HttpGet]
         [HttpPost]

@@ -24,9 +24,9 @@ namespace Kakadu.ActionApi.Controllers
 
         public RecordController(ILogger<RecordController> logger, IAnonymousServiceHttpClient serviceClient, IDistributedCache cache)
         {
-            _logger = logger;
-            _serviceClient = serviceClient;
-            _cache = cache;
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _serviceClient = serviceClient ?? throw new ArgumentNullException(nameof(serviceClient));
+            _cache = cache ?? throw new ArgumentNullException(nameof(cache));
         }
 
         [HttpGet("start/{serviceCode}")]
