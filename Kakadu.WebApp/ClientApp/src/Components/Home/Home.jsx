@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 
 import { userActions } from '../../_actions';
 
-class HomePage extends React.Component {
+class Home extends React.Component {
     componentDidMount() {
         this.props.dispatch(userActions.getAll());
     }
@@ -44,5 +44,5 @@ function mapStateToProps(state) {
     };
 }
 
-const connectedHomePage = connect(mapStateToProps)(HomePage);
-export { connectedHomePage as HomePage };
+const connectedHomePage = connect(mapStateToProps)(Home);
+export { connectedHomePage as Home };

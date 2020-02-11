@@ -14,20 +14,25 @@ function login(username, password) {
     };
 
     return fetch(`${process.env.REACT_APP_API_URL}/token/authenticate`, requestOptions)
+        //.then(checkFetch)
         .then(handleResponse)
         .then(user => {
-            // login successful if there's a jwt token in the response
             if (user.token) {
-                // store user details and jwt token in local storage to keep user logged in between page refreshes
                 localStorage.setItem('user', JSON.stringify(user));
             }
 
             return user;
+        })
+        .catch(error => {
+            console.log(error);
+            if(!error.response) {
+                throw new Error(`Unable to connect to '${process.env.REACT_APP_API_URL}'`);
+            }
+            throw Error(error.response);
         });
 }
 
 function logout() {
-    // remove user from local storage to log user out
     localStorage.removeItem('user');
 }
 
@@ -44,13 +49,10 @@ function handleResponse(response) {
     return response.text().then(text => {
         const data = text && JSON.parse(text);
         if (!response.ok) {
-            if (response.status === 401) {
-                // auto logout if 401 response returned from api
-                logout();
-                window.location.reload(true);
-            }
-
-            const error = (data && data.message) || response.statusText;
+            
+            const error = { 
+                response: (data && data.Message) || response.url + ' - ' + response.statusText
+            };
             return Promise.reject(error);
         }
 

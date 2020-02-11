@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 
 import { userActions } from '../../_actions';
 
-class LoginPage extends React.Component {
+class Login extends React.Component {
     constructor(props) {
         super(props);
 
@@ -80,5 +80,5 @@ function mapStateToProps(state) {
     };
 }
 
-const connectedLoginPage = connect(mapStateToProps)(LoginPage);
-export { connectedLoginPage as LoginPage }; 
+const connectedLoginPage = connect(mapStateToProps)(Login);
+export { connectedLoginPage as Login }; 

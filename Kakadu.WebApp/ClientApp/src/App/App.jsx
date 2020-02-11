@@ -5,8 +5,8 @@ import { connect } from 'react-redux';
 import { history } from '../_helpers';
 import { alertActions } from '../_actions';
 import { PrivateRoute } from '../Components';
-import { HomePage } from '../Components/HomePage';
-import { LoginPage } from '../Components/LoginPage';
+import { Home } from '../Components/Home';
+import { Login } from '../Components/Login';
 import { Layout } from '../Components/Layout';
 
 import '../custom.css'
@@ -42,8 +42,8 @@ class App extends React.Component {
                         <div className={`alert ${alert.type}`}>{alert.message}</div>
                     }
                     <div>
-                        <PrivateRoute exact path="/" component={HomePage} />
-                        <Route path="/login" component={LoginPage} />
+                        <PrivateRoute exact path="/" component={Home} />
+                        <Route path="/login" component={Login} />
                     </div>
                 </Layout>
             </Router>
