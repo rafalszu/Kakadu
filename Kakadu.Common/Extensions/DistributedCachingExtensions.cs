@@ -14,16 +14,16 @@ namespace Kakadu.Common.Extensions
             await distributedCache.SetAsync(key, value.ToByteArray(), options, token);  
         }  
   
-        public async static Task<T> GetAsync<T>(this IDistributedCache distributedCache, string key, CancellationToken token = default(CancellationToken)) where T : class  
+        public async static Task<T> GetAsync<T>(this IDistributedCache distributedCache, string key, CancellationToken token = default(CancellationToken))
         {  
             var result = await distributedCache.GetAsync(key, token);  
             return result.FromByteArray<T>();  
         }
 
-        public async static Task<T> GetOrAddAsync<T>(this IDistributedCache distributedCache, string key, Func<DistributedCacheEntryOptions, Task<T>> getDataDelegate, CancellationToken token = default(CancellationToken)) where T : class
+        public async static Task<T> GetOrAddAsync<T>(this IDistributedCache distributedCache, string key, Func<DistributedCacheEntryOptions, Task<T>> getDataDelegate, CancellationToken token = default(CancellationToken))
         {
             var cached = await distributedCache.GetAsync<T>(key, token);
-            if(cached != (default(T)))
+            if(cached.Equals(default(T)))
                 return cached;
 
             DistributedCacheEntryOptions options = new DistributedCacheEntryOptions();
@@ -52,7 +52,7 @@ namespace Kakadu.Common.Extensions
             }  
         }  
 
-        internal static T FromByteArray<T>(this byte[] byteArray) where T : class  
+        internal static T FromByteArray<T>(this byte[] byteArray)
         {  
             if (byteArray == null)  
                 return default(T);  
@@ -60,7 +60,7 @@ namespace Kakadu.Common.Extensions
             BinaryFormatter binaryFormatter = new BinaryFormatter();  
             using (MemoryStream memoryStream = new MemoryStream(byteArray))  
             {  
-                return binaryFormatter.Deserialize(memoryStream) as T;  
+                return (T)binaryFormatter.Deserialize(memoryStream);  
             }  
         }
     }
