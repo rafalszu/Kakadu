@@ -47,6 +47,8 @@ namespace Kakadu.ActionApi.Controllers
         {
             if(service == null)
                 throw new ArgumentNullException(nameof(service));
+            if(string.IsNullOrWhiteSpace(relativePath))
+                throw new ArgumentNullException(nameof(relativePath));
 
             return service.KnownRoutes?.FirstOrDefault(r => !string.IsNullOrWhiteSpace(r.RelativeUrl) && r.RelativeUrl.Equals(relativePath, StringComparison.InvariantCultureIgnoreCase));
         }

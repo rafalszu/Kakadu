@@ -108,7 +108,7 @@ namespace Kakadu.ActionApi.Controllers
 
         private async Task<bool> InterceptKnownRouteAsync(HttpContext context, string relativePath, ServiceDTO dto)
         {
-            var knownRoute = GetKnownRoute(dto, relativePath, GetSoapActionHeader(Request));
+            var knownRoute = GetKnownRoute(dto, relativePath, GetSoapActionHeader(Request.Headers));
             if(knownRoute != null)
             {
                 _logger.LogInformation($"Found known route for '{relativePath}', intercepting http call");
@@ -199,9 +199,12 @@ namespace Kakadu.ActionApi.Controllers
             return body;
         }
 
-        private string GetSoapActionHeader(HttpRequest req)
+        private string GetSoapActionHeader(IHeaderDictionary headers)
         {
-            req.Headers.TryGetValue("SOAPAction", out var actionValues);
+            if(headers == null)
+                return string.Empty;
+
+            headers.TryGetValue("SOAPAction", out var actionValues);
             if(StringValues.IsNullOrEmpty(actionValues))
                 return string.Empty;
 
@@ -211,5 +214,5 @@ namespace Kakadu.ActionApi.Controllers
 
             return action.Sanitize();
         }
-    }        
+    }
 }

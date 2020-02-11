@@ -22,7 +22,11 @@ namespace Kakadu.DTO
         
         public Dictionary<string, string> Headers { get; set; }
 
-        public string ContentTypeString { get; set; }
+        public string ContentTypeString => string.Format("{0}{1}{2}", 
+                                                            ContentType,
+                                                            (!string.IsNullOrWhiteSpace(ContentTypeCharset)) ? "; " : string.Empty,
+                                                            (!string.IsNullOrWhiteSpace(ContentTypeCharset)) ? $"charset={ContentTypeCharset}" : string.Empty
+                                                        );
 
         public byte[] ContentRaw => string.IsNullOrEmpty(ContentBase64) ? null : Convert.FromBase64String(ContentBase64);
     }

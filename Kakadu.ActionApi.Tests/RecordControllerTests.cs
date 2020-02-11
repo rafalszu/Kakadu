@@ -1,8 +1,10 @@
 using System;
 using System.Net;
 using System.Net.Http;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using FluentAssertions;
 using Kakadu.ActionApi.Controllers;
 using Kakadu.ActionApi.Interfaces;
 using Kakadu.DTO.HttpExceptions;
@@ -21,6 +23,16 @@ namespace Kakadu.ActionApi.Tests
         Mock<ILogger<RecordController>> loggerMock = new Mock<ILogger<RecordController>>();
         Mock<IAnonymousServiceHttpClient> anonymousServiceHttpClientMock = new Mock<IAnonymousServiceHttpClient>();
         Mock<IDistributedCache> cacheMock = new Mock<IDistributedCache>();
+
+        [Fact]
+        public void ClassShouldBeDecoratedAsApiController()
+        {
+            typeof(RestController).GetTypeInfo()
+                .Should()
+                .BeDecoratedWith<ApiControllerAttribute>()
+                .And
+                .BeDecoratedWith<ConsumesAttribute>();
+        }
 
         [Fact]
         public void StartRecordingThrowsException_WhenNoAuthHeaderPresent()
