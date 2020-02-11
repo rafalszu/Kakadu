@@ -4,10 +4,11 @@ using System.Threading.Tasks;
 using Kakadu.ActionApi.Interfaces;
 using Kakadu.DTO.Constants;
 using Kakadu.DTO.HttpExceptions;
-using LazyCache;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
+using Kakadu.Common.Extensions;
 
 namespace Kakadu.ActionApi.Controllers
 {
@@ -19,9 +20,9 @@ namespace Kakadu.ActionApi.Controllers
     {
         private readonly ILogger<RecordController> _logger;
         private readonly IAnonymousServiceHttpClient _serviceClient;
-        private readonly IAppCache _cache;
+        private readonly IDistributedCache _cache;
 
-        public RecordController(ILogger<RecordController> logger, IAnonymousServiceHttpClient serviceClient, IAppCache cache)
+        public RecordController(ILogger<RecordController> logger, IAnonymousServiceHttpClient serviceClient, IDistributedCache cache)
         {
             _logger = logger;
             _serviceClient = serviceClient;
@@ -43,12 +44,12 @@ namespace Kakadu.ActionApi.Controllers
             var isValid = await _serviceClient.ValidateTokenAsync(authToken, cancellationToken);
             if(isValid)
             {
-                _cache.Add(KakaduConstants.ACCESS_TOKEN, authToken.ToString(), new Microsoft.Extensions.Caching.Memory.MemoryCacheEntryOptions {
-                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10) 
+                await _cache.SetStringAsync(KakaduConstants.ACCESS_TOKEN, authToken.ToString(), new DistributedCacheEntryOptions {
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1)
                 });
 
-                _cache.Add(recordCacheKey, true, new Microsoft.Extensions.Caching.Memory.MemoryCacheEntryOptions {
-                    Priority = Microsoft.Extensions.Caching.Memory.CacheItemPriority.NeverRemove
+                await _cache.SetAsync<bool>(recordCacheKey, true, new DistributedCacheEntryOptions {
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1)
                 });
 
                 return Ok(true);

@@ -6,23 +6,26 @@ using System.Threading.Tasks;
 using Kakadu.ActionApi.Interfaces;
 using Kakadu.Common.HttpClients;
 using Kakadu.DTO;
-using LazyCache;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
+using Kakadu.Common.Extensions;
 
 namespace Kakadu.ActionApi.HttpClients
 {
     public class AnonymousServiceHttpClient : HttpClientBase, IAnonymousServiceHttpClient
     {
-        private readonly IAppCache _cache;
+        private readonly IDistributedCache _cache;
 
-        public AnonymousServiceHttpClient(HttpClient httpClient, ILogger<AnonymousServiceHttpClient> logger, IAppCache cache) : base(httpClient, logger) => _cache = cache;
+        public AnonymousServiceHttpClient(HttpClient httpClient, ILogger<AnonymousServiceHttpClient> logger, IDistributedCache cache) : base(httpClient, logger) => _cache = cache;
 
         public async Task<ServiceDTO> GetByCodeAsync(string serviceCode, CancellationToken cancellationToken)
         {
             if(string.IsNullOrWhiteSpace(serviceCode))
                 throw new ArgumentNullException(nameof(serviceCode));
 
-            var dto = await _cache.GetOrAddAsync(serviceCode, async entry => {
+            var dto = await _cache.GetOrAddAsync<ServiceDTO>(serviceCode, async (options) => {
+                options.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(3);
+
                 return await this.GetAsync<ServiceDTO>($"service/{serviceCode}", cancellationToken);
             });
             return dto;

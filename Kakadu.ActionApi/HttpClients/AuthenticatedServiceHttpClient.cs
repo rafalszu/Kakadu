@@ -6,8 +6,8 @@ using Kakadu.ActionApi.Interfaces;
 using Kakadu.DTO;
 using Kakadu.DTO.Constants;
 using Kakadu.DTO.HttpExceptions;
-using LazyCache;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 
 namespace Kakadu.ActionApi.HttpClients
@@ -16,11 +16,11 @@ namespace Kakadu.ActionApi.HttpClients
     {
         private readonly ILogger<AuthenticatedServiceHttpClient> _logger;
 
-        public AuthenticatedServiceHttpClient(HttpClient client, ILogger<AuthenticatedServiceHttpClient> logger, IAppCache cache) : base(client, logger, cache)
+        public AuthenticatedServiceHttpClient(HttpClient client, ILogger<AuthenticatedServiceHttpClient> logger, IDistributedCache cache) : base(client, logger, cache)
         {
             _logger = logger;
 
-            string accessToken = cache.Get<string>(KakaduConstants.ACCESS_TOKEN);
+            string accessToken = cache.GetString(KakaduConstants.ACCESS_TOKEN);
             // bearer xxxxxxxx
             if(string.IsNullOrWhiteSpace(accessToken))
                 throw new HttpUnauthorizedException("unauthorized");

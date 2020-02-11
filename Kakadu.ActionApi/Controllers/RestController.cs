@@ -8,7 +8,6 @@ using Microsoft.Extensions.Logging;
 using Kakadu.ActionApi.Interfaces;
 using Kakadu.DTO;
 using System.Threading;
-using LazyCache;
 using Microsoft.Extensions.Caching.Distributed;
 
 namespace Kakadu.ActionApi.Controllers
