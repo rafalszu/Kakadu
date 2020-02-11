@@ -286,27 +286,182 @@ namespace Kakadu.ActionApi.Tests
             Assert.Equal("http://address/posts/comments", result);
         }
 
-            [Fact]
-            public void IntercepKnownRouteAsync_ThrowsExceptionForNullParameters()
-            {
-                var controller = new RestController(loggerMock.Object, anonymousServiceClientMock.Object, authenticatedServiceClientMock.Object, cacheMock.Object);
-                var service = new ServiceDTO();
+        [Fact]
+        public void IntercepKnownRouteAsync_ThrowsExceptionForNullParameters()
+        {
+            var controller = new RestController(loggerMock.Object, anonymousServiceClientMock.Object, authenticatedServiceClientMock.Object, cacheMock.Object);
+            var service = new ServiceDTO();
 
-                var type = typeof(BaseActionApiController);
+            var type = typeof(BaseActionApiController);
 
-                MethodInfo method = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
-                    .Where(x => x.Name == "InterceptKnownRouteAsync" && x.IsPrivate)
-                    .First();
+            MethodInfo method = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
+                .Where(x => x.Name == "InterceptKnownRouteAsync" && x.IsPrivate)
+                .First();
 
-                var task = (Task<bool>)method.Invoke(controller, new object[] { null, "/comments", service });
-                Assert.ThrowsAsync<ArgumentNullException>(async () => await task);
+            var task = (Task<bool>)method.Invoke(controller, new object[] { null, null, "/comments", service });
+            Assert.ThrowsAsync<ArgumentNullException>(async () => await task);
 
-                var response = new Mock<HttpResponse>();
-                task = (Task<bool>)method.Invoke(controller, new object[] { response.Object, null, service });
-                Assert.ThrowsAsync<ArgumentNullException>(async () => await task);
+            var response = new Mock<HttpResponse>();
+            task = (Task<bool>)method.Invoke(controller, new object[] { null, response.Object, null, service });
+            Assert.ThrowsAsync<ArgumentNullException>(async () => await task);
 
-                task = (Task<bool>)method.Invoke(controller, new object[] { response.Object, "/comments", null });
-                Assert.ThrowsAsync<ArgumentNullException>(async () => await task);
-            }
+            task = (Task<bool>)method.Invoke(controller, new object[] { null, response.Object, "/comments", null });
+            Assert.ThrowsAsync<ArgumentNullException>(async () => await task);
+        }
+
+        [Fact]
+        public async Task InterceptKnownRouteAsync_ReturnsTrueWhenNoKnownRouteFoundAndCantPassThrough()
+        {
+            var controller = new RestController(loggerMock.Object, anonymousServiceClientMock.Object, authenticatedServiceClientMock.Object, cacheMock.Object);
+            var service = new ServiceDTO {
+                Code = "dummy",
+                Name = "dummy",
+                Id = Guid.NewGuid(),
+                Address = new Uri("http://address.to"),
+                UnkownRoutesPassthrough = false
+            };
+
+            var type = typeof(BaseActionApiController);
+            var response = new Mock<HttpResponse>();
+
+            MethodInfo method = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
+                .Where(x => x.Name == "InterceptKnownRouteAsync" && x.IsPrivate)
+                .First();
+
+            var task = (Task<bool>)method.Invoke(controller, new object[] { null, response.Object, "/path", service });
+            var result = await task;
+
+            result.Should().BeTrue();
+        }
+
+        [Fact]
+        public async Task InterceptKnownRouteAsync_ReturnsFalseWhenNoKnownRouteFoundAndCanPassThrough()
+        {
+            var controller = new RestController(loggerMock.Object, anonymousServiceClientMock.Object, authenticatedServiceClientMock.Object, cacheMock.Object);
+            var service = new ServiceDTO {
+                Code = "dummy",
+                Name = "dummy",
+                Id = Guid.NewGuid(),
+                Address = new Uri("http://address.to"),
+                UnkownRoutesPassthrough = true
+            };
+
+            var type = typeof(BaseActionApiController);
+            var response = new Mock<HttpResponse>();
+
+            MethodInfo method = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
+                .Where(x => x.Name == "InterceptKnownRouteAsync" && x.IsPrivate)
+                .First();
+
+            var task = (Task<bool>)method.Invoke(controller, new object[] { null, response.Object, "/path", service });
+            var result = await task;
+
+            result.Should().BeFalse();
+        }
+
+        [Fact]
+        public async Task InterceptKnownRouteAsync_ReturnsTrueWhenKnownRouteFoundAndCantPassThrough()
+        {
+            var controller = new RestController(loggerMock.Object, anonymousServiceClientMock.Object, authenticatedServiceClientMock.Object, cacheMock.Object);
+            var service = new ServiceDTO {
+                Code = "dummy",
+                Name = "dummy",
+                Id = Guid.NewGuid(),
+                Address = new Uri("http://address.to"),
+                UnkownRoutesPassthrough = false,
+                KnownRoutes = new List<KnownRouteDTO> {
+                    new KnownRouteDTO {
+                        Id = Guid.NewGuid(),
+                        MethodName = "GET",
+                        RelativeUrl = "/path"
+                    }
+                }
+            };
+
+            var type = typeof(BaseActionApiController);
+            var response = new Mock<HttpResponse>();
+
+            MethodInfo method = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
+                .Where(x => x.Name == "InterceptKnownRouteAsync" && x.IsPrivate)
+                .First();
+
+            var task = (Task<bool>)method.Invoke(controller, new object[] { null, response.Object, "/path", service });
+            var result = await task;
+
+            result.Should().BeTrue();
+        }
+
+        [Fact]
+        public async Task InterceptKnownRouteAsync_ReturnsFalseWhenKnownRouteFoundAndCanPassThrough()
+        {
+            var controller = new RestController(loggerMock.Object, anonymousServiceClientMock.Object, authenticatedServiceClientMock.Object, cacheMock.Object);
+            var service = new ServiceDTO {
+                Code = "dummy",
+                Name = "dummy",
+                Id = Guid.NewGuid(),
+                Address = new Uri("http://address.to"),
+                UnkownRoutesPassthrough = true,
+                KnownRoutes = new List<KnownRouteDTO> {
+                    new KnownRouteDTO {
+                        Id = Guid.NewGuid(),
+                        MethodName = "GET",
+                        RelativeUrl = "/path"
+                    }
+                }
+            };
+
+            var type = typeof(BaseActionApiController);
+            var response = new Mock<HttpResponse>();
+
+            MethodInfo method = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
+                .Where(x => x.Name == "InterceptKnownRouteAsync" && x.IsPrivate)
+                .First();
+
+            var task = (Task<bool>)method.Invoke(controller, new object[] { null, response.Object, "/path", service });
+            var result = await task;
+
+            result.Should().BeFalse();
+        }
+
+        [Fact]
+        public async Task InterceptKnownRouteAsync_ReturnsTrueWhenKnownRouteWithAReplyFound()
+        {
+            var controller = new RestController(loggerMock.Object, anonymousServiceClientMock.Object, authenticatedServiceClientMock.Object, cacheMock.Object);
+            var service = new ServiceDTO {
+                Code = "dummy",
+                Name = "dummy",
+                Id = Guid.NewGuid(),
+                Address = new Uri("http://address.to"),
+                UnkownRoutesPassthrough = true,
+                KnownRoutes = new List<KnownRouteDTO> {
+                    new KnownRouteDTO {
+                        Id = Guid.NewGuid(),
+                        MethodName = "GET",
+                        RelativeUrl = "/path",
+                        Replies = new List<KnownRouteReplyDTO> {
+                            new KnownRouteReplyDTO {
+                                Id = Guid.NewGuid(),
+                                StatusCode = 200,
+                                ContentType = "application/json",
+                                ContentEncoding = "utf-8",
+                                ContentLength = 0
+                            }
+                        }
+                    }
+                }
+            };
+
+            var type = typeof(BaseActionApiController);
+            var response = new Mock<HttpResponse>();
+
+            MethodInfo method = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
+                .Where(x => x.Name == "InterceptKnownRouteAsync" && x.IsPrivate)
+                .First();
+
+            var task = (Task<bool>)method.Invoke(controller, new object[] { null, response.Object, "/path", service });
+            var result = await task;
+
+            result.Should().BeTrue();
+        }
     }
 }

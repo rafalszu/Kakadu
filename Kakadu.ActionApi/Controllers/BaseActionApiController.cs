@@ -57,7 +57,7 @@ namespace Kakadu.ActionApi.Controllers
             var options = ProxyOptions.Instance
                 .WithHttpClientName("KakaduVirtualizationClient")
                 .WithShouldAddForwardedHeaders(true)
-                .WithIntercept(async (context) => await InterceptKnownRouteAsync(context.Response, relativePath, service))                
+                .WithIntercept(async (context) => await InterceptKnownRouteAsync(Request.Headers, context.Response, relativePath, service))                
                 //.WithBeforeSend
                 .WithAfterReceive(async (context, response) => {
                     bool saveResponse = ShouldSaveResponse(serviceCode);
@@ -106,7 +106,7 @@ namespace Kakadu.ActionApi.Controllers
             return _cache.GetAsync<bool?>(recordCacheKey).GetAwaiter().GetResult() ?? false;
         }
 
-        private async Task<bool> InterceptKnownRouteAsync(HttpResponse httpResponse, string relativePath, ServiceDTO dto)
+        private async Task<bool> InterceptKnownRouteAsync(IHeaderDictionary headers, HttpResponse httpResponse, string relativePath, ServiceDTO dto)
         {
             if(httpResponse == null)
                 throw new ArgumentNullException(nameof(httpResponse));
@@ -115,7 +115,7 @@ namespace Kakadu.ActionApi.Controllers
             if(dto == null)
                 throw new ArgumentNullException(nameof(dto));
 
-            var knownRoute = GetKnownRoute(dto, relativePath, GetSoapActionHeader(Request.Headers));
+            var knownRoute = GetKnownRoute(dto, relativePath, GetSoapActionHeader(headers));
             if(knownRoute != null)
             {
                 _logger.LogInformation($"Found known route for '{relativePath}', intercepting http call");
@@ -134,10 +134,11 @@ namespace Kakadu.ActionApi.Controllers
                     httpResponse.StatusCode = knownResponse.StatusCode;
                     httpResponse.ContentType = knownResponse.ContentTypeString;
                     httpResponse.ContentLength = knownResponse.ContentLength;
-                    if(!string.IsNullOrWhiteSpace(knownResponse.ContentEncoding))
+                    if(!string.IsNullOrWhiteSpace(knownResponse.ContentEncoding) && httpResponse.Headers != null)
                         httpResponse.Headers["Content-Encoding"] = knownResponse.ContentEncoding;
 
-                    await httpResponse.Body.WriteAsync(knownResponse.ContentRaw, 0, knownResponse.ContentRaw.Length);
+                    if(knownResponse.ContentRaw != null)
+                        await httpResponse.Body.WriteAsync(knownResponse.ContentRaw, 0, knownResponse.ContentRaw.Length);
 
                     return true;
                 }
