@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace Kakadu.DTO
 {
+    [Serializable]
     public class KnownRouteReplyDTO : IEntityDTO
     {
         public Guid Id { get; set; }

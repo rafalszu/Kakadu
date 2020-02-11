@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Kakadu.DTO
 {
+    [Serializable]
     public class KnownRouteDTO : IEntityDTO
     {
         public Guid Id { get; set; }

@@ -1,7 +1,9 @@
+using System;
 using Newtonsoft.Json;
 
 namespace Kakadu.DTO
 {
+    [Serializable]
     public class ApiErrorDTO
     {
         public int StatusCode { get; set; }

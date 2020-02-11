@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Kakadu.DTO
 {
+    [Serializable]
     public class UserDTO : IEntityDTO
     {
         public Guid Id { get; set; }

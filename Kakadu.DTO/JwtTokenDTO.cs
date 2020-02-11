@@ -1,7 +1,9 @@
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace Kakadu.DTO
 {
+    [Serializable]
     public class JwtTokenDTO
     {
         [Required]
