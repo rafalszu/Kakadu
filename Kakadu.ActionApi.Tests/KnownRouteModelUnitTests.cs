@@ -2,9 +2,7 @@ using System;
 using System.Net;
 using System.Net.Http;
 using Kakadu.ActionApi.Extensions;
-using Kakadu.Core.Models;
 using Xunit;
-using System.Linq;
 
 namespace Kakadu.ActionApi.Tests
 {
@@ -29,7 +27,7 @@ namespace Kakadu.ActionApi.Tests
 
             Assert.NotNull(knownRoute);
         
-            Assert.Equal(MethodTypeEnum.GET.ToString(), knownRoute.MethodName);
+            Assert.Equal("GET", knownRoute.MethodName);
 
             Assert.Empty(knownRoute.Action);
 
