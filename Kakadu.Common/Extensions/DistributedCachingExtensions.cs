@@ -1,10 +1,12 @@
 using System;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Distributed;
 
+[assembly: InternalsVisibleTo("Kakadu.ActionApi.Tests")]
 namespace Kakadu.Common.Extensions
 {
     public static class DistributedCachingExtensions
@@ -23,7 +25,7 @@ namespace Kakadu.Common.Extensions
         public async static Task<T> GetOrAddAsync<T>(this IDistributedCache distributedCache, string key, Func<DistributedCacheEntryOptions, Task<T>> getDataDelegate, CancellationToken token = default(CancellationToken))
         {
             var cached = await distributedCache.GetAsync<T>(key, token);
-            if(cached.Equals(default(T)))
+            if(!cached.Equals(default(T)))
                 return cached;
 
             DistributedCacheEntryOptions options = new DistributedCacheEntryOptions();
