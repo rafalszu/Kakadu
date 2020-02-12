@@ -16,6 +16,7 @@ using Moq.Protected;
 using Kakadu.Common.HttpClients;
 using Kakadu.Common.Extensions;
 using Newtonsoft.Json;
+using System.Linq;
 
 namespace Kakadu.ActionApi.Tests
 {
@@ -183,6 +184,68 @@ namespace Kakadu.ActionApi.Tests
                 .BeOfType<ServiceDTO>()
                 .And
                 .BeEquivalentTo<ServiceDTO>(service);
+        }
+
+        [Fact]
+        public async Task ValidateTokenAsync_ReturnsFalseWhenAccessTokenIsNullOrEmpty()
+        {
+            var handlerMock = new Mock<HttpMessageHandler>(MockBehavior.Strict);
+            handlerMock
+                .Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>()
+                )
+                .ReturnsAsync(new HttpResponseMessage()
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Content = new StringContent(true.ToString()),
+                });
+            
+            var httpClient = new HttpClient(handlerMock.Object)
+            {
+                BaseAddress = new Uri("http://api.address/"),
+            };
+
+            AnonymousServiceHttpClient client = new AnonymousServiceHttpClient(httpClient, loggerMock.Object, cacheMock.Object);
+            CancellationTokenSource cts = new CancellationTokenSource(1000);
+
+            var result = await client.ValidateTokenAsync(null, cts.Token);
+
+            result.Should().BeFalse();
+        }
+
+        [Fact]
+        public async Task ValidateTokenAsync_AddsAuthorizationHeader()
+        {
+            var handlerMock = new Mock<HttpMessageHandler>(MockBehavior.Strict);
+            handlerMock
+                .Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>()
+                )
+                .ReturnsAsync(new HttpResponseMessage()
+                {
+                    StatusCode = HttpStatusCode.OK
+                });
+            
+            var httpClient = new HttpClient(handlerMock.Object)
+            {
+                BaseAddress = new Uri("http://api.address/"),
+            };
+
+            AnonymousServiceHttpClient client = new AnonymousServiceHttpClient(httpClient, loggerMock.Object, cacheMock.Object);
+            CancellationTokenSource cts = new CancellationTokenSource(1000);
+
+            await client.ValidateTokenAsync("Bearer secretAccessToken", cts.Token);
+
+            client.CustomRequestHeaders.Should()
+                                        .ContainKey("Authorization")
+                                        .And
+                                        .Match(kv => kv["Authorization"].ElementAt(0) == "Bearer secretAccessToken");
         }
     }
 }
