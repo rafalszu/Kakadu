@@ -78,6 +78,8 @@ namespace Kakadu.ActionApi.Controllers
 
         private async Task StoreReply(string serviceCode, KnownRouteDTO dto, CancellationToken cancellationToken)
         {
+            if(string.IsNullOrWhiteSpace(serviceCode))
+                throw new ArgumentNullException(nameof(serviceCode));
             if(dto == null)
                 throw new ArgumentNullException(nameof(dto));
 

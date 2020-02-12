@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using Microsoft.Extensions.Primitives;
 using System.Threading.Tasks;
 using Kakadu.DTO;
+using System.Threading;
 
 namespace Kakadu.ActionApi.Tests
 {
@@ -462,6 +463,45 @@ namespace Kakadu.ActionApi.Tests
             var result = await task;
 
             result.Should().BeTrue();
+        }
+
+        [Fact]
+        public void StoreReply_ThrowsExceptionsOnEmptyParameters()
+        {
+            var controller = new RestController(loggerMock.Object, anonymousServiceClientMock.Object, authenticatedServiceClientMock.Object, cacheMock.Object);
+            var knownRoute = new KnownRouteDTO {
+                Id = Guid.NewGuid(),
+                MethodName = "GET",
+                RelativeUrl = "/path",
+                Replies = new List<KnownRouteReplyDTO> {
+                    new KnownRouteReplyDTO {
+                        Id = Guid.NewGuid(),
+                        StatusCode = 200,
+                        ContentType = "application/json",
+                        ContentEncoding = "utf-8",
+                        ContentLength = 0
+                    }
+                }
+            };
+
+            var type = typeof(BaseActionApiController);
+            MethodInfo method = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
+                .Where(x => x.Name == "StoreReply" && x.IsPrivate)
+                .First();
+
+            CancellationTokenSource cts = new CancellationTokenSource(1000);
+
+            var task = (Task)method.Invoke(controller, new object[] { "", null, cts.Token });
+            Assert.ThrowsAsync<ArgumentNullException>(async () => await task);
+
+            task = (Task)method.Invoke(controller, new object[] { "dummy", null, cts.Token });
+            Assert.ThrowsAsync<ArgumentNullException>(async () => await task);
+
+            task = (Task)method.Invoke(controller, new object[] { "", knownRoute, cts.Token });
+            Assert.ThrowsAsync<ArgumentNullException>(async () => await task);
+
+            task = (Task)method.Invoke(controller, new object[] { null, knownRoute, cts.Token });
+            Assert.ThrowsAsync<ArgumentNullException>(async () => await task);
         }
     }
 }
