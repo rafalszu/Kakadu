@@ -48,12 +48,11 @@ namespace Kakadu.ActionApi.Controllers
                 throw new ArgumentNullException(nameof(service));
             if(string.IsNullOrWhiteSpace(relativePath))
                 throw new ArgumentNullException(nameof(relativePath));
-            if (string.IsNullOrWhiteSpace(action))
-                throw new ArgumentNullException(nameof(action));
 
             var knownRoutes = service.KnownRoutes?.Where(r => !string.IsNullOrWhiteSpace(r.Action) && 
                                                             r.RelativeUrl.Equals(relativePath, StringComparison.InvariantCultureIgnoreCase));
-            if(knownRoutes.Any()) {
+                                                            
+            if(knownRoutes != null && knownRoutes.Any() && !string.IsNullOrWhiteSpace(action)) {
                 // match action
                 var actionRoute = knownRoutes.FirstOrDefault(r => r.Action.Equals(action, StringComparison.InvariantCultureIgnoreCase));
                 return actionRoute;
