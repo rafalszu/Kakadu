@@ -60,12 +60,17 @@ namespace Kakadu.Common.HttpClients
 
                     using(var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false))
                     {
-                        var stream = await response.Content.ReadAsStreamAsync();
-                        if(response.IsSuccessStatusCode)
-                            return DeserializeJsonFromStream<T>(stream);
+                        if (response.Content != null)
+                        {
+                            var stream = await response.Content.ReadAsStreamAsync();
+                            if (response.IsSuccessStatusCode)
+                                return DeserializeJsonFromStream<T>(stream);
 
-                        var content = await StreamToStringAsync(stream);
-                        throw new HttpResponseException(response.StatusCode, content);
+                            var content = await StreamToStringAsync(stream);
+                            throw new HttpResponseException(response.StatusCode, content);
+                        }
+
+                        return default;
                     }
                 }
             }
