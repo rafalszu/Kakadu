@@ -25,7 +25,7 @@ namespace Kakadu.Common.Extensions
         public async static Task<T> GetOrAddAsync<T>(this IDistributedCache distributedCache, string key, Func<DistributedCacheEntryOptions, Task<T>> getDataDelegate, CancellationToken token = default(CancellationToken))
         {
             var cached = await distributedCache.GetAsync<T>(key, token);
-            if(!cached.Equals(default(T)))
+            if(cached != null && !cached.Equals(default(T)))
                 return cached;
 
             DistributedCacheEntryOptions options = new DistributedCacheEntryOptions();
