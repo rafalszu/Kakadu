@@ -41,7 +41,7 @@ namespace Kakadu.ActionApi.Tests
                 });
         }
 
-        Fact]
+        [Fact]
         public void ClassShouldBeDerivedFromHttpClientBase()
         {
             typeof(ConfigurationApiHttpClient)
