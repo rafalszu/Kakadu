@@ -44,14 +44,19 @@ namespace Kakadu.Common.Extensions
         internal static byte[] ToByteArray(this object obj)  
         {  
             if (obj == null)  
-                return null;  
+                return null;
 
-            BinaryFormatter binaryFormatter = new BinaryFormatter();  
-            using (MemoryStream memoryStream = new MemoryStream())  
-            {  
-                binaryFormatter.Serialize(memoryStream, obj);  
-                return memoryStream.ToArray();  
-            }  
+            switch(obj) {
+                case string s:
+                    return System.Text.Encoding.UTF8.GetBytes(s);
+                default:
+                    BinaryFormatter binaryFormatter = new BinaryFormatter();  
+                    using (MemoryStream memoryStream = new MemoryStream())  
+                    {  
+                        binaryFormatter.Serialize(memoryStream, obj);  
+                        return memoryStream.ToArray();  
+                    }
+            }
         }  
 
         internal static T FromByteArray<T>(this byte[] byteArray)
@@ -64,6 +69,14 @@ namespace Kakadu.Common.Extensions
             {  
                 return (T)binaryFormatter.Deserialize(memoryStream);  
             }  
+        }
+
+        internal static string FromByteArray(this byte[] byteArray)
+        {
+            if (byteArray == null)
+                return null;
+
+            return System.Text.Encoding.UTF8.GetString(byteArray);
         }
     }
 }
