@@ -16,7 +16,8 @@ namespace Kakadu.ActionApi.HttpClients
     {
         private readonly IDistributedCache _cache;
 
-        public AnonymousServiceHttpClient(HttpClient httpClient, ILogger<AnonymousServiceHttpClient> logger, IDistributedCache cache) : base(httpClient, logger) => _cache = cache;
+        public AnonymousServiceHttpClient(HttpClient httpClient, ILogger<AnonymousServiceHttpClient> logger, IDistributedCache cache) : base(httpClient, logger) 
+            => _cache = cache ?? throw new ArgumentNullException(nameof(cache));
 
         public async Task<ServiceDTO> GetByCodeAsync(string serviceCode, CancellationToken cancellationToken)
         {

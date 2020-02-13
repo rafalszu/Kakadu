@@ -18,7 +18,7 @@ namespace Kakadu.ActionApi.HttpClients
 
         public AuthenticatedServiceHttpClient(HttpClient client, ILogger<AuthenticatedServiceHttpClient> logger, IDistributedCache cache) : base(client, logger, cache)
         {
-            _logger = logger;
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
             string accessToken = cache.GetString(KakaduConstants.ACCESS_TOKEN);
             // bearer xxxxxxxx
