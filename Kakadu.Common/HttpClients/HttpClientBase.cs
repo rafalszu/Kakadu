@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,6 +12,7 @@ using Kakadu.DTO.HttpExceptions;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
+[assembly: InternalsVisibleTo("Kakadu.Common.Tests")]
 namespace Kakadu.Common.HttpClients
 {
     public class HttpClientBase
@@ -42,7 +44,7 @@ namespace Kakadu.Common.HttpClients
 
         protected async Task<string> DeleteAsync(string relativeUri, CancellationToken cancellationToken) => await DeleteAsync(new Uri(relativeUri, UriKind.Relative), cancellationToken);
 
-        private async Task<T> SendAsync<T>(HttpMethod httpMethod, Uri uri, object obj, CancellationToken cancellationToken)
+        internal async Task<T> SendAsync<T>(HttpMethod httpMethod, Uri uri, object obj, CancellationToken cancellationToken)
         {
             if (uri == null)
                 throw new ArgumentNullException("uri");
@@ -52,32 +54,46 @@ namespace Kakadu.Common.HttpClients
                 using(var httpContent = CreateHttpContent(obj))
                 {
                     request.Content = httpContent;
-                    if(CustomRequestHeaders != null && CustomRequestHeaders.Keys.Any())
-                    {
-                        foreach(var customHeader in CustomRequestHeaders.Keys)
-                            request.Headers.Add(customHeader, CustomRequestHeaders[customHeader]);
-                    }
+                    AddCustomRequestHeaders(request);
 
                     using(var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false))
-                    {
-                        if (response.Content != null)
-                        {
-                            var stream = await response.Content.ReadAsStreamAsync();
-                            if (response.IsSuccessStatusCode)
-                                return DeserializeJsonFromStream<T>(stream);
-
-                            var content = await StreamToStringAsync(stream);
-                            throw new HttpResponseException(response.StatusCode, content);
-                        }
-
-                        return default;
-                    }
+                        return await TryGetContentAsync<T>(response);
                 }
             }
         }
 
-        private void SerializeJsonIntoStream(object value, Stream stream)
+        internal void AddCustomRequestHeaders(HttpRequestMessage request)
         {
+            if(CustomRequestHeaders == null || !CustomRequestHeaders.Keys.Any())
+                return;
+
+            foreach(var customHeader in CustomRequestHeaders.Keys)
+            {
+                if(string.IsNullOrWhiteSpace(customHeader) || CustomRequestHeaders[customHeader] == null || !CustomRequestHeaders[customHeader].Any())
+                    continue;
+                    
+                request.Headers.Add(customHeader, CustomRequestHeaders[customHeader]);
+            }            
+        }
+
+        internal async Task<T> TryGetContentAsync<T>(HttpResponseMessage response)
+        {
+            if(response == null || response.Content == null)
+                return default;
+            
+            var stream = await response.Content.ReadAsStreamAsync();
+            if (response.IsSuccessStatusCode)
+                return DeserializeJsonFromStream<T>(stream);
+
+            var content = await StreamToStringAsync(stream);
+            throw new HttpResponseException(response.StatusCode, content);            
+        }
+
+        internal void SerializeJsonIntoStream(object value, Stream stream)
+        {
+            if(stream == null || value == null)
+                return;
+            
             using (var writer = new StreamWriter(stream, new UTF8Encoding(false), 1024, true))
             {
                 using (var textWriter = new JsonTextWriter(writer) { Formatting = Formatting.None })
@@ -89,7 +105,7 @@ namespace Kakadu.Common.HttpClients
             }
         }
 
-        private HttpContent CreateHttpContent(object content)
+        internal HttpContent CreateHttpContent(object content)
         {
             HttpContent httpContent = null;
 
@@ -105,9 +121,9 @@ namespace Kakadu.Common.HttpClients
             return httpContent;
         }
 
-        private T TryDeserialize<T>(JsonTextReader jsonReader, out T result, bool throwException = true)
+        internal T TryDeserialize<T>(JsonTextReader jsonReader, bool throwException = true)
         {
-            result = default(T);
+            var result = default(T);
             if(jsonReader == null)
                 return result;
 
@@ -125,22 +141,22 @@ namespace Kakadu.Common.HttpClients
                     _logger.LogDebug($"Response not uderstandable: {ex.ToString()}");
 
                 if(throwException)
-                    throw new Exception("Response not uderstandable");
+                    throw new Exception("Response not understandable");
             }
 
             return result;
         }
 
-        private T DeserializeJsonFromStream<T>(Stream stream)
+        internal T DeserializeJsonFromStream<T>(Stream stream)
         {
             if (stream == null || stream.CanRead == false)
                 return default(T);
 
             using (var reader = new StreamReader(stream))
-                return TryDeserialize<T>(new JsonTextReader(reader), out T result);                
+                return TryDeserialize<T>(new JsonTextReader(reader));                
         }
 
-        private async Task<string> StreamToStringAsync(Stream stream)
+        internal async Task<string> StreamToStringAsync(Stream stream)
         {
             string content = null;
 
