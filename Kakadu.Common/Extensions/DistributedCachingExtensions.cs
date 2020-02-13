@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Distributed;
 
 [assembly: InternalsVisibleTo("Kakadu.ActionApi.Tests")]
+[assembly: InternalsVisibleTo("Kakadu.Common.Tests")]
 namespace Kakadu.Common.Extensions
 {
     public static class DistributedCachingExtensions

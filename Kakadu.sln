@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kakadu.ConfigurationApi.Tes
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kakadu.Common", "Kakadu.Common\Kakadu.Common.csproj", "{019E8EA1-CAEB-4B49-AB51-2E734C8C7C9B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kakadu.Common.Tests", "Kakadu.Common.Tests\Kakadu.Common.Tests.csproj", "{7EBC1EA6-451E-4CC4-955F-3E094799B358}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -142,5 +144,17 @@ Global
 		{019E8EA1-CAEB-4B49-AB51-2E734C8C7C9B}.Release|x64.Build.0 = Release|Any CPU
 		{019E8EA1-CAEB-4B49-AB51-2E734C8C7C9B}.Release|x86.ActiveCfg = Release|Any CPU
 		{019E8EA1-CAEB-4B49-AB51-2E734C8C7C9B}.Release|x86.Build.0 = Release|Any CPU
+		{7EBC1EA6-451E-4CC4-955F-3E094799B358}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7EBC1EA6-451E-4CC4-955F-3E094799B358}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7EBC1EA6-451E-4CC4-955F-3E094799B358}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{7EBC1EA6-451E-4CC4-955F-3E094799B358}.Debug|x64.Build.0 = Debug|Any CPU
+		{7EBC1EA6-451E-4CC4-955F-3E094799B358}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{7EBC1EA6-451E-4CC4-955F-3E094799B358}.Debug|x86.Build.0 = Debug|Any CPU
+		{7EBC1EA6-451E-4CC4-955F-3E094799B358}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7EBC1EA6-451E-4CC4-955F-3E094799B358}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7EBC1EA6-451E-4CC4-955F-3E094799B358}.Release|x64.ActiveCfg = Release|Any CPU
+		{7EBC1EA6-451E-4CC4-955F-3E094799B358}.Release|x64.Build.0 = Release|Any CPU
+		{7EBC1EA6-451E-4CC4-955F-3E094799B358}.Release|x86.ActiveCfg = Release|Any CPU
+		{7EBC1EA6-451E-4CC4-955F-3E094799B358}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
