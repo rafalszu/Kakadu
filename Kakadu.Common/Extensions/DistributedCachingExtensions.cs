@@ -11,20 +11,29 @@ using Microsoft.Extensions.Caching.Distributed;
 namespace Kakadu.Common.Extensions
 {
     public static class DistributedCachingExtensions
-    {  
+    { 
         public async static Task SetAsync<T>(this IDistributedCache distributedCache, string key, T value, DistributedCacheEntryOptions options, CancellationToken token = default(CancellationToken))  
-        {  
+        {
+            if(string.IsNullOrWhiteSpace(key))
+                throw new ArgumentNullException(nameof(key));
+
             await distributedCache.SetAsync(key, value.ToByteArray(), options, token);  
         }  
   
         public async static Task<T> GetAsync<T>(this IDistributedCache distributedCache, string key, CancellationToken token = default(CancellationToken))
-        {  
+        {
+            if(string.IsNullOrWhiteSpace(key))
+                throw new ArgumentNullException(nameof(key));
+
             var result = await distributedCache.GetAsync(key, token);  
             return result.FromByteArray<T>();  
         }
 
         public async static Task<T> GetOrAddAsync<T>(this IDistributedCache distributedCache, string key, Func<DistributedCacheEntryOptions, Task<T>> getDataDelegate, CancellationToken token = default(CancellationToken))
         {
+            if(string.IsNullOrWhiteSpace(key))
+                throw new ArgumentNullException(nameof(key));
+
             var cached = await distributedCache.GetAsync<T>(key, token);
             if(cached != null && !cached.Equals(default(T)))
                 return cached;
@@ -38,10 +47,35 @@ namespace Kakadu.Common.Extensions
 
             return result;
         }
+
+        public async static Task<string> GetOrAddStringAsync(this IDistributedCache distributedCache, string key, Func<DistributedCacheEntryOptions, Task<string>> getDataDelegate, CancellationToken token = default(CancellationToken))
+        {
+            if(string.IsNullOrWhiteSpace(key))
+                throw new ArgumentNullException(nameof(key));
+                
+            var cached = distributedCache.GetString(key);
+            if(!string.IsNullOrWhiteSpace(cached))
+                return cached;
+
+            DistributedCacheEntryOptions options = new DistributedCacheEntryOptions();
+            var result = await getDataDelegate(options);
+
+            await distributedCache.SetStringAsync(key, result, options, token);
+
+            return result;
+        }
     }
 
     internal static class SerializationExtensions
     {  
+        internal static byte[] ToByteArray(this string s)
+        {
+            if(string.IsNullOrWhiteSpace(s))
+                return null;
+
+            return System.Text.Encoding.UTF8.GetBytes(s);
+        }
+
         internal static byte[] ToByteArray(this object obj)  
         {  
             if (obj == null)  
