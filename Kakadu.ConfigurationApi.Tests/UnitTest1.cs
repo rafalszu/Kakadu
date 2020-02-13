@@ -8,7 +8,7 @@ namespace Kakadu.ConfigurationApi.Tests
         [Fact]
         public void Test1()
         {
-
+            // TODO: write some actual tests :)
         }
     }
 }
