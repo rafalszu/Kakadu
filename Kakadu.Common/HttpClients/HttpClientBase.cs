@@ -22,8 +22,8 @@ namespace Kakadu.Common.HttpClients
 
         public HttpClientBase(HttpClient client, ILogger<HttpClientBase> logger)
         {
-            _httpClient = client;
-            _logger = logger;
+            _httpClient = client ?? throw new ArgumentNullException(nameof(client));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         protected async Task<T> GetAsync<T>(Uri uri, CancellationToken cancellationToken) => await SendAsync<T>(HttpMethod.Get, uri, null, cancellationToken);
