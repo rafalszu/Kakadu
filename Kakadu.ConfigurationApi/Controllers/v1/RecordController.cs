@@ -13,6 +13,7 @@ using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Kakadu.Common.Extensions;
+using Kakadu.ConfigurationApi.Models;
 
 namespace Kakadu.ConfigurationApi.Controllers.v1
 {
@@ -34,12 +35,12 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
         }
 
         [HttpPost("start/{serviceCode}")]
-        public async Task<ActionResult> StartRecording(string serviceCode, CancellationToken cancellationToken)
+        public async Task<ActionResult> StartRecordingAsync(string serviceCode, CancellationToken cancellationToken)
         {
             if (string.IsNullOrWhiteSpace(serviceCode))
                 throw new ArgumentNullException(nameof(serviceCode));
 
-            return await ToggleRecording(
+            return await CallActionApiAsync(
                 apiCall: async (instance, accessToken) => {
                     return await _actionApiHttpClient.StartRecordingAsync(instance, serviceCode, accessToken, cancellationToken);
                 },
@@ -48,19 +49,32 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
         }
 
         [HttpPost("stop/{serviceCode}")]
-        public async Task<ActionResult> StopRecording(string serviceCode, CancellationToken cancellationToken)
+        public async Task<ActionResult> StopRecordingAsync(string serviceCode, CancellationToken cancellationToken)
         {
             if (string.IsNullOrWhiteSpace(serviceCode))
                 throw new ArgumentNullException(nameof(serviceCode));
 
-            return await ToggleRecording(
+            return await CallActionApiAsync(
                 apiCall: async(instance, accessToken) => {
                     return await _actionApiHttpClient.StopRecordingAsync(instance, serviceCode, accessToken, cancellationToken);
                 },
                 cancellationToken: cancellationToken);
         }
 
-        private async Task<ActionResult> ToggleRecording(Func<string, string, Task<bool>> apiCall, CancellationToken cancellationToken)
+        [HttpGet("status/{serviceCode}")]
+        public async Task<ActionResult<bool>> GetStatusAsync(string serviceCode, CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrWhiteSpace(serviceCode))
+                throw new ArgumentNullException(nameof(serviceCode));
+            
+            return await CallActionApiAsync(
+                apiCall: async(instance, accessToken) => {
+                    return await _actionApiHttpClient.GetStatusAsync(instance, serviceCode, accessToken, cancellationToken);
+                },
+                cancellationToken: cancellationToken);
+        }
+
+        internal async Task<ActionResult> CallActionApiAsync(Func<string, string, Task<bool>> apiCall, CancellationToken cancellationToken)
         {
             List<string> instances = await _cache.GetAsync<List<string>>(KakaduConstants.ACTIONAPI_INSTANCES);
             if (instances == null || !instances.Any())
@@ -72,28 +86,35 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
             var tasks = Task.WhenAll(
                 instances.Select(instance => 
                     CallActionApi(async () => {
-                        return await apiCall(instance, authToken);
+                        return await GetActionApiCallResultAsync(apiCall, instance, authToken);
                     })
                 )
             );
 
-            List<string> errors = new List<string>();
+            var results = await tasks;
 
-            try
-            {
-                await tasks;
-            }
-            catch
-            {
-                errors.AddRange(
-                    tasks.Exception?.InnerExceptions?.Select(ex => ex.Message)
-                );
-            }
-
-            return Ok(errors);
+            return Ok(results);
         }
 
-        private async Task<bool> CallActionApi(Func<Task<bool>> func)
+        internal async Task<ActionApiCallResult> GetActionApiCallResultAsync(Func<string, string, Task<bool>> apiCall, string instance, string authToken)
+        {
+            object result = null;
+            try
+            {
+                result = await apiCall(instance, authToken);
+            }
+            catch(Exception ex)
+            {
+                result = ex.InnerException?.Message ?? ex.Message;
+            }
+            
+            return new ActionApiCallResult {
+                Host = instance,
+                Result = result
+            };
+        }
+
+        internal async Task<ActionApiCallResult> CallActionApi(Func<Task<ActionApiCallResult>> func)
         {
             if(func == null)
                 throw new ArgumentNullException(nameof(func));
@@ -101,6 +122,7 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
             try
             {
                 return await func();
+
             }
             catch (Exception ex)
             {
