@@ -2,27 +2,25 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 
-import { userActions } from '../../_actions';
+import { serviceActions } from '../../_actions';
 
 class Home extends React.Component {
     componentDidMount() {
-        this.props.dispatch(userActions.getAll());
+        this.props.dispatch(serviceActions.getAll());
     }
 
     render() {
-        const { user, users } = this.props;
+        const { user, services } = this.props;
         return (
             <div className="col-md-6 col-md-offset-3">
-                <h1>Hi {user.firstName}!</h1>
-                <p>You're logged in with React & JWT!!</p>
-                <h3>Users from secure api end point:</h3>
-                {users.loading && <em>Loading users...</em>}
-                {users.error && <span className="text-danger">ERROR: {users.error}</span>}
-                {users.items &&
+                <h3>Services</h3>
+                {services.loading && <em>Loading services...</em>}
+                {services.error && <span className="text-danger">ERROR: {services.error}</span>}
+                {services.items &&
                     <ul>
-                        {users.items.map((user, index) =>
-                            <li key={user.id}>
-                                {user.firstName + ' ' + user.lastName}
+                        {services.items.map((service, index) =>
+                            <li key={index}>
+                                {service.code}
                             </li>
                         )}
                     </ul>
@@ -36,11 +34,11 @@ class Home extends React.Component {
 }
 
 function mapStateToProps(state) {
-    const { users, authentication } = state;
+    const { services, authentication } = state;
     const { user } = authentication;
     return {
         user,
-        users
+        services
     };
 }
 
