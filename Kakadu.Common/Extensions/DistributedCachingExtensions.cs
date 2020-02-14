@@ -96,7 +96,7 @@ namespace Kakadu.Common.Extensions
 
         internal static T FromByteArray<T>(this byte[] byteArray)
         {  
-            if (byteArray == null)  
+            if (byteArray == null || byteArray.Length == 0)
                 return default(T);  
 
             BinaryFormatter binaryFormatter = new BinaryFormatter();  

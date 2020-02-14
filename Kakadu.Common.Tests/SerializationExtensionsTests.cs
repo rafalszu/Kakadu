@@ -47,6 +47,28 @@ namespace Kakadu.Common.Tests
         }
 
         [Fact]
+        public void Serialization_SupportNullableBool1()
+        {
+            bool? value = null;
+            byte[] serialized = value.ToByteArray();
+
+            bool? result = serialized.FromByteArray<bool?>();
+            result
+                .Should()
+                .BeNull();
+        }
+    
+        [Fact]
+        public void Serialization_SupportNullableBool2()
+        {
+            byte[] serialized = new byte[0];
+            
+            bool? result = serialized.FromByteArray<bool?>();
+            result.Should()
+                  .BeNull();
+        }
+
+        [Fact]
         public void Serialization_SupportsInt()
         {
             int value = 124;
