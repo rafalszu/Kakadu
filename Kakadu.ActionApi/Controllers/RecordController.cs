@@ -79,7 +79,7 @@ namespace Kakadu.ActionApi.Controllers
             
             return Unauthorized();
         }
-        [HttpGet]
+        [HttpGet("status/{serviceCode}")]
         public async Task<ActionResult<bool>> GetStatusAsync(string serviceCode, CancellationToken cancellationToken)
         {
             if(string.IsNullOrWhiteSpace(serviceCode))
