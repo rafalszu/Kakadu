@@ -8,5 +8,7 @@ namespace Kakadu.ConfigurationApi.Interfaces
         Task<bool> StartRecordingAsync(string host, string serviceCode, string accessToken, CancellationToken cancellationToken);
 
         Task<bool> StopRecordingAsync(string host, string serviceCode, string accessToken, CancellationToken cancellationToken);
+
+        Task<bool> GetStatusAsync(string host, string serviceCode, string accessToken, CancellationToken cancellationToken);
     }
 }

@@ -16,15 +16,20 @@ namespace Kakadu.ConfigurationApi.HttpClients
 
         public async Task<bool> StartRecordingAsync(string host, string serviceCode, string accessToken, CancellationToken cancellationToken)
         {
-            return await ToggleRecord("start", host, serviceCode, accessToken, cancellationToken);
+            return await QueryActionInstanceAsync("start", host, serviceCode, accessToken, cancellationToken);
         }
 
         public async Task<bool> StopRecordingAsync(string host, string serviceCode, string accessToken, CancellationToken cancellationToken)
         {
-            return await ToggleRecord("stop", host, serviceCode, accessToken, cancellationToken);
+            return await QueryActionInstanceAsync("stop", host, serviceCode, accessToken, cancellationToken);
         }
 
-        private async Task<bool> ToggleRecord(string apiMethod, string host, string serviceCode, string accessToken, CancellationToken cancellationToken)
+        public async Task<bool> GetStatusAsync(string host, string serviceCode, string accessToken, CancellationToken cancellationToken)
+        {
+            return await QueryActionInstanceAsync("status", host, serviceCode, accessToken, cancellationToken);
+        }
+
+        private async Task<bool> QueryActionInstanceAsync(string apiMethod, string host, string serviceCode, string accessToken, CancellationToken cancellationToken)
         {
             var uri = new Uri(string.Format("{0}{1}api/v1/record/{2}/{3}", 
                 host,
