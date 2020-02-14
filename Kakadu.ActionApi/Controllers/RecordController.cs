@@ -30,7 +30,7 @@ namespace Kakadu.ActionApi.Controllers
         }
 
         [HttpGet("start/{serviceCode}")]
-        public async Task<ActionResult> StartRecording(string serviceCode, CancellationToken cancellationToken)
+        public async Task<ActionResult> StartRecordingAsync(string serviceCode, CancellationToken cancellationToken)
         {
             if(string.IsNullOrWhiteSpace(serviceCode))
                 throw new ArgumentNullException(nameof(serviceCode));
@@ -59,7 +59,7 @@ namespace Kakadu.ActionApi.Controllers
         }
 
         [HttpGet("stop/{serviceCode}")]
-        public async Task<ActionResult> StopRecording(string serviceCode, CancellationToken cancellationToken)
+        public async Task<ActionResult> StopRecordingAsync(string serviceCode, CancellationToken cancellationToken)
         {
             if(string.IsNullOrWhiteSpace(serviceCode))
                 throw new ArgumentNullException(nameof(serviceCode));
@@ -75,6 +75,27 @@ namespace Kakadu.ActionApi.Controllers
             {
                 _cache.Remove(recordCacheKey);
                 return Ok(true);
+            }
+            
+            return Unauthorized();
+        }
+        [HttpGet]
+        public async Task<ActionResult<bool>> GetStatusAsync(string serviceCode, CancellationToken cancellationToken)
+        {
+            if(string.IsNullOrWhiteSpace(serviceCode))
+                throw new ArgumentNullException(nameof(serviceCode));
+
+            if(!HttpContext.Request.Headers.TryGetValue("Authorization", out StringValues authToken))
+                throw new HttpBadRequestException("missing authorization header");
+
+            string recordCacheKey = KakaduConstants.GetRecordKey(serviceCode);
+
+            // verify bearer token from headers with configuration api
+            var isValid = await _serviceClient.ValidateTokenAsync(authToken, cancellationToken);
+            if(isValid)
+            {
+                bool? isRecording = await _cache.GetAsync<bool?>(recordCacheKey, cancellationToken);
+                return Ok(isRecording.HasValue && isRecording.Value);
             }
             
             return Unauthorized();

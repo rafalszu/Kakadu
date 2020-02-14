@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Kakadu.ActionApi.Controllers;
 using Kakadu.ActionApi.Interfaces;
+using Kakadu.Common.Extensions;
 using Kakadu.DTO.HttpExceptions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -42,7 +43,7 @@ namespace Kakadu.ActionApi.Tests
             controller.ControllerContext.HttpContext = new DefaultHttpContext();
             
             var tcs = new CancellationTokenSource(1000);
-            Assert.ThrowsAsync<HttpBadRequestException>(() => controller.StartRecording("dummy", tcs.Token));
+            Assert.ThrowsAsync<HttpBadRequestException>(() => controller.StartRecordingAsync("dummy", tcs.Token));
         }
 
         [Fact]
@@ -59,7 +60,7 @@ namespace Kakadu.ActionApi.Tests
     
             var tcs = new CancellationTokenSource(1000);
 
-            var result = await controller.StartRecording("dummy", tcs.Token);
+            var result = await controller.StartRecordingAsync("dummy", tcs.Token);
             Assert.IsType<OkObjectResult>(result);
             
             OkObjectResult ok = (OkObjectResult)result;
@@ -82,7 +83,7 @@ namespace Kakadu.ActionApi.Tests
     
             var tcs = new CancellationTokenSource(1000);
 
-            var result = await controller.StartRecording("dummy", tcs.Token);
+            var result = await controller.StartRecordingAsync("dummy", tcs.Token);
             Assert.IsType<UnauthorizedResult>(result);
         }
 
@@ -94,7 +95,7 @@ namespace Kakadu.ActionApi.Tests
             controller.ControllerContext.HttpContext = new DefaultHttpContext();
             
             var tcs = new CancellationTokenSource(1000);
-            Assert.ThrowsAsync<HttpBadRequestException>(() => controller.StopRecording("dummy", tcs.Token));
+            Assert.ThrowsAsync<HttpBadRequestException>(() => controller.StopRecordingAsync("dummy", tcs.Token));
         }
 
         [Fact]
@@ -111,7 +112,7 @@ namespace Kakadu.ActionApi.Tests
     
             var tcs = new CancellationTokenSource(1000);
 
-            var result = await controller.StopRecording("dummy", tcs.Token);
+            var result = await controller.StopRecordingAsync("dummy", tcs.Token);
             Assert.IsType<OkObjectResult>(result);
             
             OkObjectResult ok = (OkObjectResult)result;
@@ -134,8 +135,141 @@ namespace Kakadu.ActionApi.Tests
     
             var tcs = new CancellationTokenSource(1000);
 
-            var result = await controller.StopRecording("dummy", tcs.Token);
+            var result = await controller.StopRecordingAsync("dummy", tcs.Token);
             Assert.IsType<UnauthorizedResult>(result);
+        }
+
+        [Theory]
+        [InlineData("")]
+        [InlineData(null)]
+        public void GetStatus_ThrowsExceptionWhenServiceCodeIsEmpty(string serviceCode)
+        {
+            var controller = new RecordController(loggerMock.Object, anonymousServiceHttpClientMock.Object, cacheMock.Object);
+
+            var tcs = new CancellationTokenSource(1000);
+
+            Func<Task> func = () => controller.GetStatusAsync(serviceCode, tcs.Token);
+
+            func.Should()
+                .ThrowAsync<ArgumentNullException>();
+        }
+
+        [Fact]
+        public void GetStatus_ThrowsHttpBadRequestExceptionWhenNoAuthHeaderPresent()
+        {
+            var controller = new RecordController(loggerMock.Object, anonymousServiceHttpClientMock.Object, cacheMock.Object);
+            var tcs = new CancellationTokenSource(1000);
+            Func<Task> func = () => controller.GetStatusAsync("dummy", tcs.Token);
+
+            func.Should()
+                .ThrowAsync<HttpResponseException>();
+        }
+
+        [Fact]
+        public async Task GetStatus_Returns200OK_ForValidToken()
+        {
+            anonymousServiceHttpClientMock
+                .Setup<Task<bool>>(x => x.ValidateTokenAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(true);
+
+            //byte[] boolBytes = true.ToByteArray();
+
+            // cacheMock.Setup(x => 
+            //     x.GetAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())
+            // ).ReturnsAsync(boolBytes);
+
+            var controller = new RecordController(loggerMock.Object, anonymousServiceHttpClientMock.Object, cacheMock.Object);
+            controller.ControllerContext = new ControllerContext();
+            controller.ControllerContext.HttpContext = new DefaultHttpContext();
+            controller.ControllerContext.HttpContext.Request.Headers["Authorization"] = "authtoken";
+
+            var tcs = new CancellationTokenSource(1000);
+            var result = await controller.GetStatusAsync("dummy", tcs.Token);
+
+            result.Should()
+                  .BeOfType<ActionResult<bool>>();
+        }
+
+        [Fact]
+        public async Task GetStatus_Reutrns401_WhenNoValidTokenPresent()
+        {
+            anonymousServiceHttpClientMock
+                .Setup<Task<bool>>(x => x.ValidateTokenAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(false);
+
+            var controller = new RecordController(loggerMock.Object, anonymousServiceHttpClientMock.Object, cacheMock.Object);
+            controller.ControllerContext = new ControllerContext();
+            controller.ControllerContext.HttpContext = new DefaultHttpContext();
+            controller.ControllerContext.HttpContext.Request.Headers["Authorization"] = "authtoken";
+    
+            var tcs = new CancellationTokenSource(1000);
+
+            var result = await controller.GetStatusAsync("dummy", tcs.Token);
+            result
+                .Should().BeOfType<ActionResult<bool>>()
+                .Subject
+                .Result.Should()
+                       .BeOfType<UnauthorizedResult>();
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task GetStatus_Returns200OkWithExpectedValue(bool expected)
+        {
+            anonymousServiceHttpClientMock
+                .Setup<Task<bool>>(x => x.ValidateTokenAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(true);
+
+            byte[] boolBytes = expected.ToByteArray();
+
+            cacheMock.Setup(x => 
+                x.GetAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())
+            ).ReturnsAsync(boolBytes);
+
+            var controller = new RecordController(loggerMock.Object, anonymousServiceHttpClientMock.Object, cacheMock.Object);
+            controller.ControllerContext = new ControllerContext();
+            controller.ControllerContext.HttpContext = new DefaultHttpContext();
+            controller.ControllerContext.HttpContext.Request.Headers["Authorization"] = "authtoken";
+
+            var tcs = new CancellationTokenSource(1000);
+            var result = await controller.GetStatusAsync("dummy", tcs.Token);
+
+            result.Should()
+                  .BeOfType<ActionResult<bool>>();
+
+            result
+                .Result
+                .Should()
+                .BeOfType<OkObjectResult>()
+                .Subject
+                .Value.As<bool>()
+                .Should()
+                .Be(expected);
+        }
+
+        [Fact]
+        public async Task GetStatus_Returns200OkFalse_WhenRecordCacheKeyIsNotPresent()
+        {
+            anonymousServiceHttpClientMock
+                .Setup<Task<bool>>(x => x.ValidateTokenAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(true);
+
+            var controller = new RecordController(loggerMock.Object, anonymousServiceHttpClientMock.Object, cacheMock.Object);
+            controller.ControllerContext = new ControllerContext();
+            controller.ControllerContext.HttpContext = new DefaultHttpContext();
+            controller.ControllerContext.HttpContext.Request.Headers["Authorization"] = "authtoken";
+
+            var tcs = new CancellationTokenSource(1000);
+            var result = await controller.GetStatusAsync("dummy", tcs.Token);
+
+            result.Should()
+                  .BeOfType<ActionResult<bool>>();
+
+            result.As<ActionResult<bool>>()
+                  .Value
+                  .Should()
+                  .BeFalse();
         }
     }
 }
