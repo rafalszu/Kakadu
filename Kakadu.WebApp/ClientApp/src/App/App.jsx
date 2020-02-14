@@ -8,6 +8,7 @@ import { PrivateRoute } from '../Components';
 import { Home } from '../Components/Home';
 import { Login } from '../Components/Login';
 import { Layout } from '../Components/Layout';
+import { Services } from '../Components/Services';
 
 import '../custom.css'
 
@@ -32,6 +33,7 @@ class App extends React.Component {
                     }
                     <div>
                         <PrivateRoute exact path="/" component={Home} />
+                        <PrivateRoute exact path="/services" component={Services} />
                         <Route path="/login" component={Login} />
                     </div>
                 </Layout>

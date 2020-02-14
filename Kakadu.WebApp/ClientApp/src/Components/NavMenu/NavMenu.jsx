@@ -34,15 +34,9 @@ class NavMenu extends Component {
             <NavbarToggler onClick={this.toggleNavbar} className="mr-2" />
             <Collapse className="collapse navbar-collapse justify-content-between" isOpen={!this.state.collapsed} navbar>
               <ul className="navbar-nav mr-auto">
-                {/* <NavItem>
-                  <NavLink tag={Link} className="text-dark" to="/">Home</NavLink>
-                </NavItem>
                 <NavItem>
-                  <NavLink tag={Link} className="text-dark" to="/counter">Counter</NavLink>
+                  <NavLink tag={Link} className="text-dark" to="/services">Services</NavLink>
                 </NavItem>
-                <NavItem>
-                  <NavLink tag={Link} className="text-dark" to="/fetch-data">Fetch data</NavLink>
-                </NavItem> */}
               </ul>
               {user &&
                 <ul className="navbar-nav">
