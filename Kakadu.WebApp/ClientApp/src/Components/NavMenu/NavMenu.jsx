@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import { Collapse, Container, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink } from 'reactstrap';
 import { Link } from 'react-router-dom';
+import { connect } from 'react-redux';
 import './NavMenu.css';
 
-export class NavMenu extends Component {
+class NavMenu extends Component {
   static displayName = NavMenu.name;
 
   constructor (props) {
@@ -22,6 +23,7 @@ export class NavMenu extends Component {
   }
 
   render () {
+    const { user } = this.props;
     return (
       <header>
         <Navbar className="navbar-expand-sm navbar-toggleable-sm ng-white border-bottom box-shadow mb-3" light>
@@ -30,8 +32,8 @@ export class NavMenu extends Component {
             <NavbarBrand tag={Link} to="/">Kakadu</NavbarBrand> 
 
             <NavbarToggler onClick={this.toggleNavbar} className="mr-2" />
-            <Collapse className="d-sm-inline-flex flex-sm-row-reverse" isOpen={!this.state.collapsed} navbar>
-              <ul className="navbar-nav flex-grow">
+            <Collapse className="collapse navbar-collapse justify-content-between" isOpen={!this.state.collapsed} navbar>
+              <ul className="navbar-nav mr-auto">
                 {/* <NavItem>
                   <NavLink tag={Link} className="text-dark" to="/">Home</NavLink>
                 </NavItem>
@@ -42,6 +44,13 @@ export class NavMenu extends Component {
                   <NavLink tag={Link} className="text-dark" to="/fetch-data">Fetch data</NavLink>
                 </NavItem> */}
               </ul>
+              {user &&
+                <ul className="navbar-nav">
+                  <NavItem>
+                    <NavLink tag={Link} className="btn btn-primary text-white" to="/login">Log out</NavLink>
+                  </NavItem>
+                </ul>
+              }
             </Collapse>
           </Container>
         </Navbar>
@@ -49,3 +58,15 @@ export class NavMenu extends Component {
     );
   }
 }
+
+function mapStateToProps(state) {
+  console.log(state);
+  const { authentication } = state;
+  const { user } = authentication;
+  return {
+      user
+  };
+}
+
+const connectedNavBar = connect(mapStateToProps)(NavMenu);
+export { connectedNavBar as NavMenu };

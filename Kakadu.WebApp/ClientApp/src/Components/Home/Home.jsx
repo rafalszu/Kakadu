@@ -10,7 +10,7 @@ class Home extends React.Component {
     }
 
     render() {
-        const { user, services } = this.props;
+        const { services } = this.props;
         return (
             <div className="col-md-6 col-md-offset-3">
                 <h3>Services</h3>
@@ -25,9 +25,6 @@ class Home extends React.Component {
                         )}
                     </ul>
                 }
-                <p>
-                    <Link to="/login">Logout</Link>
-                </p>
             </div>
         );
     }
