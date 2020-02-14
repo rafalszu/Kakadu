@@ -9,6 +9,9 @@ using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Kakadu.Common.Extensions;
+using System.Collections.Generic;
+using Kakadu.DTO;
+using System.Linq;
 
 namespace Kakadu.ActionApi.Controllers
 {
@@ -35,15 +38,11 @@ namespace Kakadu.ActionApi.Controllers
             if(string.IsNullOrWhiteSpace(serviceCode))
                 throw new ArgumentNullException(nameof(serviceCode));
 
-            if(!HttpContext.Request.Headers.TryGetValue("Authorization", out StringValues authToken))
-                throw new HttpBadRequestException("missing authorization header");
-
-            string recordCacheKey = KakaduConstants.GetRecordKey(serviceCode);
-
-            // verify bearer token from headers with configuration api
-            var isValid = await _serviceClient.ValidateTokenAsync(authToken, cancellationToken);
-            if(isValid)
+            if(await TryValidateTokenAsync(cancellationToken))
             {
+                var authToken = HttpContext.Request.Headers["Authorization"];
+                string recordCacheKey = KakaduConstants.GetRecordKey(serviceCode);
+
                 await _cache.SetStringAsync(KakaduConstants.ACCESS_TOKEN, authToken.ToString(), new DistributedCacheEntryOptions {
                     AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1)
                 });
@@ -64,41 +63,68 @@ namespace Kakadu.ActionApi.Controllers
             if(string.IsNullOrWhiteSpace(serviceCode))
                 throw new ArgumentNullException(nameof(serviceCode));
 
-            if(!HttpContext.Request.Headers.TryGetValue("Authorization", out StringValues authToken))
-                throw new HttpBadRequestException("missing authorization header");
-
-            string recordCacheKey = KakaduConstants.GetRecordKey(serviceCode);
-
-            // verify bearer token from headers with configuration api
-            var isValid = await _serviceClient.ValidateTokenAsync(authToken, cancellationToken);
-            if(isValid)
+            if(await TryValidateTokenAsync(cancellationToken))
             {
+                string recordCacheKey = KakaduConstants.GetRecordKey(serviceCode);
                 _cache.Remove(recordCacheKey);
                 return Ok(true);
             }
             
             return Unauthorized();
         }
+
         [HttpGet("status/{serviceCode}")]
         public async Task<ActionResult<bool>> GetStatusAsync(string serviceCode, CancellationToken cancellationToken)
         {
             if(string.IsNullOrWhiteSpace(serviceCode))
                 throw new ArgumentNullException(nameof(serviceCode));
 
+            if(await TryValidateTokenAsync(cancellationToken))
+            {
+                var status = await GetRecordingStatusAsync(serviceCode, cancellationToken);
+                return Ok(status?.IsRecording ?? false);
+            }
+
+            return Unauthorized();
+        }
+
+        [HttpGet("status")]
+        public async Task<ActionResult<ServiceCaptureStatusDTO[]>> GetStatusAsync(List<string> serviceCodes, CancellationToken cancellationToken)
+        {
+            List<ServiceCaptureStatusDTO> results = new List<ServiceCaptureStatusDTO>();
+            
+            if(serviceCodes == null || !serviceCodes.Any())
+                return null;
+
+            if(await TryValidateTokenAsync(cancellationToken))
+            {
+                IEnumerable<Task<ServiceCaptureStatusDTO>> tasks = serviceCodes.Select(code => GetRecordingStatusAsync(code, cancellationToken));
+                return await Task.WhenAll(tasks);
+            }
+
+            return Unauthorized();
+        }
+
+        internal async Task<ServiceCaptureStatusDTO> GetRecordingStatusAsync(string serviceCode, CancellationToken cancellationToken)
+        {
+            if(string.IsNullOrWhiteSpace(serviceCode))
+                throw new ArgumentNullException(serviceCode);
+
+            string recordCacheKey = KakaduConstants.GetRecordKey(serviceCode);
+            bool? isRecording = await _cache.GetAsync<bool?>(recordCacheKey, cancellationToken);
+
+            return new ServiceCaptureStatusDTO {
+                ServiceCode = serviceCode,
+                IsRecording = (await _cache.GetAsync<bool?>(recordCacheKey, cancellationToken)) ?? false
+            };
+        }
+
+        internal async Task<bool> TryValidateTokenAsync(CancellationToken cancellationToken)
+        {
             if(!HttpContext.Request.Headers.TryGetValue("Authorization", out StringValues authToken))
                 throw new HttpBadRequestException("missing authorization header");
 
-            string recordCacheKey = KakaduConstants.GetRecordKey(serviceCode);
-
-            // verify bearer token from headers with configuration api
-            var isValid = await _serviceClient.ValidateTokenAsync(authToken, cancellationToken);
-            if(isValid)
-            {
-                bool? isRecording = await _cache.GetAsync<bool?>(recordCacheKey, cancellationToken);
-                return Ok(isRecording.HasValue && isRecording.Value);
-            }
-            
-            return Unauthorized();
+            return await _serviceClient.ValidateTokenAsync(authToken, cancellationToken);
         }
     }
 }
