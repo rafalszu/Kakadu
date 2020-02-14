@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Container, Table } from 'reactstrap';
+import { Container, Table, Navbar, NavItem, NavLink } from 'reactstrap';
+import { Link } from 'react-router-dom';
 
 import { serviceActions } from '../../_actions';
 
@@ -14,6 +15,13 @@ class Services extends React.Component {
         return (
             <Container>
                 {services.error && <span className="text-danger">ERROR: {services.error}</span>}
+                <Navbar className="navbar-expand-sm navbar-toggleable-sm pl-0 mb-0" light>
+                    <ul className="navbar-nav mr-auto">
+                    <NavItem>
+                        <NavLink tag={Link} className="btn btn-success text-white" to="/services/add">Add service</NavLink>
+                    </NavItem>
+                    </ul>
+                </Navbar>
                 <Table bordered hover responsive>
                     <thead>
                         <tr>
