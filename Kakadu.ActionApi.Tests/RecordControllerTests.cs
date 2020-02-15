@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
@@ -8,6 +9,7 @@ using FluentAssertions;
 using Kakadu.ActionApi.Controllers;
 using Kakadu.ActionApi.Interfaces;
 using Kakadu.Common.Extensions;
+using Kakadu.DTO;
 using Kakadu.DTO.HttpExceptions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -271,5 +273,158 @@ namespace Kakadu.ActionApi.Tests
                   .Should()
                   .BeFalse();
         }
+
+        [Fact]
+        public void TryValidateTokenAsync_ThrowsExceptionIfAuthHeaderNotPresent()
+        {
+            var controller = new RecordController(loggerMock.Object, anonymousServiceHttpClientMock.Object, cacheMock.Object);
+            controller.ControllerContext = new ControllerContext();
+            controller.ControllerContext.HttpContext = new DefaultHttpContext();
+            
+            var tcs = new CancellationTokenSource(1000);
+            Func<Task> func = () => controller.TryValidateTokenAsync(tcs.Token);
+
+            func.Should()
+                .ThrowAsync<HttpBadRequestException>();
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task TryValidateTokenAsync_ShouldReturnValidityOfToken(bool expected)
+        {
+            anonymousServiceHttpClientMock
+                .Setup<Task<bool>>(x => x.ValidateTokenAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(expected);
+
+            var controller = new RecordController(loggerMock.Object, anonymousServiceHttpClientMock.Object, cacheMock.Object);
+            controller.ControllerContext = new ControllerContext();
+            controller.ControllerContext.HttpContext = new DefaultHttpContext();
+            controller.ControllerContext.HttpContext.Request.Headers["Authorization"] = "authtoken";
+            
+            var tcs = new CancellationTokenSource(1000);
+
+            var result = await controller.TryValidateTokenAsync(tcs.Token);
+            result.Should()
+                  .Be(expected);
+        }
+
+        [Theory]
+        [InlineData("")]
+        [InlineData(null)]
+        public void GetRecordingStatusAsync_ThrowsExceptionWhenServiceCodeIsNullOrEmpty(string serviceCode)
+        {
+            var controller = new RecordController(loggerMock.Object, anonymousServiceHttpClientMock.Object, cacheMock.Object);
+            var tcs = new CancellationTokenSource(1000);
+
+            Func<Task> func = () => controller.GetRecordingStatusAsync(serviceCode, tcs.Token);
+            func.Should()
+                .ThrowAsync<ArgumentNullException>();
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task GetRecordingStatusAsync_SetsIsRecordingFlagAccordingly(bool? expected)
+        {
+            var controller = new RecordController(loggerMock.Object, anonymousServiceHttpClientMock.Object, cacheMock.Object);
+            var tcs = new CancellationTokenSource(1000);
+
+            byte[] boolBytes = expected.ToByteArray();
+
+            cacheMock.Setup(x => 
+                x.GetAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())
+            ).ReturnsAsync(boolBytes);
+
+            var result = await controller.GetRecordingStatusAsync("dummy", tcs.Token);
+
+            result.Should()
+                  .NotBeNull()
+                  .And
+                  .Subject.As<ServiceCaptureStatusDTO>()
+                  .IsRecording
+                  .Should()
+                  .Be(expected ?? false);
+        }
+
+        List<string> emptyList = new List<string>();
+
+        [Fact]
+        public async Task GetStatusAsync_ReturnsNullForEmptyList()
+        {
+            var controller = new RecordController(loggerMock.Object, anonymousServiceHttpClientMock.Object, cacheMock.Object);
+            var tcs = new CancellationTokenSource(1000);
+
+            var result = await controller.GetStatusesAsync(null, tcs.Token);
+            result.Should()
+                  .BeNull();
+
+            result = await controller.GetStatusesAsync(new List<string>(), tcs.Token);
+            result.Should()
+                  .BeNull();
+        }
+
+        [Fact]
+        public async Task GetStatusesAsync_Returns401_ForInvalidToken()
+        {
+            CancellationTokenSource cts = new CancellationTokenSource(1000);
+            anonymousServiceHttpClientMock
+                .Setup<Task<bool>>(x => x.ValidateTokenAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(false);
+
+            var controller = new RecordController(loggerMock.Object, anonymousServiceHttpClientMock.Object, cacheMock.Object);
+            controller.ControllerContext = new ControllerContext();
+            controller.ControllerContext.HttpContext = new DefaultHttpContext();
+            controller.ControllerContext.HttpContext.Request.Headers["Authorization"] = "authtoken";
+            
+
+            var result = await controller.GetStatusesAsync(new List<string> { "dummy1" }, cts.Token);
+            result.Result.Should()
+                  .BeOfType<UnauthorizedResult>();
+        }
+
+        [Theory]
+        [InlineData("dummy1", "dummy2", true, true)]
+        [InlineData("dummy1", "dummy2", true, false)]
+        [InlineData("dummy1", "dummy2", false, true)]
+        [InlineData("dummy1", "dummy2", false, false)]
+        public async Task GetStatusesAsync_ReturnsArrayOfServiceCaptureStatuses(string code1, string code2, bool expected1, bool expected2)
+        {
+            var cts = new CancellationTokenSource(1000);
+            anonymousServiceHttpClientMock
+                .Setup<Task<bool>>(x => x.ValidateTokenAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(true);
+
+            var controller = new RecordController(loggerMock.Object, anonymousServiceHttpClientMock.Object, cacheMock.Object);
+            controller.ControllerContext = new ControllerContext();
+            controller.ControllerContext.HttpContext = new DefaultHttpContext();
+            controller.ControllerContext.HttpContext.Request.Headers["Authorization"] = "authtoken";
+
+            byte[] boolBytes1 = expected1.ToByteArray();
+            byte[] boolBytes2 = expected2.ToByteArray();
+
+            cacheMock.Setup(x => 
+                x.GetAsync(code1, It.IsAny<CancellationToken>())
+            ).ReturnsAsync(boolBytes1);
+            
+            cacheMock.Setup(x => 
+                x.GetAsync(code2, It.IsAny<CancellationToken>())
+            ).ReturnsAsync(boolBytes2);
+           
+            var result = await controller.GetStatusesAsync(new List<string> { code1, code2 }, cts.Token);
+
+            result
+                .Should()
+                .NotBeNull();
+
+            result
+                .Value
+                .Should()
+                .NotBeNull()
+                .And
+                .HaveCount(2);
+        }
+
     }
 }

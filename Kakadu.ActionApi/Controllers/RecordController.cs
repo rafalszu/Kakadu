@@ -12,7 +12,9 @@ using Kakadu.Common.Extensions;
 using System.Collections.Generic;
 using Kakadu.DTO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
+[assembly: InternalsVisibleTo("Kakadu.ActionApi.Tests")]
 namespace Kakadu.ActionApi.Controllers
 {
     [ApiController]
@@ -89,10 +91,8 @@ namespace Kakadu.ActionApi.Controllers
         }
 
         [HttpGet("status")]
-        public async Task<ActionResult<ServiceCaptureStatusDTO[]>> GetStatusAsync(List<string> serviceCodes, CancellationToken cancellationToken)
+        public async Task<ActionResult<ServiceCaptureStatusDTO[]>> GetStatusesAsync(List<string> serviceCodes, CancellationToken cancellationToken)
         {
-            List<ServiceCaptureStatusDTO> results = new List<ServiceCaptureStatusDTO>();
-            
             if(serviceCodes == null || !serviceCodes.Any())
                 return null;
 
@@ -111,8 +111,7 @@ namespace Kakadu.ActionApi.Controllers
                 throw new ArgumentNullException(serviceCode);
 
             string recordCacheKey = KakaduConstants.GetRecordKey(serviceCode);
-            bool? isRecording = await _cache.GetAsync<bool?>(recordCacheKey, cancellationToken);
-
+            
             return new ServiceCaptureStatusDTO {
                 ServiceCode = serviceCode,
                 IsRecording = (await _cache.GetAsync<bool?>(recordCacheKey, cancellationToken)) ?? false
