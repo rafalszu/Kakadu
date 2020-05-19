@@ -26,11 +26,9 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
         private readonly IDistributedCache _cache;
         private readonly IActionApiHttpClient _actionApiHttpClient;
         private readonly ILogger<RecordController> _logger;
-        private readonly ServiceController _serviceController;
 
-        public RecordController(IDistributedCache cache, IActionApiHttpClient actionApiHttpClient, ServiceController serviceController, ILogger<RecordController> logger)
+        public RecordController(IDistributedCache cache, IActionApiHttpClient actionApiHttpClient, ILogger<RecordController> logger)
         {
-            _serviceController = serviceController;
             _logger = logger;
             _actionApiHttpClient = actionApiHttpClient;
             _cache = cache;
@@ -103,7 +101,8 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
                 cancellationToken: cancellationToken
             );
 
-            actionResult.Value[0].
+            // todo: WTF
+            //actionResult.Value[0].
 
             // transform results to dictionary
             // if(result != null && result.Value != null && result.Value.Any())
