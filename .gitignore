@@ -5,6 +5,8 @@
 envvariables
 data.db
 
+**/[Aa]pp[Ss]ettings.[Dd]evelopment.json
+
 # User-specific files
 *.rsuser
 *.suo
