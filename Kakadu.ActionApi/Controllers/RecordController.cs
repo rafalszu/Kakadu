@@ -68,7 +68,7 @@ namespace Kakadu.ActionApi.Controllers
             
             var recordCacheKey = KakaduConstants.GetRecordKey(serviceCode);
             await _cache.RemoveAsync(recordCacheKey, cancellationToken);
-            return Ok(true);
+            return Ok(false);
         }
 
         [HttpGet("status/{serviceCode}")]
@@ -86,16 +86,20 @@ namespace Kakadu.ActionApi.Controllers
         }
 
         [HttpGet("status")]
-        public async Task<ActionResult<ServiceCaptureStatusDTO[]>> GetStatusesAsync(List<string> serviceCodes, CancellationToken cancellationToken)
+        public async Task<ActionResult<List<ServiceCaptureStatusDTO>>> GetStatusesAsync(List<string> serviceCodes, CancellationToken cancellationToken)
         {
             if(serviceCodes == null || !serviceCodes.Any())
                 return null;
 
             if (!await TryValidateTokenAsync(cancellationToken)) 
                 return Unauthorized();
+
+            var tasks = Task.WhenAll(
+                serviceCodes.Select(async code => 
+                    await GetRecordingStatusAsync(code, cancellationToken)));
             
-            var tasks = serviceCodes.Select(code => GetRecordingStatusAsync(code, cancellationToken));
-            return await Task.WhenAll(tasks);
+            var results = await tasks;
+            return Ok(results.ToList());
         }
 
         internal async Task<ServiceCaptureStatusDTO> GetRecordingStatusAsync(string serviceCode, CancellationToken cancellationToken)
