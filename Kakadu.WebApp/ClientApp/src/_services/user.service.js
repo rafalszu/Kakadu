@@ -1,4 +1,4 @@
-import { authHeader } from '../_helpers';
+import { authHeader, apiUrl } from '../_helpers';
 
 export const userService = {
     login,
@@ -13,7 +13,7 @@ function login(username, password) {
         body: JSON.stringify({ username, password })
     };
 
-    return fetch(`${process.env.REACT_APP_API_URL}/token/authenticate`, requestOptions)
+    return fetch(`${apiUrl}/token/authenticate`, requestOptions)
         //.then(checkFetch)
         .then(handleResponse)
         .then(user => {
@@ -26,7 +26,7 @@ function login(username, password) {
         .catch(error => {
             console.log(error);
             if(!error.response) {
-                throw new Error(`Unable to connect to '${process.env.REACT_APP_API_URL}'`);
+                throw new Error(`Unable to connect to '${apiUrl}'`);
             }
             throw Error(error.response);
         });
@@ -42,7 +42,7 @@ function getAll() {
         headers: authHeader()
     };
 
-    return fetch(`${process.env.REACT_APP_API_URL}/users`, requestOptions).then(handleResponse);
+    return fetch(`${apiUrl}/users`, requestOptions).then(handleResponse);
 }
 
 function handleResponse(response) {

@@ -1,4 +1,4 @@
-import { authHeader } from '../_helpers';
+import { authHeader, apiUrl } from '../_helpers';
 
 export const serviceService = {
     getAll
@@ -10,7 +10,7 @@ function getAll() {
         headers: authHeader()
     };
 
-    return fetch(`${process.env.REACT_APP_API_URL}/service`, requestOptions).then(handleResponse);
+    return fetch(`${apiUrl}/service`, requestOptions).then(handleResponse);
 }
 
 function handleResponse(response) {
