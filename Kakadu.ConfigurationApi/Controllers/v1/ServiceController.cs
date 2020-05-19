@@ -37,7 +37,7 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
         }
 
         [HttpGet]
-        public async Task<List<ServiceDTO>> Get()
+        public async Task<List<ServiceDTO>> GetAsync()
         {
             var results = await _cache.GetOrAddAsync<List<ServiceDTO>>("services", async (options) => {
                 options.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(3);
@@ -51,7 +51,7 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
 
         [AllowAnonymous]
         [HttpGet("{serviceCode}")]
-        public async Task<ActionResult<ServiceDTO>> Get(string serviceCode)
+        public async Task<ActionResult<ServiceDTO>> GetAsync(string serviceCode)
         {
             if(string.IsNullOrWhiteSpace(serviceCode))
                 throw new ArgumentNullException(nameof(serviceCode));
@@ -84,7 +84,7 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
 
             var result = _mapper.Map<ServiceDTO>(model);
 
-            return CreatedAtAction(nameof(Get), new { serviceCode = result.Code }, result);
+            return CreatedAtAction(nameof(GetAsync), new { serviceCode = result.Code }, result);
         }
 
         [HttpPatch("{serviceCode}")]
