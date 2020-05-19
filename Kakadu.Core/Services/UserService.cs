@@ -24,10 +24,7 @@ namespace Kakadu.Core.Services
             if(user == null)
                 return null;
 
-            if(BCrypt.Net.BCrypt.Verify(password, user.Password))
-                return user;
-            else
-                return null;
+            return BCrypt.Net.BCrypt.Verify(password, user.Password) ? user : null;
         }
 
         public UserModel Create(UserModel model)
@@ -42,12 +39,12 @@ namespace Kakadu.Core.Services
             return model;
         }
 
-        public UserModel Get(Guid Id)
+        public UserModel Get(Guid id)
         {
-            if(Id == Guid.Empty)
-                throw new ArgumentNullException(nameof(Id));
+            if(id == Guid.Empty)
+                throw new ArgumentNullException(nameof(id));
 
-            var result = _instance.FirstOrDefault<UserModel>(x => x.Id == Id);
+            var result = _instance.FirstOrDefault<UserModel>(x => x.Id == id);
             if(result == null)
                 throw new Exception("No user found");
 
@@ -59,26 +56,36 @@ namespace Kakadu.Core.Services
             if(model == null)
                 throw new ArgumentNullException(nameof(model));
 
-            if(_instance.Update<UserModel>(model))
-                return model;
-
-            return null;
+            return _instance.Update<UserModel>(model) ? model : null;
         }
 
-        public bool SetPassword(Guid Id, string password)
+        public bool SetPassword(Guid id, string password)
         {
-            if(Id == Guid.Empty)
-                throw new ArgumentNullException(nameof(Id));
+            if(id == Guid.Empty)
+                throw new ArgumentNullException(nameof(id));
             if(string.IsNullOrWhiteSpace(password))
                 throw new ArgumentNullException(password);
 
-            var model = this.Get(Id);
+            var model = this.Get(id);
             if(model == null)
                 throw new Exception("No user found");
 
             model.Password = BCrypt.Net.BCrypt.HashPassword(password);
 
             return this.Update(model) != null;
-        }        
+        }
+
+        public void SeedDefaultUserIfEmpty()
+        {
+            if (_instance.Fetch<UserModel>().Count == 0)
+                Create(new UserModel
+                {
+                    FirstName = "System",
+                    Id = Guid.NewGuid(),
+                    LastName = "Administrator",
+                    Username = "admin",
+                    Password = "admin"
+                });
+        }
     }
 }

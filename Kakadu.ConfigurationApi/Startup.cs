@@ -4,6 +4,7 @@ using Kakadu.ConfigurationApi.HttpClients;
 using Kakadu.ConfigurationApi.Interfaces;
 using Kakadu.ConfigurationApi.Settings;
 using Kakadu.Core;
+using Kakadu.Core.Interfaces;
 using LiteDB;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -77,7 +78,7 @@ namespace Kakadu.ConfigurationApi
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IUserService userService)
         {
             if (env.IsDevelopment())
             {
@@ -101,6 +102,8 @@ namespace Kakadu.ConfigurationApi
             {
                 endpoints.MapControllers();
             });
+            
+            userService.SeedDefaultUserIfEmpty();
         }
     }
 }

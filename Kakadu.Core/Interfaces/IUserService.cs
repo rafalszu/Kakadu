@@ -7,12 +7,14 @@ namespace Kakadu.Core.Interfaces
     {
         UserModel Authenticate(string username, string password);
 
-        UserModel Get(Guid Id);
+        UserModel Get(Guid id);
 
         UserModel Create(UserModel model);
 
         UserModel Update(UserModel model);
 
-        bool SetPassword(Guid Id, string password);
+        bool SetPassword(Guid id, string password);
+
+        void SeedDefaultUserIfEmpty();
     }
 }
