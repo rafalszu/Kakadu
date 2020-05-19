@@ -35,7 +35,8 @@ namespace Kakadu.ActionApi
             if(string.IsNullOrWhiteSpace(apiConfiguration.Address))
                 throw new Exception("ConfigurationAPI address can't be empty");
 
-            services.AddControllers();
+            services.AddControllers()
+                .AddNewtonsoftJson();
 
             // services.AddHttpClient<IAuthenticationClient, AuthenticationClient>(client => {
             //     client.BaseAddress = new Uri(apiConfiguration.Address);
