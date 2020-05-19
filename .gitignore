@@ -5,7 +5,7 @@
 envvariables
 data.db
 
-**/[Aa]pp[Ss]ettings.[Dd]evelopment.json
+app[sS]ettings.Development.json
 
 # User-specific files
 *.rsuser
