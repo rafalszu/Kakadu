@@ -51,7 +51,7 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
 
         [AllowAnonymous]
         [HttpGet("{serviceCode}")]
-        public async Task<ActionResult<ServiceDTO>> GetAsync(string serviceCode)
+        public async Task<ActionResult<ServiceDTO>> GetByCodeAsync(string serviceCode)
         {
             if(string.IsNullOrWhiteSpace(serviceCode))
                 throw new ArgumentNullException(nameof(serviceCode));
@@ -76,6 +76,10 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
             if(dto == null)
                 throw new ArgumentNullException();
 
+            var existingService = _service.Get(dto.Code);
+            if (existingService != null)
+                throw new HttpResponseException($"Service with code '{dto.Code}' already exists");
+            
             var model = _mapper.Map<ServiceModel>(dto);
             if(model == null)
                 throw new HttpResponseException("Unable to map dto");
@@ -84,7 +88,7 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
 
             var result = _mapper.Map<ServiceDTO>(model);
 
-            return CreatedAtAction(nameof(GetAsync), new { serviceCode = result.Code }, result);
+            return Ok(result);
         }
 
         [HttpPatch("{serviceCode}")]
