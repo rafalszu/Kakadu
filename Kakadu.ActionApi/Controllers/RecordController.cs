@@ -85,12 +85,15 @@ namespace Kakadu.ActionApi.Controllers
 
         }
 
-        [HttpGet("status")]
-        public async Task<ActionResult<List<ServiceCaptureStatusDTO>>> GetStatusesAsync(List<string> serviceCodes, CancellationToken cancellationToken)
+        [HttpPost("status")]
+        public async Task<ActionResult<List<ServiceCaptureStatusDTO>>> GetStatusesAsync([FromBody]List<string> serviceCodes = null)
         {
             if(serviceCodes == null || !serviceCodes.Any())
                 return null;
 
+            CancellationTokenSource cts = new CancellationTokenSource(5000);
+            var cancellationToken = cts.Token;
+            
             if (!await TryValidateTokenAsync(cancellationToken)) 
                 return Unauthorized();
 

@@ -14,6 +14,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Kakadu.Common.Extensions;
 using Kakadu.ConfigurationApi.Models;
+using Kakadu.Core.Interfaces;
+using Kakadu.DTO;
 
 namespace Kakadu.ConfigurationApi.Controllers.v1
 {
@@ -25,12 +27,17 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
     {
         private readonly IDistributedCache _cache;
         private readonly IActionApiHttpClient _actionApiHttpClient;
+        private readonly IServiceService _service;
         private readonly ILogger<RecordController> _logger;
 
-        public RecordController(IDistributedCache cache, IActionApiHttpClient actionApiHttpClient, ILogger<RecordController> logger)
+        public RecordController(IDistributedCache cache, 
+            IActionApiHttpClient actionApiHttpClient, 
+            IServiceService service,
+            ILogger<RecordController> logger)
         {
             _logger = logger;
             _actionApiHttpClient = actionApiHttpClient;
+            _service = service;
             _cache = cache;
         }
 
@@ -41,8 +48,15 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
                 throw new ArgumentNullException(nameof(serviceCode));
 
             var actionResult = await CallActionApiAsync(
-                apiCall: async (instance, accessToken) => 
-                    await _actionApiHttpClient.StartRecordingAsync(instance, serviceCode, accessToken, cancellationToken),
+                apiCall: async (instance, accessToken) =>
+                {
+                    var results = await _actionApiHttpClient.StartRecordingAsync(instance, serviceCode, accessToken, cancellationToken);
+                    return new ActionApiCallResult
+                    {
+                        Host = instance,
+                        Result = results
+                    };
+                },
                 cancellationToken: cancellationToken
             );
 
@@ -56,8 +70,15 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
                 throw new ArgumentNullException(nameof(serviceCode));
 
             var actionResult = await CallActionApiAsync(
-                apiCall: async (instance, accessToken) => 
-                    await _actionApiHttpClient.StopRecordingAsync(instance, serviceCode, accessToken, cancellationToken),
+                apiCall: async (instance, accessToken) =>
+                {
+                    var results = await _actionApiHttpClient.StopRecordingAsync(instance, serviceCode, accessToken, cancellationToken);
+                    return new ActionApiCallResult
+                    {
+                        Host = instance,
+                        Result = results
+                    };
+                },
                 cancellationToken: cancellationToken
             );
 
@@ -71,7 +92,15 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
                 throw new ArgumentNullException(nameof(serviceCode));
 
             var actionResult = await CallActionApiAsync(
-                apiCall: async (instance, accessToken) => await _actionApiHttpClient.GetStatusAsync(instance, serviceCode, accessToken, cancellationToken),
+                apiCall: async (instance, accessToken) =>
+                {
+                    var results = await _actionApiHttpClient.GetStatusAsync(instance, serviceCode, accessToken, cancellationToken);
+                    return new ActionApiCallResult
+                    {
+                        Host = instance,
+                        Result = results
+                    };
+                },
                 cancellationToken: cancellationToken
             );
 
@@ -81,15 +110,20 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
         [HttpGet("status")]
         public async Task<Dictionary<string, List<ActionApiCallResult>>> GetStatusesAsync(CancellationToken cancellationToken)
         {
+            // get all services
+            var services = _service.GetAll()?.Select(x => x.Code).ToList();
+            
             var actionResult = await CallActionApiAsync(
                 apiCall: async(instance, accessToken) => 
                 {
                     // return await _actionApiHttpClient.GetStatusesAsync(instance, accessToken, cancellationToken);
-                    var instanceResults = await _actionApiHttpClient.GetStatusesAsync(instance, accessToken, cancellationToken);
-                    return new ActionApiCallResult {
-                        Host = instance,
-                        Result = instanceResults
-                    };
+                    var instanceResults = await _actionApiHttpClient.GetStatusesAsync(instance, accessToken, services, cancellationToken);
+                    return instanceResults;
+                    //
+                    // return new ActionApiCallResult {
+                    //     Host = instance,
+                    //     Result = instanceResults
+                    // };
                 },
                 cancellationToken: cancellationToken
             );
@@ -107,7 +141,7 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
             // query action apis for all
         }
         
-        private async Task<ActionResult<List<ActionApiCallResult>>> CallActionApiAsync<T>(Func<string, string, Task<T>> apiCall, CancellationToken cancellationToken)
+        private async Task<ActionResult<List<T>>> CallActionApiAsync<T>(Func<string, string, Task<T>> apiCall, CancellationToken cancellationToken)
         {
             var instances = await _cache.GetAsync<List<string>>(KakaduConstants.ACTIONAPI_INSTANCES, token: cancellationToken);
             if (instances == null || !instances.Any())
@@ -155,6 +189,9 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
                 result = ex.InnerException?.Message ?? ex.Message;
             }
 
+            if (result is ActionApiCallResult callResult)
+                return callResult;
+            
             return new ActionApiCallResult
             {
                 Host = instance,

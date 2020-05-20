@@ -13,6 +13,6 @@ namespace Kakadu.ConfigurationApi.Interfaces
 
         Task<bool> GetStatusAsync(string host, string serviceCode, string accessToken, CancellationToken cancellationToken);
 
-        Task<List<ServiceCaptureStatusDTO>> GetStatusesAsync(string host, string accessToken, CancellationToken cancellationToken);
+        Task<List<ServiceCaptureStatusDTO>> GetStatusesAsync(string host, string accessToken, List<string> serviceCodes, CancellationToken cancellationToken);
     }
 }

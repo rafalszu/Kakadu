@@ -30,9 +30,14 @@ namespace Kakadu.ConfigurationApi.HttpClients
             return await QueryActionInstanceAsync<bool>("status", host, serviceCode, accessToken, cancellationToken);
         }
 
-        public async Task<List<ServiceCaptureStatusDTO>> GetStatusesAsync(string host, string accessToken, CancellationToken cancellationToken)
+        public async Task<List<ServiceCaptureStatusDTO>> GetStatusesAsync(string host, string accessToken, List<string> serviceCodes, CancellationToken cancellationToken)
         {
-            return await QueryActionInstanceAsync<List<ServiceCaptureStatusDTO>>("status", host, null, accessToken, cancellationToken);
+            var uri = GetUri("status", host, null);
+            this.CustomRequestHeaders = new Dictionary<string, IEnumerable<string>> {
+                { "Authorization", new List<string> { accessToken } }
+            };
+
+            return await this.PostAsync<List<ServiceCaptureStatusDTO>>(serviceCodes, uri, cancellationToken);
         }
 
         private async Task<T> QueryActionInstanceAsync<T>(string apiMethod, string host, string serviceCode, string accessToken, CancellationToken cancellationToken)

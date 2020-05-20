@@ -354,13 +354,12 @@ namespace Kakadu.ActionApi.Tests
         public async Task GetStatusAsync_ReturnsNullForEmptyList()
         {
             var controller = new RecordController(loggerMock.Object, anonymousServiceHttpClientMock.Object, cacheMock.Object);
-            var tcs = new CancellationTokenSource(1000);
 
-            var result = await controller.GetStatusesAsync(null, tcs.Token);
+            var result = await controller.GetStatusesAsync(null);
             result.Should()
                   .BeNull();
 
-            result = await controller.GetStatusesAsync(new List<string>(), tcs.Token);
+            result = await controller.GetStatusesAsync(new List<string>());
             result.Should()
                   .BeNull();
         }
@@ -368,7 +367,6 @@ namespace Kakadu.ActionApi.Tests
         [Fact]
         public async Task GetStatusesAsync_Returns401_ForInvalidToken()
         {
-            CancellationTokenSource cts = new CancellationTokenSource(1000);
             anonymousServiceHttpClientMock
                 .Setup<Task<bool>>(x => x.ValidateTokenAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(false);
@@ -379,7 +377,7 @@ namespace Kakadu.ActionApi.Tests
             controller.ControllerContext.HttpContext.Request.Headers["Authorization"] = "authtoken";
             
 
-            var result = await controller.GetStatusesAsync(new List<string> { "dummy1" }, cts.Token);
+            var result = await controller.GetStatusesAsync(new List<string> { "dummy1" });
             result.Result.Should()
                   .BeOfType<UnauthorizedResult>();
         }
@@ -391,7 +389,6 @@ namespace Kakadu.ActionApi.Tests
         [InlineData("dummy1", "dummy2", false, false)]
         public async Task GetStatusesAsync_ReturnsArrayOfServiceCaptureStatuses(string code1, string code2, bool expected1, bool expected2)
         {
-            var cts = new CancellationTokenSource(1000);
             anonymousServiceHttpClientMock
                 .Setup<Task<bool>>(x => x.ValidateTokenAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(true);
@@ -412,7 +409,7 @@ namespace Kakadu.ActionApi.Tests
                 x.GetAsync(code2, It.IsAny<CancellationToken>())
             ).ReturnsAsync(boolBytes2);
            
-            var result = await controller.GetStatusesAsync(new List<string> { code1, code2 }, cts.Token);
+            var result = await controller.GetStatusesAsync(new List<string> { code1, code2 });
 
             result
                 .Should()
