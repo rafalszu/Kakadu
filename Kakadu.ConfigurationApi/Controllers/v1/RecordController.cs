@@ -60,7 +60,7 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
                 cancellationToken: cancellationToken
             );
 
-            return actionResult;
+            return Ok(actionResult);
         }
 
         [HttpPost("stop/{serviceCode}")]
@@ -82,7 +82,7 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
                 cancellationToken: cancellationToken
             );
 
-            return actionResult;
+            return Ok(actionResult);
         }
 
         [HttpGet("status/{serviceCode}")]
@@ -104,7 +104,7 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
                 cancellationToken: cancellationToken
             );
 
-            return actionResult;
+            return Ok(actionResult);
         }
 
         [HttpGet("status")]
@@ -116,32 +116,32 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
             var actionResult = await CallActionApiAsync(
                 apiCall: async(instance, accessToken) => 
                 {
-                    // return await _actionApiHttpClient.GetStatusesAsync(instance, accessToken, cancellationToken);
                     var instanceResults = await _actionApiHttpClient.GetStatusesAsync(instance, accessToken, services, cancellationToken);
                     return instanceResults;
-                    //
-                    // return new ActionApiCallResult {
-                    //     Host = instance,
-                    //     Result = instanceResults
-                    // };
                 },
                 cancellationToken: cancellationToken
             );
 
-            // todo: WTF
-            //actionResult.Value[0].
+            var dict = new Dictionary<string, List<ActionApiCallResult>>();
+            foreach (var actionApiCallResult in actionResult)
+            {
+                if (!(actionApiCallResult.Result is List<ServiceCaptureStatusDTO> capturestatusList)) 
+                    continue;
+                
+                foreach (var g in capturestatusList)
+                {
+                    var list = dict.ContainsKey(g.ServiceCode) ? dict[g.ServiceCode] : new List<ActionApiCallResult>();
 
-            // transform results to dictionary
-            // if(result != null && result.Value != null && result.Value.Any())
-            // {
-            //     result.Value.Select(v => v.)
-            // }
+                    list.Add(new ActionApiCallResult {Host = actionApiCallResult.Host, Result = g.IsRecording});
+
+                    dict[g.ServiceCode] = list;
+                }
+            }
             
-            return null;
-            // query action apis for all
+            return dict;
         }
         
-        private async Task<ActionResult<List<T>>> CallActionApiAsync<T>(Func<string, string, Task<T>> apiCall, CancellationToken cancellationToken)
+        private async Task<List<ActionApiCallResult>> CallActionApiAsync<T>(Func<string, string, Task<T>> apiCall, CancellationToken cancellationToken)
         {
             var instances = await _cache.GetAsync<List<string>>(KakaduConstants.ACTIONAPI_INSTANCES, token: cancellationToken);
             if (instances == null || !instances.Any())
@@ -159,7 +159,7 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
 
             var results = await tasks;
 
-            return Ok(results.ToList());
+            return results.ToList();
         }
 
         private async Task<ActionApiCallResult> CallActionApiAsync(Func<Task<ActionApiCallResult>> func)
