@@ -20,7 +20,7 @@ export function services(state = {}, action) {
       };
     case serviceConstants.GETBYCODE_SUCCESS:
       return {
-        items: action.service
+        item: action.service
       };
     case serviceConstants.GETBYCODE_FAILURE:
       return {
