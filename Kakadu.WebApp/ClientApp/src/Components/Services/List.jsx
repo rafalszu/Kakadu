@@ -4,7 +4,7 @@ import { Container, Table, Navbar, NavItem, NavLink } from 'reactstrap';
 import { serviceActions } from '../../_actions';
 import { Link } from 'react-router-dom';
 
-class Services extends React.Component {
+class List extends React.Component {
     componentDidMount() {
         this.props.dispatch(serviceActions.getAll());
     }
@@ -56,5 +56,5 @@ function mapStateToProps(state) {
     };
 }
 
-const connectedServicesPage = connect(mapStateToProps)(Services);
-export { connectedServicesPage as Services };
+const connectedServicesPage = connect(mapStateToProps)(List);
+export { connectedServicesPage as List };
