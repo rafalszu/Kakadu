@@ -4,13 +4,14 @@ export const serviceService = {
     getAll
 };
 
-function getAll() {
+async function getAll() {
     const requestOptions = {
         method: 'GET',
         headers: authHeader()
     };
 
-    return fetch(`${apiUrl}/service`, requestOptions).then(handleResponse);
+    const response = await fetch(`${apiUrl}/service`, requestOptions);
+    return handleResponse(response);
 }
 
 function handleResponse(response) {
