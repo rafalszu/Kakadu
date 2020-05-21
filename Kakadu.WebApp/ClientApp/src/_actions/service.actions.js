@@ -3,7 +3,7 @@ import { serviceService } from '../_services';
 
 export const serviceActions = {
     getAll,
-    getById
+    getByCode
 };
 
 function getAll() {
@@ -22,18 +22,18 @@ function getAll() {
     function failure(error) { return { type: serviceConstants.GETALL_FAILURE, error } }
 }
 
-function getById(id) {
+function getByCode(code) {
     return dispatch => {
         dispatch(request());
 
-        serviceService.getById(id)
+        serviceService.getByCode(code)
             .then(
                 service => dispatch(success(service)),
                 error => dispatch(failure(error && error.message))
             );
     };
 
-    function request() { return { type: serviceConstants.GETBYID_REQUEST } }
-    function success(service) { return { type: serviceConstants.GETBYID_SUCCESS, service } }
-    function failure(error) { return { type: serviceConstants.GETBYID_FAILURE, error } }
+    function request() { return { type: serviceConstants.GETBYCODE_REQUEST } }
+    function success(service) { return { type: serviceConstants.GETBYCODE_SUCCESS, service } }
+    function failure(error) { return { type: serviceConstants.GETBYCODE_FAILURE, error } }
 }

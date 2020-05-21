@@ -14,15 +14,15 @@ export function services(state = {}, action) {
       return { 
         error: action.error
       };
-    case serviceConstants.GETBYID_REQUEST:
+    case serviceConstants.GETBYCODE_REQUEST:
       return {
         loading: true
       };
-    case serviceConstants.GETBYID_SUCCESS:
+    case serviceConstants.GETBYCODE_SUCCESS:
       return {
         items: action.service
       };
-    case serviceConstants.GETBYID_FAILURE:
+    case serviceConstants.GETBYCODE_FAILURE:
       return {
         error: action.error
       };

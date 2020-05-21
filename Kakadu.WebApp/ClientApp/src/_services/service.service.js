@@ -2,7 +2,7 @@ import { authHeader, apiUrl } from '../_helpers';
 
 export const serviceService = {
     getAll,
-    getById
+    getByCode
 };
 
 const requestOptions = {
@@ -15,8 +15,8 @@ async function getAll() {
     return handleResponse(response);
 }
 
-async function getById(id) {
-    const response = await fetch(`${apiUrl}/service/${id}`, requestOptions);
+async function getByCode(code) {
+    const response = await fetch(`${apiUrl}/service/${code}`, requestOptions);
     return handleResponse(response);
 }
 
