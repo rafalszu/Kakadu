@@ -14,6 +14,18 @@ export function services(state = {}, action) {
       return { 
         error: action.error
       };
+    case serviceConstants.GETBYID_REQUEST:
+      return {
+        loading: true
+      };
+    case serviceConstants.GETBYID_SUCCESS:
+      return {
+        items: action.service
+      };
+    case serviceConstants.GETBYID_FAILURE:
+      return {
+        error: action.error
+      };
     default:
       return state
   }

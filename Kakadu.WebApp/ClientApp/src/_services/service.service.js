@@ -1,16 +1,22 @@
 import { authHeader, apiUrl } from '../_helpers';
 
 export const serviceService = {
-    getAll
+    getAll,
+    getById
+};
+
+const requestOptions = {
+    method: 'GET',
+    headers: authHeader()
 };
 
 async function getAll() {
-    const requestOptions = {
-        method: 'GET',
-        headers: authHeader()
-    };
-
     const response = await fetch(`${apiUrl}/service`, requestOptions);
+    return handleResponse(response);
+}
+
+async function getById(id) {
+    const response = await fetch(`${apiUrl}/service/${id}`, requestOptions);
     return handleResponse(response);
 }
 
