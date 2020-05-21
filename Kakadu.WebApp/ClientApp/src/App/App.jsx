@@ -35,6 +35,7 @@ class App extends React.Component {
                         <PrivateRoute exact path="/" component={Home} />
                         <PrivateRoute exact path="/services" component={ServicesList} />
                         <PrivateRoute exact path="/services/edit/:serviceCode" component={ServiceEdit} />
+                        <PrivateRoute exact path="/services/add" component={ServiceEdit} />
                         <Route path="/login" component={Login} />
                     </div>
                 </Layout>

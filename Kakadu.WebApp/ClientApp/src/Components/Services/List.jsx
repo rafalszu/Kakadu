@@ -17,7 +17,7 @@ class List extends React.Component {
                 <Navbar className="navbar-expand-sm navbar-toggleable-sm pl-0 mb-0" light>
                     <ul className="navbar-nav mr-auto">
                     <NavItem>
-                        <NavLink className="btn btn-success text-white" to="/services/add">Add service</NavLink>
+                        <NavLink href="/services/add" className="btn btn-success text-white" to="/services/add">Add service</NavLink>
                     </NavItem>
                     </ul>
                 </Navbar>
@@ -34,7 +34,7 @@ class List extends React.Component {
                         {services.items && services.items.map((service, index) =>
                             <tr key={service.id}>
                                 <td>
-                                    <Link to="/services/edit">{service.code}</Link>
+                                    <Link to={`/services/edit/${service.code}`}>{service.code}</Link>
                                 </td>
                                 <td>{service.name}</td>
                                 <td>start capturing</td>
