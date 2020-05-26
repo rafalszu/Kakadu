@@ -2,7 +2,8 @@ import { authHeader, apiUrl } from '../_helpers';
 
 export const serviceService = {
     getAll,
-    getByCode
+    getByCode,
+    update
 };
 
 const requestOptions = {
@@ -17,6 +18,18 @@ async function getAll() {
 
 async function getByCode(code) {
     const response = await fetch(`${apiUrl}/service/${code}`, requestOptions);
+    return handleResponse(response);
+}
+
+async function update(serviceCode, data) {
+    const response = await fetch(`${apiUrl}/service/${serviceCode}`, {
+        method: 'PATCH',
+        headers: Object.assign(authHeader(), {
+            'Content-Type': 'application/json',
+        }),
+        body: JSON.stringify(data)
+    });
+
     return handleResponse(response);
 }
 
