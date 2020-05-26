@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,6 +15,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 using Kakadu.Common.Extensions;
+using Kakadu.ConfigurationApi.Interfaces;
 using Kakadu.DTO.Constants;
 
 namespace Kakadu.ConfigurationApi.Controllers.v1
@@ -28,26 +30,43 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
         private readonly IServiceService _service;
         private readonly IMapper _mapper;
         private readonly IDistributedCache _cache;
-        
-        public ServiceController(ILogger<ServiceController> logger, IServiceService service, IDistributedCache cache, IMapper mapper)
+        private readonly IActionApiService _actionApiService;
+
+        public ServiceController(ILogger<ServiceController> logger, 
+            IServiceService service,
+            IDistributedCache cache,
+            IActionApiService actionApiService,
+            IMapper mapper)
         {
             _logger = logger;
             _service = service;
             _mapper = mapper;
             _cache = cache;
+            _actionApiService = actionApiService;
         }
 
         [HttpGet]
-        public async Task<List<ServiceDTO>> GetAsync()
+        public async Task<List<ServiceDTO>> GetAsync(CancellationToken cancellationToken)
         {
-            var results = await _cache.GetOrAddAsync<List<ServiceDTO>>(KakaduConstants.SERVICES, async (options) => {
+            var services = await _cache.GetOrAddAsync<List<ServiceDTO>>(KakaduConstants.SERVICES, async (options) => {
                 options.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(3);
 
-                var entities = await Task.Run(() => _service.GetAll());
+                var entities = await Task.Run(() => _service.GetAll(), cancellationToken);
                 return _mapper.Map<List<ServiceDTO>>(entities);
-            });
+            }, token: cancellationToken);
+            
+            // get recording status
+            var statuses = (await _actionApiService.GetStatusesAsync(cancellationToken)).ToList();
+            foreach (var serviceDto in services)
+            {
+                var status = statuses.FirstOrDefault(s => s.ServiceCode == serviceDto.Code);
+                if (status == null)
+                    continue;
 
-            return results;
+                serviceDto.IsRecording = status.Results.All(r => r.Result is bool bresult && bresult == true);
+            }
+            
+            return services;
         }
 
         [AllowAnonymous]

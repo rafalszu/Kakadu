@@ -2,6 +2,7 @@ using AutoMapper;
 using Kakadu.Common.Middleware;
 using Kakadu.ConfigurationApi.HttpClients;
 using Kakadu.ConfigurationApi.Interfaces;
+using Kakadu.ConfigurationApi.Services;
 using Kakadu.ConfigurationApi.Settings;
 using Kakadu.Core;
 using Kakadu.Core.Interfaces;
@@ -70,10 +71,13 @@ namespace Kakadu.ConfigurationApi
 
             services.AddDistributedMemoryCache();
 
+            services.AddHttpContextAccessor();
+
             services.AddHttpClient<IActionApiHttpClient, ActionApiHttpClient>(client => {
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
             });
 
+            services.AddTransient<IActionApiService, ActionApiService>();
             services.RegisterKakaduServices();
         }
 

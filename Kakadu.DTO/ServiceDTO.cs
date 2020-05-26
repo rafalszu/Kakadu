@@ -21,5 +21,7 @@ namespace Kakadu.DTO
         public bool UnkownRoutesPassthrough { get; set; }
 
         public List<KnownRouteDTO> KnownRoutes { get; set; }
+        
+        public bool IsRecording { get; set; }
     }
 }
