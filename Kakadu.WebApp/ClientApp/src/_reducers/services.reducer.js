@@ -26,6 +26,30 @@ export function services(state = {}, action) {
       return {
         error: action.error
       };
+    case serviceConstants.UPDATE_REQUEST:
+      return {
+        loading: true
+      };
+    case serviceConstants.UPDATE_SUCCESS: 
+      return {
+        item: action.service
+      };
+    case serviceConstants.UPDATE_FAILURE:
+      return {
+        error: action.error
+      };
+    case serviceConstants.CREATE_REQUEST:
+      return {
+        loading: true
+      };
+    case serviceConstants.CREATE_SUCCESS:
+      return {
+        item: action.service
+      };
+    case serviceConstants.CREATE_FAILURE:
+      return {
+        error: action.error
+      };
     default:
       return state
   }

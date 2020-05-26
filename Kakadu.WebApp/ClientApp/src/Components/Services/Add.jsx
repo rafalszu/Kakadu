@@ -5,11 +5,11 @@ import { Formik, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import * as jsonpatch from 'fast-json-patch';
 
-class Edit extends React.Component {
-    componentDidMount() {
-        const { serviceCode } = this.props.match.params;
-        this.props.dispatch(serviceActions.getByCode(serviceCode));
-    }
+class Add extends React.Component {
+    // componentDidMount() {
+    //     const { serviceCode } = this.props.match.params;
+    //     this.props.dispatch(serviceActions.getByCode(serviceCode));
+    // }
 
     render() {
         const requiredFieldMessage = 'This field is required';
@@ -19,16 +19,13 @@ class Edit extends React.Component {
             address: Yup.string().required(requiredFieldMessage),
         });
     
-        const { services = {} } = this.props;
-        const { item = {} } = services;
-
         const serviceInitialValues = { 
-            id: item.id || '',
-            code: item.code || '',
-            name: item.name || '',
-            address: item.address || '',
-            unkownRoutesPassthrough: item.unkownRoutesPassthrough || false,
-            knownRoutes: item.knownRoutes || []
+            id: '',
+            code: '',
+            name: '',
+            address: '',
+            unkownRoutesPassthrough: false,
+            knownRoutes: []
         };
         
         return (
@@ -38,8 +35,8 @@ class Edit extends React.Component {
                 validationSchema={ServiceSchema}
                 onSubmit={
                     (values, { setSubmitting }) => {
-                        let diff = jsonpatch.compare(item, values);
-                        this.props.dispatch(serviceActions.update(values.code, diff))
+                        this.props.dispatch(serviceActions.create(values));
+
                         setSubmitting(false);
                     }
                 }>
@@ -74,7 +71,6 @@ class Edit extends React.Component {
                                     className={`form-control ${
                                         touched.code && errors.code ? "is-invalid" : ""
                                     }`}
-                                    disabled
                                 />
                                 <ErrorMessage
                                     component="div"
@@ -134,5 +130,5 @@ function mapStateToProps(state) {
     };
 }
 
-const connectedServicesPage = connect(mapStateToProps)(Edit);
-export { connectedServicesPage as Edit };
+const connectedServicesPage = connect(mapStateToProps)(Add);
+export { connectedServicesPage as Add };

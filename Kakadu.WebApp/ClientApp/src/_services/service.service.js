@@ -3,7 +3,8 @@ import { authHeader, apiUrl } from '../_helpers';
 export const serviceService = {
     getAll,
     getByCode,
-    update
+    update,
+    create
 };
 
 const requestOptions = {
@@ -28,6 +29,18 @@ async function update(serviceCode, data) {
             'Content-Type': 'application/json',
         }),
         body: JSON.stringify(data)
+    });
+
+    return handleResponse(response);
+}
+
+async function create(service) {
+    const response = await fetch(`${apiUrl}/service`, {
+        method: 'POST',
+        headers: Object.assign(authHeader(), {
+            'Content-Type': 'application/json',
+        }),
+        body: JSON.stringify(service)
     });
 
     return handleResponse(response);

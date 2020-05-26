@@ -8,7 +8,7 @@ import { PrivateRoute } from '../Components';
 import { Home } from '../Components/Home';
 import { Login } from '../Components/Login';
 import { Layout } from '../Components/Layout';
-import { List as ServicesList, Edit as ServiceEdit } from '../Components/Services';
+import { List as ServicesList, Edit as ServiceEdit, Add as ServiceAdd } from '../Components/Services';
 
 import '../custom.css'
 
@@ -35,7 +35,7 @@ class App extends React.Component {
                         <PrivateRoute exact path="/" component={Home} />
                         <PrivateRoute exact path="/services" component={ServicesList} />
                         <PrivateRoute exact path="/services/edit/:serviceCode" component={ServiceEdit} />
-                        <PrivateRoute exact path="/services/add" component={ServiceEdit} />
+                        <PrivateRoute exact path="/services/add" component={ServiceAdd} />
                         <Route path="/login" component={Login} />
                     </div>
                 </Layout>
