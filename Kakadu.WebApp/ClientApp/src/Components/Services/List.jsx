@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { Container, Table, Navbar, NavItem, NavLink } from 'reactstrap';
 import { serviceActions } from '../../_actions';
 import { Link } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 class List extends React.Component {
     componentDidMount() {
@@ -37,7 +38,16 @@ class List extends React.Component {
                                     <Link to={`/services/edit/${service.code}`}>{service.code}</Link>
                                 </td>
                                 <td>{service.name}</td>
-                                <td>start capturing</td>
+                                <td>
+                                    {service.isRecording ?
+                                        <FontAwesomeIcon cursor="pointer" title="stop capturing" icon="stop" className="icon-margin-right-10" /> :
+                                        <FontAwesomeIcon cursor="pointer" title="start capturing" icon="circle" color="red" className="icon-margin-right-10" />
+                                    }
+                                    <Link to={`/services/edit/${service.code}`}>
+                                        <FontAwesomeIcon cursor="pointer" title="edit" icon="edit" className="icon-margin-right-10" />
+                                    </Link>
+                                    <FontAwesomeIcon cursor="pointer" title="delete" icon="trash-alt" className="icon-margin-right-10" />
+                                </td>
                             </tr>
                         )}
                     </tbody>

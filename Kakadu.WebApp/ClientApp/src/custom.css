@@ -11,4 +11,11 @@ code {
   background-color: #1b6ec2;
   border-color: #1861ac;
 }
-  
+
+.icon-margin-right-5 {
+  margin-right: 5px;
+}
+
+.icon-margin-right-10 {
+  margin-right: 10px;
+}

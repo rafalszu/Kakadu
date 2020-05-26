@@ -10,7 +10,12 @@ import { Login } from '../Components/Login';
 import { Layout } from '../Components/Layout';
 import { List as ServicesList, Edit as ServiceEdit, Add as ServiceAdd } from '../Components/Services';
 
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { faStop, faCircle, faEdit, faTrashAlt, fas } from '@fortawesome/free-solid-svg-icons'
+
 import '../custom.css'
+
+library.add(faTrashAlt, faEdit, faCircle, faStop)
 
 class App extends React.Component {
     constructor(props) {
