@@ -6,7 +6,8 @@ export const serviceActions = {
     getAll,
     getByCode,
     update,
-    create
+    create,
+    remove
 };
 
 function getAll() {
@@ -74,4 +75,20 @@ function create(service) {
     function request() { return { type: serviceConstants.CREATE_REQUEST } }
     function success(service) { return { type: serviceConstants.CREATE_SUCCESS, service } }
     function failure(error) { return { type: serviceConstants.CREATE_FAILURE, error } }
+}
+
+function remove(serviceCode) {
+    return dispatch => {
+        dispatch(request(serviceCode));
+
+        serviceService.remove(serviceCode)
+            .then(
+                result => dispatch(success(serviceCode)),
+                error => dispatch(failure(error.response))
+            )
+    };
+
+    function request(code) { return { type: serviceConstants.REMOVE_REQUEST, serviceCode: code } }
+    function success(code) { return { type: serviceConstants.REMOVE_SUCCESS, serviceCode: code } }
+    function failure(error) { return { type: serviceConstants.REMOVE_FAILURE, error } }
 }

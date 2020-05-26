@@ -4,7 +4,8 @@ export const serviceService = {
     getAll,
     getByCode,
     update,
-    create
+    create,
+    remove
 };
 
 const requestOptions = {
@@ -41,6 +42,15 @@ async function create(service) {
             'Content-Type': 'application/json',
         }),
         body: JSON.stringify(service)
+    });
+
+    return handleResponse(response);
+}
+
+async function remove(serviceCode) {
+    const response = await fetch(`${apiUrl}/service/${serviceCode}`, {
+        method: 'DELETE',
+        headers: authHeader(),
     });
 
     return handleResponse(response);

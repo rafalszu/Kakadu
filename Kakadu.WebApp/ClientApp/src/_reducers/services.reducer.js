@@ -50,6 +50,31 @@ export function services(state = {}, action) {
       return {
         error: action.error
       };
+      case serviceConstants.REMOVE_REQUEST:
+        return {
+          ...state,
+          items: state.items.map(service =>
+            service.code === action.serviceCode
+              ? { ...service, deleting: true }
+              : service
+          )
+        };
+      case serviceConstants.REMOVE_SUCCESS:
+        return {
+          items: state.items.filter(service => service.code !== action.serviceCode)
+        };
+      case serviceConstants.REMOVE_FAILURE:
+        return {
+          ...state,
+          items: state.items.map(service => {
+            if (service.code === action.serviceCode) {
+              const { deleting, ...serviceCopy } = service;
+              return { ...serviceCopy, deleteError: action.error };
+            }
+
+            return service;
+          })
+        };
     default:
       return state
   }

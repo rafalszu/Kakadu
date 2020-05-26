@@ -6,8 +6,27 @@ import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 class List extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.startCapturing = this.startCapturing.bind(this);
+        this.stopCapturing = this.stopCapturing.bind(this);
+        this.deleteService = this.deleteService.bind(this);
+    }
     componentDidMount() {
         this.props.dispatch(serviceActions.getAll());
+    }
+
+    startCapturing(serviceCode) {
+        console.log('recording', serviceCode);
+    }
+
+    stopCapturing(serviceCode) {
+        console.log('stopping', serviceCode);
+    }
+
+    deleteService(serviceCode) {
+        this.props.dispatch(serviceActions.remove(serviceCode));
     }
 
     render() {
@@ -40,13 +59,32 @@ class List extends React.Component {
                                 <td>{service.name}</td>
                                 <td>
                                     {service.isRecording ?
-                                        <FontAwesomeIcon cursor="pointer" title="stop capturing" icon="stop" className="icon-margin-right-10" /> :
-                                        <FontAwesomeIcon cursor="pointer" title="start capturing" icon="circle" color="red" className="icon-margin-right-10" />
+                                        <FontAwesomeIcon
+                                            cursor="pointer"
+                                            title="stop capturing"
+                                            icon="stop"
+                                            className="icon-margin-right-10"
+                                            onClick={() => this.stopCapturing(service.code)}
+                                        /> :
+                                        <FontAwesomeIcon
+                                            cursor="pointer"
+                                            title="start capturing"
+                                            icon="circle"
+                                            color="red"
+                                            className="icon-margin-right-10"
+                                            onClick={() => this.startCapturing(service.code)}
+                                        />
                                     }
                                     <Link to={`/services/edit/${service.code}`}>
                                         <FontAwesomeIcon cursor="pointer" title="edit" icon="edit" className="icon-margin-right-10" />
                                     </Link>
-                                    <FontAwesomeIcon cursor="pointer" title="delete" icon="trash-alt" className="icon-margin-right-10" />
+                                    <FontAwesomeIcon 
+                                        cursor="pointer"
+                                        title="delete"
+                                        icon="trash-alt"
+                                        className="icon-margin-right-10"
+                                        onClick={() => this.deleteService(service.code)}
+                                    />
                                 </td>
                             </tr>
                         )}
