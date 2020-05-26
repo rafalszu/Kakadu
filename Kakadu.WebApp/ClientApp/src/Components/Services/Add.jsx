@@ -3,14 +3,8 @@ import { connect } from 'react-redux';
 import { serviceActions } from '../../_actions';
 import { Formik, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import * as jsonpatch from 'fast-json-patch';
 
 class Add extends React.Component {
-    // componentDidMount() {
-    //     const { serviceCode } = this.props.match.params;
-    //     this.props.dispatch(serviceActions.getByCode(serviceCode));
-    // }
-
     render() {
         const requiredFieldMessage = 'This field is required';
         const ServiceSchema = Yup.object({
