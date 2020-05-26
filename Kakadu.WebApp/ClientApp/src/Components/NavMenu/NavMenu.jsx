@@ -54,7 +54,6 @@ class NavMenu extends Component {
 }
 
 function mapStateToProps(state) {
-  console.log(state);
   const { authentication } = state;
   const { user } = authentication;
   return {

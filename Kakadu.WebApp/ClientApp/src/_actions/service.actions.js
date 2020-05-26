@@ -16,7 +16,7 @@ function getAll() {
         serviceService.getAll()
             .then(
                 services => dispatch(success(services)),
-                error => dispatch(failure(error && error.message))
+                error => dispatch(failure(error && error.response))
             );
     };
 
@@ -32,7 +32,7 @@ function getByCode(code) {
         serviceService.getByCode(code)
             .then(
                 service => dispatch(success(service)),
-                error => dispatch(failure(error && error.message))
+                error => dispatch(failure(error && error.response))
             );
     };
 
@@ -48,7 +48,7 @@ function update(serviceCode, data) {
         serviceService.update(serviceCode, data)
             .then(
                 service => dispatch(success(service)),
-                error => dispatch(failure(error && error.message))
+                error => dispatch(failure(error && error.response))
             )
     };
 
@@ -67,7 +67,7 @@ function create(service) {
                     dispatch(success(service))
                     history.push(`/services/edit/${service.code}`)
                 },
-                error => dispatch(failure(error && error.message))
+                error => dispatch(failure(error && error.response))
             )
     };
 

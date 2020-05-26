@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { serviceActions } from '../../_actions';
 import { Formik, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
+import { Container } from 'reactstrap';
 
 class Add extends React.Component {
     render() {
@@ -21,98 +22,103 @@ class Add extends React.Component {
             unkownRoutesPassthrough: false,
             knownRoutes: []
         };
+
+        const { services } = this.props;
         
         return (
-            <Formik
-                enableReinitialize
-                initialValues={serviceInitialValues}
-                validationSchema={ServiceSchema}
-                onSubmit={
-                    (values, { setSubmitting }) => {
-                        this.props.dispatch(serviceActions.create(values));
+            <Container>
+                {services.error && <span className="text-danger">ERROR: {services.error}</span>}
+                <Formik
+                    enableReinitialize
+                    initialValues={serviceInitialValues}
+                    validationSchema={ServiceSchema}
+                    onSubmit={
+                        (values, { setSubmitting }) => {
+                            this.props.dispatch(serviceActions.create(values));
 
-                        setSubmitting(false);
-                    }
-                }>
-                {({ errors,
-                    touched ,
-                    handleSubmit,
-                    isSubmitting }) => (
-                    <form onSubmit={handleSubmit}>
-                        <div className="form-row">
-                            <div className="form-group col-md-8">
-                                <label htmlFor="name">Name</label>
+                            setSubmitting(false);
+                        }
+                    }>
+                    {({ errors,
+                        touched ,
+                        handleSubmit,
+                        isSubmitting }) => (
+                        <form onSubmit={handleSubmit}>
+                            <div className="form-row">
+                                <div className="form-group col-md-8">
+                                    <label htmlFor="name">Name</label>
+                                    <Field
+                                        type="text"
+                                        name="name"
+                                        placeholder="service name"
+                                        className={`form-control ${
+                                            touched.name && errors.name ? "is-invalid" : ""
+                                        }`}
+                                    />
+                                    <ErrorMessage
+                                        component="div"
+                                        name="name"
+                                        className="invalid-feedback"
+                                    />
+                                </div>
+                                <div className="form-group col-md-4">
+                                    <label htmlFor="code">Code</label>
+                                    <Field
+                                        type="text"
+                                        name="code"
+                                        placeholder="service code"
+                                        className={`form-control ${
+                                            touched.code && errors.code ? "is-invalid" : ""
+                                        }`}
+                                    />
+                                    <ErrorMessage
+                                        component="div"
+                                        name="code"
+                                        className="invalid-feedback"
+                                    />
+                                </div>
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="address">Address</label>
                                 <Field
                                     type="text"
-                                    name="name"
-                                    placeholder="service name"
+                                    name="address"
+                                    placeholder="service address"
                                     className={`form-control ${
-                                        touched.name && errors.name ? "is-invalid" : ""
+                                        touched.address && errors.address ? "is-invalid" : ""
                                     }`}
                                 />
                                 <ErrorMessage
                                     component="div"
-                                    name="name"
+                                    name="address"
                                     className="invalid-feedback"
                                 />
                             </div>
-                            <div className="form-group col-md-4">
-                                <label htmlFor="code">Code</label>
-                                <Field
-                                    type="text"
-                                    name="code"
-                                    placeholder="service code"
-                                    className={`form-control ${
-                                        touched.code && errors.code ? "is-invalid" : ""
-                                    }`}
-                                />
-                                <ErrorMessage
-                                    component="div"
-                                    name="code"
-                                    className="invalid-feedback"
-                                />
+                            <div className="form-group">
+                                <div className="form-check">
+                                    <Field
+                                        type="checkbox"
+                                        name="unkownRoutesPassthrough"
+                                        className="form-check-input"
+                                    />
+                                    <label className="form-check-label" htmlFor="unkownRoutesPassthrough">
+                                        Allow pass-through for unkown routes
+                                    </label>
+                                </div>
                             </div>
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="address">Address</label>
-                            <Field
-                                type="text"
-                                name="address"
-                                placeholder="service address"
-                                className={`form-control ${
-                                    touched.address && errors.address ? "is-invalid" : ""
-                                }`}
-                            />
-                            <ErrorMessage
-                                component="div"
-                                name="address"
-                                className="invalid-feedback"
-                            />
-                        </div>
-                        <div className="form-group">
-                            <div className="form-check">
-                                <Field
-                                    type="checkbox"
-                                    name="unkownRoutesPassthrough"
-                                    className="form-check-input"
-                                />
-                                <label className="form-check-label" htmlFor="unkownRoutesPassthrough">
-                                    Allow pass-through for unkown routes
-                                </label>
+                            <div className="form-group">
+                                <button
+                                    type="submit"
+                                    className="btn btn-primary btn-block"
+                                    disabled={isSubmitting}
+                                >
+                                    {isSubmitting ? "Please wait..." : "Save"}
+                                </button>
                             </div>
-                        </div>
-                        <div className="form-group">
-                            <button
-                                type="submit"
-                                className="btn btn-primary btn-block"
-                                disabled={isSubmitting}
-                            >
-                                {isSubmitting ? "Please wait..." : "Save"}
-                            </button>
-                        </div>
-                    </form>
-                )}
-            </Formik>
+                        </form>
+                    )}
+                </Formik>
+            </Container>
         )
     }
 };
