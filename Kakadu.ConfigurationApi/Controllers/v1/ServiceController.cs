@@ -134,26 +134,29 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
             if(entity != null)
                 _logger.LogInformation($"Service '{dto.Code}' updated");
             
-            await DropServiceCacheAsync(dto.Code);
+            await DropServiceCacheAsync(dto.Code, cancellationToken);
 
             return dto;
         }
 
         [HttpDelete("{serviceCode}")]
-        public async Task<IActionResult> Delete(string serviceCode)
+        public async Task<IActionResult> Delete(string serviceCode, CancellationToken cancellationToken)
         {
             if(string.IsNullOrWhiteSpace(serviceCode))
                 throw new ArgumentNullException(nameof(serviceCode));
 
-            var entity = await Task.Run(() => _service.Get(serviceCode));
+            var entity = await Task.Run(() => _service.Get(serviceCode), cancellationToken);
             if(entity == null)
                 throw new HttpNotFoundException($"No service definition found for '{serviceCode}'");
 
-            var result = await Task.Run(() => _service.Delete(serviceCode));
+            var result = await Task.Run(() => _service.Delete(serviceCode), cancellationToken);
             if(result)
             {
                 // remove from cache
-                await DropServiceCacheAsync(serviceCode);
+                await DropServiceCacheAsync(serviceCode, cancellationToken);
+                
+                // stop recording
+                await _actionApiService.StopRecordingAsync(serviceCode, cancellationToken);
 
                 _logger.LogInformation($"Service '{serviceCode}' removed");
                 return Ok();
@@ -162,14 +165,14 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
                 return StatusCode(500);
         }
 
-        private async Task DropServiceCacheAsync(string serviceCode)
+        private async Task DropServiceCacheAsync(string serviceCode, CancellationToken cancellationToken = default)
         {
-            await _cache.RemoveAsync(KakaduConstants.SERVICES);
+            await _cache.RemoveAsync(KakaduConstants.SERVICES, cancellationToken);
             
             if(string.IsNullOrWhiteSpace(serviceCode))
                 return;
             
-            await _cache.RemoveAsync(KakaduConstants.GetServiceKey(serviceCode));
+            await _cache.RemoveAsync(KakaduConstants.GetServiceKey(serviceCode), cancellationToken);
         }
     }
 }
