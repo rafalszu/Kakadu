@@ -1,4 +1,4 @@
-import { serviceConstants } from '../_constants';
+import { serviceConstants, captureConstants } from '../_constants';
 
 export function services(state = {}, action) {
   switch (action.type) {
@@ -75,6 +75,47 @@ export function services(state = {}, action) {
             return service;
           })
         };
+        case captureConstants.START_REQUEST:
+        case captureConstants.STOP_REQUEST:
+          return {
+              ...state,
+              items: state.items.map(service =>
+                service.code === action.serviceCode
+                  ? { ...service, awaitingActionResult: true }
+                  : service
+              )
+            };
+        case captureConstants.START_SUCCESS:
+          return {
+              ...state,
+              items: state.items.map(service =>
+                  service.code === action.serviceCode
+                  ? { ...service, isRecording: true, awaitingActionResult: false }
+                  : service
+              )
+          };
+        case captureConstants.START_FAILURE:
+        case captureConstants.STOP_FAILURE:
+          return {
+              ...state,
+              items: state.items.map(service => {
+                if (service.code === action.serviceCode) {
+                  const { awaitingActionResult, ...serviceCopy } = service;
+                  return { ...serviceCopy, error: action.error };
+                }
+    
+                return service;
+              })
+            };
+        case captureConstants.STOP_SUCCESS:
+          return {
+              ...state,
+              items: state.items.map(service =>
+                  service.code === action.serviceCode
+                  ? { ...service, isRecording: false, awaitingActionResult: false }
+                  : service
+              )
+          };
     default:
       return state
   }

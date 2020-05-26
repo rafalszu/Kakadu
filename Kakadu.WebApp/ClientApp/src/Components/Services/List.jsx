@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Container, Table, Navbar, NavItem, NavLink } from 'reactstrap';
-import { serviceActions } from '../../_actions';
+import { serviceActions, captureActions } from '../../_actions';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
@@ -18,11 +18,11 @@ class List extends React.Component {
     }
 
     startCapturing(serviceCode) {
-        console.log('recording', serviceCode);
+        this.props.dispatch(captureActions.start(serviceCode));
     }
 
     stopCapturing(serviceCode) {
-        console.log('stopping', serviceCode);
+        this.props.dispatch(captureActions.stop(serviceCode));
     }
 
     deleteService(serviceCode) {
@@ -78,12 +78,13 @@ class List extends React.Component {
                                     <Link to={`/services/edit/${service.code}`}>
                                         <FontAwesomeIcon cursor="pointer" title="edit" icon="edit" className="icon-margin-right-10" />
                                     </Link>
-                                    <FontAwesomeIcon 
+                                    <FontAwesomeIcon                                     
                                         cursor="pointer"
                                         title="delete"
                                         icon="trash-alt"
                                         className="icon-margin-right-10"
                                         onClick={() => this.deleteService(service.code)}
+                                        disabled
                                     />
                                 </td>
                             </tr>
