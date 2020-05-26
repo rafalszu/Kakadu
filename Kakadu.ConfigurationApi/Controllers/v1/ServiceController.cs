@@ -70,9 +70,9 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
             return dto;
         }
 
-        [HttpPost("{serviceCode}")]
+        [HttpPost]
         [ProducesResponseType(201)]
-        public async Task<ActionResult<ServiceDTO>> Post(ServiceDTO dto)
+        public async Task<ActionResult<ServiceDTO>> Post(CreateServiceDTO dto)
         {
             if(dto == null)
                 throw new ArgumentNullException();

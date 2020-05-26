@@ -17,6 +17,9 @@ namespace Kakadu.ConfigurationApi
             CreateMap<ServiceDTO, ServiceModel>()
                 .IncludeBase<IEntityDTO, IModel>();
 
+            CreateMap<CreateServiceDTO, ServiceModel>()
+                .IncludeBase<IEntityDTO, IModel>();
+
             CreateMap<UserModel, UserDTO>();
             CreateMap<UserDTO, UserModel>()
                 .IncludeBase<IEntityDTO,IModel>();            
