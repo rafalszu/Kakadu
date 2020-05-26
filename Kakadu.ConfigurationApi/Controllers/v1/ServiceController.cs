@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using Kakadu.Core.Interfaces;
@@ -13,10 +14,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 using Kakadu.Common.Extensions;
+using Kakadu.DTO.Constants;
 
 namespace Kakadu.ConfigurationApi.Controllers.v1
 {
-
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{v:apiVersion}/[controller]")]
@@ -27,7 +28,7 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
         private readonly IServiceService _service;
         private readonly IMapper _mapper;
         private readonly IDistributedCache _cache;
-
+        
         public ServiceController(ILogger<ServiceController> logger, IServiceService service, IDistributedCache cache, IMapper mapper)
         {
             _logger = logger;
@@ -39,7 +40,7 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
         [HttpGet]
         public async Task<List<ServiceDTO>> GetAsync()
         {
-            var results = await _cache.GetOrAddAsync<List<ServiceDTO>>("services", async (options) => {
+            var results = await _cache.GetOrAddAsync<List<ServiceDTO>>(KakaduConstants.SERVICES, async (options) => {
                 options.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(3);
 
                 var entities = await Task.Run(() => _service.GetAll());
@@ -56,7 +57,7 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
             if(string.IsNullOrWhiteSpace(serviceCode))
                 throw new ArgumentNullException(nameof(serviceCode));
 
-            var dto = await _cache.GetOrAddAsync(serviceCode, async (options) => {
+            var dto = await _cache.GetOrAddAsync(KakaduConstants.GetServiceKey(serviceCode), async (options) => {
                 options.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(3);
 
                 var entity = await Task.Run(() => _service.Get(serviceCode));
@@ -92,7 +93,7 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
         }
 
         [HttpPatch("{serviceCode}")]
-        public async Task<ActionResult<ServiceDTO>> Patch(string serviceCode, [FromBody]JsonPatchDocument<ServiceDTO> patch)
+        public async Task<ActionResult<ServiceDTO>> Patch(string serviceCode, [FromBody]JsonPatchDocument<ServiceDTO> patch, CancellationToken cancellationToken)
         {
             if(string.IsNullOrWhiteSpace(serviceCode))
                 throw new ArgumentNullException(nameof(serviceCode));
@@ -107,7 +108,12 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
             patch.ApplyTo(dto);
 
             entity = _mapper.Map<ServiceModel>(dto);
-            entity = await Task.Run(() => _service.Update(entity));
+            entity = await Task.Run(() => _service.Update(entity), cancellationToken);
+
+            if(entity != null)
+                _logger.LogInformation($"Service '{dto.Code}' updated");
+            
+            await DropServiceCacheAsync(dto.Code);
 
             return dto;
         }
@@ -126,13 +132,22 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
             if(result)
             {
                 // remove from cache
-                _cache.Remove(serviceCode);
+                await DropServiceCacheAsync(serviceCode);
 
                 _logger.LogInformation($"Service '{serviceCode}' removed");
                 return Ok();
             }
             else
                 return StatusCode(500);
+        }
+
+        private async Task DropServiceCacheAsync(string serviceCode)
+        {
+            if(string.IsNullOrWhiteSpace(serviceCode))
+                return;
+
+            await _cache.RemoveAsync(KakaduConstants.SERVICES);
+            await _cache.RemoveAsync(KakaduConstants.GetServiceKey(serviceCode));
         }
     }
 }
