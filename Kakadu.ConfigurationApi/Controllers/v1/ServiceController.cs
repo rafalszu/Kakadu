@@ -89,6 +89,8 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
 
             var result = _mapper.Map<ServiceDTO>(model);
 
+            await DropServiceCacheAsync(string.Empty);
+
             return Ok(result);
         }
 
@@ -143,10 +145,11 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
 
         private async Task DropServiceCacheAsync(string serviceCode)
         {
+            await _cache.RemoveAsync(KakaduConstants.SERVICES);
+            
             if(string.IsNullOrWhiteSpace(serviceCode))
                 return;
-
-            await _cache.RemoveAsync(KakaduConstants.SERVICES);
+            
             await _cache.RemoveAsync(KakaduConstants.GetServiceKey(serviceCode));
         }
     }
