@@ -9,5 +9,10 @@ function selectKnownRoute(route) {
         dispatch(select(route));
     };
 
-    function select(route) { return { type: knownRouteConstants.SELECT_ROUTE, payload: route }}
+    function select(route) { 
+        return { 
+            type: knownRouteConstants.SELECT_ROUTE, 
+            payload: route
+        }
+    }
 }

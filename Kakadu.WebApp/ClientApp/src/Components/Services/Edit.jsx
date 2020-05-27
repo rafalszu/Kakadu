@@ -7,19 +7,9 @@ import * as jsonpatch from 'fast-json-patch';
 import { List as KnownRoutesList } from '../KnownRoutes';
 
 class Edit extends React.Component {
-    constructor(props) {
-        super(props);
-
-        this.handleRouteSelected = this.handleRouteSelected.bind(this);
-    }
-
     componentDidMount() {
         const { serviceCode } = this.props.match.params;
         this.props.dispatch(serviceActions.getByCode(serviceCode));
-    }
-
-    handleRouteSelected(route) {
-        this.props.dispatch(knownRouteActions.selectKnownRoute(route));
     }
 
     render() {
@@ -127,8 +117,7 @@ class Edit extends React.Component {
                             <h4>Known routes</h4>
                             <KnownRoutesList 
                                 className="row"
-                                knownRoutes={values.knownRoutes}
-                                handleOnChange={this.handleRouteSelected} />
+                                knownRoutes={values.knownRoutes} />
                         </div>
                         <div className="form-group">
                             <button

@@ -1,6 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import { Item } from './Item';
+import { Replies } from './Replies'
 
 class List extends React.Component {
     render() {
@@ -9,12 +10,12 @@ class List extends React.Component {
                 <div className="col-md-4">
                     <ul className="list-group mb-3">
                         {this.props.knownRoutes && this.props.knownRoutes.map((route, index) => 
-                            <Item key={route.id} route={route} onChange={this.props.handleOnChange} />
+                            <Item key={route.id} route={route} />
                         )}
                     </ul>
                 </div>
-                <div className="col-md-8">
-                    blah
+                <div className="col-md-4">
+                    <Replies />
                 </div>
             </div>
         )
