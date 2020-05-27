@@ -1,14 +1,25 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { serviceActions } from '../../_actions';
+import { serviceActions, knownRouteActions } from '../../_actions';
 import { Formik, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import * as jsonpatch from 'fast-json-patch';
+import { List as KnownRoutesList } from '../KnownRoutes';
 
 class Edit extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.handleRouteSelected = this.handleRouteSelected.bind(this);
+    }
+
     componentDidMount() {
         const { serviceCode } = this.props.match.params;
         this.props.dispatch(serviceActions.getByCode(serviceCode));
+    }
+
+    handleRouteSelected(route) {
+        this.props.dispatch(knownRouteActions.selectKnownRoute(route));
     }
 
     render() {
@@ -114,21 +125,10 @@ class Edit extends React.Component {
                         </div>
                         <div className="form-group">
                             <h4>Known routes</h4>
-                            <div className="row">
-                                <div className="col-md-4">
-                                    <ul className="list-group mb-3">
-                                        {values.knownRoutes && values.knownRoutes.map((route, index) => 
-                                            <li key={route.id} className="list-group-item d-flex justify-content-between lh-condensed">
-                                                <span>{route.relativeUrl}</span>
-                                                <span className="text-muted">{route.methodName}</span>
-                                            </li>
-                                        )}
-                                    </ul>
-                                </div>
-                                <div className="col-md-8">
-                                    blah
-                                </div>
-                            </div>
+                            <KnownRoutesList 
+                                className="row"
+                                knownRoutes={values.knownRoutes}
+                                handleOnChange={this.handleRouteSelected} />
                         </div>
                         <div className="form-group">
                             <button

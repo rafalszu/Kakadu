@@ -1,6 +1,6 @@
 import { serviceConstants, captureConstants } from '../_constants';
 
-export function services(state = {}, action) {
+export function services(state = {services: []}, action) {
   switch (action.type) {
     case serviceConstants.GETALL_REQUEST:
       return {
