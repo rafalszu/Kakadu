@@ -9,6 +9,7 @@ class Item extends React.Component {
         return (
             <li 
                 key={route.id} 
+                style={{cursor: "pointer"}}
                 className={`list-group-item d-flex justify-content-between lh-condensed ${isSelected ? "bg-light" : ""} `}
                 onClick={() => this.props.onChange(route)}   
             >
