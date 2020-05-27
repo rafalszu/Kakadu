@@ -46,7 +46,8 @@ class Edit extends React.Component {
                 {({ errors,
                     touched ,
                     handleSubmit,
-                    isSubmitting }) => (
+                    isSubmitting,
+                    values }) => (
                     <form onSubmit={handleSubmit}>
                         <div className="form-row">
                             <div className="form-group col-md-8">
@@ -109,6 +110,24 @@ class Edit extends React.Component {
                                 <label className="form-check-label" htmlFor="unkownRoutesPassthrough">
                                     Allow pass-through for unkown routes
                                 </label>
+                            </div>
+                        </div>
+                        <div className="form-group">
+                            <h4>Known routes</h4>
+                            <div className="row">
+                                <div className="col-md-4">
+                                    <ul className="list-group mb-3">
+                                        {values.knownRoutes && values.knownRoutes.map((route, index) => 
+                                            <li key={route.id} className="list-group-item d-flex justify-content-between lh-condensed">
+                                                <span>{route.relativeUrl}</span>
+                                                <span className="text-muted">{route.methodName}</span>
+                                            </li>
+                                        )}
+                                    </ul>
+                                </div>
+                                <div className="col-md-8">
+                                    blah
+                                </div>
                             </div>
                         </div>
                         <div className="form-group">
