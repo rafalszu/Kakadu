@@ -55,6 +55,23 @@ namespace Kakadu.Core.Services
             return null;
         }
 
+        public ServiceModel AddKnownRoutes(string serviceCode, IEnumerable<KnownRouteModel> knownRoutes)
+        {
+            if (string.IsNullOrWhiteSpace(serviceCode))
+                throw new ArgumentNullException(nameof(serviceCode));
+            if (knownRoutes == null)
+                throw new ArgumentNullException(nameof(knownRoutes));
+
+            var service = Get(serviceCode);
+            if (service == null)
+                throw new Exception($"No service found by code '{serviceCode}'");
+
+            service.KnownRoutes ??= new List<KnownRouteModel>();
+            service.KnownRoutes.AddRange(knownRoutes);
+
+            return Update(service);
+        }
+
         public bool Delete(string serviceCode)
         {
             int count = _instance.Delete<ServiceModel>(x => x.Code.Equals(serviceCode, StringComparison.InvariantCultureIgnoreCase));

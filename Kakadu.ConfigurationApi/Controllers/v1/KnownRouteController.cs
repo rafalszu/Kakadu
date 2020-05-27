@@ -33,12 +33,10 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
             if(dto == null)
                 throw new ArgumentNullException();
 
-            string cachekey = KakaduConstants.GetFoundRoutesKey(serviceCode);
-            List<KnownRouteDTO> list = await _cache.GetAsync<List<KnownRouteDTO>>(cachekey);
-            if(list == null)
-                list = new List<KnownRouteDTO>();
+            var cachekey = KakaduConstants.GetFoundRoutesKey(serviceCode);
+            var list = await _cache.GetAsync<List<KnownRouteDTO>>(cachekey) ?? new List<KnownRouteDTO>();
 
-            bool contains = list.Any(route => route.RelativeUrl.Equals(dto.RelativeUrl, StringComparison.InvariantCultureIgnoreCase) && route.MethodName.Equals(dto.MethodName, StringComparison.InvariantCultureIgnoreCase));
+            var contains = list.Any(route => route.RelativeUrl.Equals(dto.RelativeUrl, StringComparison.InvariantCultureIgnoreCase) && route.MethodName.Equals(dto.MethodName, StringComparison.InvariantCultureIgnoreCase));
             if(!contains)
             {
                 list.Add(dto);

@@ -13,6 +13,8 @@ namespace Kakadu.Core.Interfaces
 
         ServiceModel Update(ServiceModel model);
 
+        ServiceModel AddKnownRoutes(string serviceCode, IEnumerable<KnownRouteModel> knownRoutes);
+
         bool Delete(string serviceCode);
     }
 }
