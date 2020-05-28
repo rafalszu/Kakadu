@@ -1,18 +1,22 @@
 import React from "react";
 import { connect } from "react-redux";
+import { Reply } from "./Reply";
 
 class Replies extends React.Component {
     render() {
         const { knownRouteReplies } = this.props;
         return (
-            <div className="col-md-4">
+            
                 <ul className="list-group mb-3">
                     {knownRouteReplies && knownRouteReplies.map((reply, index) => 
-                        // <Item key={route.id} route={route} onChange={this.props.handleOnChange} />
-                        <p key={reply.id}>{reply.id}</p>
+                        <Reply 
+                            key={reply.id}
+                            reply={reply}
+                            index={index+1} 
+                        />
                     )}
                 </ul>
-            </div>
+            
         )
     }
 }

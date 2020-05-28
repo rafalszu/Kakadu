@@ -6,6 +6,7 @@ import { alert } from './alert.reducer';
 import { services } from './services.reducer';
 import { knownRoute } from './knownroute.reducer';
 import { knownRouteReplies } from './knownRouteReplies.reducer';
+import { knownRouteReply } from './knownRouteReply.reducer';
 
 const rootReducer = combineReducers({
   authentication,
@@ -13,6 +14,7 @@ const rootReducer = combineReducers({
   services,
   knownRoute,
   knownRouteReplies,
+  knownRouteReply,
   alert
 });
 
