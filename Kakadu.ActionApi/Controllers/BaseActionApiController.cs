@@ -116,6 +116,8 @@ namespace Kakadu.ActionApi.Controllers
                 throw new ArgumentNullException(nameof(relativePath));
             if(dto == null)
                 throw new ArgumentNullException(nameof(dto));
+            if (dto.IsRecording)
+                return false;
 
             var knownRoute = GetKnownRoute(dto, relativePath, GetSoapActionHeader(headers));
             if(knownRoute != null)

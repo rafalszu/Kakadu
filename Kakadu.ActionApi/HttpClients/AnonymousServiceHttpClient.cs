@@ -9,6 +9,7 @@ using Kakadu.DTO;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 using Kakadu.Common.Extensions;
+using Kakadu.DTO.Constants;
 
 namespace Kakadu.ActionApi.HttpClients
 {
@@ -24,11 +25,18 @@ namespace Kakadu.ActionApi.HttpClients
             if(string.IsNullOrWhiteSpace(serviceCode))
                 throw new ArgumentNullException(nameof(serviceCode));
 
+            var recordCacheKey = KakaduConstants.GetRecordKey(serviceCode);
+            var isRecording = (await _cache.GetAsync<bool?>(recordCacheKey, cancellationToken)) ?? false;
+            
             var dto = await _cache.GetOrAddAsync<ServiceDTO>(serviceCode, async (options) => {
                 options.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(3);
 
-                return await this.GetAsync<ServiceDTO>($"service/{serviceCode}", cancellationToken);
-            });
+                var result = await this.GetAsync<ServiceDTO>($"service/{serviceCode}", cancellationToken);
+
+                result.IsRecording = isRecording;
+                
+                return result;
+            }, token: cancellationToken);
             return dto;
         }
 
