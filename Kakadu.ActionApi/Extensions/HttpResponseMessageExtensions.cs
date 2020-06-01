@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Net.Http;
+using System.Text;
 using Kakadu.DTO;
 
 namespace Kakadu.ActionApi.Extensions
@@ -13,7 +16,9 @@ namespace Kakadu.ActionApi.Extensions
             if(msg == null)
                 return null;
 
-            KnownRouteDTO result = new KnownRouteDTO
+            var content = msg.Content?.ReadAsByteArrayAsync().GetAwaiter().GetResult();
+            
+            var result = new KnownRouteDTO
             {
                 Id = Guid.NewGuid(),
                 MethodName = msg.RequestMessage.Method.Method,
@@ -28,7 +33,7 @@ namespace Kakadu.ActionApi.Extensions
                         ContentType = msg.Content?.Headers?.ContentType?.MediaType,
                         ContentTypeCharset = msg.Content?.Headers?.ContentType?.CharSet,
                         ContentLength = msg.Content?.Headers?.ContentLength,
-                        ContentBase64 = System.Convert.ToBase64String(msg.Content?.ReadAsByteArrayAsync().GetAwaiter().GetResult()),
+                        ContentBase64 = System.Convert.ToBase64String(content),
                         ContentEncoding = msg.Content?.Headers?.ContentEncoding?.FirstOrDefault(),
                         Headers = msg.Headers?.AsDictionary()
                     }

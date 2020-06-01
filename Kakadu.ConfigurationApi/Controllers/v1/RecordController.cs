@@ -67,6 +67,21 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
             if (capturedRoutes != null && capturedRoutes.Any())
             {
                 var entities = _mapper.Map<List<KnownRouteModel>>(capturedRoutes);
+                
+                // TODO: go through replies, if compressed, store them in a raw form and make sure they're encoded when sending back from cache
+                
+                /*
+                 if (contentEncoding == "gzip")
+                {
+                    content = DecompressGZip(content);
+                    if (msg.Content?.Headers?.Contains("Content-Encoding") ?? false)
+                    {
+                        msg.Content?.Headers?.Remove("Content-Encoding");
+                        contentEncoding = string.Empty;
+                    }
+                }
+                 */
+                
                 _serviceService.AddKnownRoutes(serviceCode, entities);
             }
             
@@ -94,5 +109,30 @@ namespace Kakadu.ConfigurationApi.Controllers.v1
 
             return actionResult;
         }
+        
+        /*
+                 private static byte[] DecompressGZip(byte[] gzip)
+        {
+            using (var stream = new GZipStream(new MemoryStream(gzip), CompressionMode.Decompress))
+            {
+                const int size = 4096;
+                byte[] buffer = new byte[size];
+                using (var memoryStream = new MemoryStream())
+                {
+                    var count = 0;
+                    do
+                    {
+                        count = stream.Read(buffer, 0, size);
+                        if (count > 0)
+                        {
+                            memoryStream.Write(buffer, 0, count);
+                        }
+                    }
+                    while (count > 0);
+                    return memoryStream.ToArray();
+                }
+            }
+        }
+         */
     }
 }
