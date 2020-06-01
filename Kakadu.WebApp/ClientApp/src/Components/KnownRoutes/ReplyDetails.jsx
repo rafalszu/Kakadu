@@ -3,6 +3,8 @@ import { connect } from "react-redux";
 import { Formik, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 
+import { Tabs, Tab } from '../Tabs';
+
 class ReplyDetails extends React.Component {
     render() {
         const {knownRouteReply} = this.props;
@@ -91,6 +93,18 @@ class ReplyDetails extends React.Component {
                                 />
                             </div>
                         </div>
+                        <Tabs
+                            activeTab={{
+                                id: "headers"
+                            }}
+                            >
+                            <Tab id="headers" title="Headers">
+                                <div style={{ padding: 10 }}>stored response headers</div>
+                            </Tab>
+                            <Tab id="body" title="Response body">
+                                <div style={{ paddingTop: 10 }}>This is response body</div>
+                            </Tab>
+                        </Tabs>
                     </div>
                 )}
             </Formik>
