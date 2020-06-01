@@ -1,0 +1,157 @@
+import React, { Component } from "react";
+import styled from '@emotion/styled';
+
+const ListTabs = styled.ul({
+  paddingLeft: 0,
+  listStyle: "none",
+  margin: 0
+});
+
+const TabTitleItem = styled.li(
+  {
+    display: "inline-block",
+    paddingRight: 5,
+    paddingLeft: 5,
+    transition: "all 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms",
+    padding: "16px 30px",
+    cursor: "pointer",
+    opacity: "0.4",
+    ":hover": {
+      opacity: 1
+    }
+  },
+  props => {
+    return (
+      props.isActiveTab && {
+        transition: "all 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms",
+        cursor: "default",
+        opacity: 1
+      }
+    );
+  }
+);
+
+const ActiveTabBorder = styled.div(
+  {
+    height: 4,
+    backgroundColor: "#0088dd",
+    position: "absolute",
+    bottom: 0,
+    transition: "all 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms",
+    willChange: "left, width"
+  },
+  props => {
+    return (
+      props.activeTabElement && {
+        width: props.activeTabElement.offsetWidth,
+        left: props.activeTabElement.offsetLeft
+      }
+    );
+  }
+);
+
+const TabAnchorItem = styled.a({
+  textTransform: "capitalize",
+  color: "#000000",
+  fontWeight: 600
+});
+
+const TabsContainer = styled.div({
+  position: "relative",
+  borderBottom: "1px solid #dfdfdf"
+});
+
+const ReactTabs = styled.div({
+  position: "realative"
+});
+
+export class Tabs extends Component {
+  state = {
+    tabs: [],
+    prevActiveTab: {},
+    activeTab: this.props.activeTab,
+    tabsElements: []
+  };
+
+  addTab = newTab => {
+    let isNewTabFound;
+
+    for (let i in this.state.tabs) {
+      let tab = this.state.tabs[i];
+
+      if (tab.id === newTab.id) {
+        isNewTabFound = true;
+        break;
+      }
+    }
+
+    if (!isNewTabFound) {
+      this.setState((prevState, props) => {
+        return {
+          tabs: prevState.tabs.concat(newTab)
+        };
+      });
+    }
+  };
+
+  removeTab = tabId => {
+    this.setState((prevState, props) => {
+      return {
+        tabs: prevState.tabs.filter(tab => tab.id !== tabId)
+      };
+    });
+  };
+
+  onClick = tab => event => {
+    this.setState((prevState, props) => {
+      return {
+        prevActiveTab: prevState.activeTab,
+        activeTab: tab
+      };
+    });
+  };
+
+  render() {
+    return (
+      <ReactTabs>
+        <TabsContainer>
+          <ListTabs>
+            {this.state.tabs.map((tab, index) => (
+              <TabTitleItem
+                key={index}
+                onClick={this.onClick(tab)}
+                id={tab.id}
+                ref={tabElement => {
+                  if (!this.state.tabsElements[tab.id]) {
+                    this.setState((prevState, props) => {
+                      const tabsElements = prevState.tabsElements;
+                      tabsElements[tab.id] = tabElement;
+
+                      return {
+                        tabsElements
+                      };
+                    });
+                  }
+                }}
+                isActiveTab={this.state.activeTab.id === tab.id}
+              >
+                <TabAnchorItem>{tab.title}</TabAnchorItem>
+              </TabTitleItem>
+            ))}
+          </ListTabs>
+
+          <ActiveTabBorder
+            activeTabElement={this.state.tabsElements[this.state.activeTab.id]}
+          />
+        </TabsContainer>
+
+        {React.Children.map(this.props.children, child =>
+          React.cloneElement(child, {
+            activeTab: this.state.activeTab,
+            addTab: this.addTab
+          })
+        )}
+      </ReactTabs>
+    );
+  }
+}
