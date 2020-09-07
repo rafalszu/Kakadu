@@ -23,10 +23,10 @@ namespace Kakadu.ActionApi.Tests
 {
     public class BaseControllerUnitTests
     {
-        Mock<ILogger<RestController>> loggerMock = new Mock<ILogger<RestController>>();
-        Mock<IAnonymousServiceHttpClient> anonymousServiceClientMock = new Mock<IAnonymousServiceHttpClient>();
-        Mock<IAuthenticatedServiceHttpClient> authenticatedServiceClientMock = new Mock<IAuthenticatedServiceHttpClient>();
-        Mock<IDistributedCache> cacheMock = new Mock<IDistributedCache>();
+        private readonly Mock<ILogger<RestController>> _loggerMock = new Mock<ILogger<RestController>>();
+        private readonly Mock<IAnonymousServiceHttpClient> _anonymousServiceClientMock = new Mock<IAnonymousServiceHttpClient>();
+        private readonly Mock<IAuthenticatedServiceHttpClient> _authenticatedServiceClientMock = new Mock<IAuthenticatedServiceHttpClient>();
+        private readonly Mock<IDistributedCache> _cacheMock = new Mock<IDistributedCache>();
 
         [Fact]
         public void ClassShoudBeDerivedFromControllerBase()
@@ -39,13 +39,13 @@ namespace Kakadu.ActionApi.Tests
         [Fact]
         public void GetSoapActionHeader_ReturnsEmptyForNullHttpRequest()
         {
-            var controller = new RestController(loggerMock.Object, anonymousServiceClientMock.Object, authenticatedServiceClientMock.Object, cacheMock.Object);
+            var controller = new RestController(_loggerMock.Object, _anonymousServiceClientMock.Object, _authenticatedServiceClientMock.Object, _cacheMock.Object);
 
             var type = typeof(BaseActionApiController);
 
-            MethodInfo method = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
-                .Where(x => x.Name == "GetSoapActionHeader" && x.IsPrivate)
-                .First();
+            var method = type
+                .GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
+                .First(x => x.Name == "GetSoapActionHeader" && x.IsPrivate);
 
             var result = (string)method.Invoke(controller, new object[] { null });
 
@@ -55,7 +55,7 @@ namespace Kakadu.ActionApi.Tests
         [Fact]
         public void GetSoapActionHeader_ReturnsEmptyStringWhenNoSoapActionHeaderPresent()
         {
-            var controller = new RestController(loggerMock.Object, anonymousServiceClientMock.Object, authenticatedServiceClientMock.Object, cacheMock.Object);
+            var controller = new RestController(_loggerMock.Object, _anonymousServiceClientMock.Object, _authenticatedServiceClientMock.Object, _cacheMock.Object);
 
             IHeaderDictionary headers = new HeaderDictionary(new Dictionary<string, StringValues> {
                 { "Content-Type", "application/json" }
@@ -63,9 +63,9 @@ namespace Kakadu.ActionApi.Tests
 
             var type = typeof(BaseActionApiController);
 
-            MethodInfo method = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
-                .Where(x => x.Name == "GetSoapActionHeader" && x.IsPrivate)
-                .First();
+            var method = type
+                .GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
+                .First(x => x.Name == "GetSoapActionHeader" && x.IsPrivate);
 
             var result = (string)method.Invoke(controller, new object[] { headers });
 
@@ -75,7 +75,7 @@ namespace Kakadu.ActionApi.Tests
         [Fact]
         public void GetSoapActionHeader_ReturnsCorrectSoapActionForMalformedSoapActionHeader()
         {
-            var controller = new RestController(loggerMock.Object, anonymousServiceClientMock.Object, authenticatedServiceClientMock.Object, cacheMock.Object);
+            var controller = new RestController(_loggerMock.Object, _anonymousServiceClientMock.Object, _authenticatedServiceClientMock.Object, _cacheMock.Object);
 
             IHeaderDictionary headers = new HeaderDictionary(new Dictionary<string, StringValues> {
                 { "Content-Type", "application/json" },
@@ -84,9 +84,9 @@ namespace Kakadu.ActionApi.Tests
 
             var type = typeof(BaseActionApiController);
 
-            MethodInfo method = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
-                .Where(x => x.Name == "GetSoapActionHeader" && x.IsPrivate)
-                .First();
+            var method = type
+                .GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
+                .First(x => x.Name == "GetSoapActionHeader" && x.IsPrivate);
 
             var result = (string)method.Invoke(controller, new object[] { headers });
             
@@ -96,7 +96,7 @@ namespace Kakadu.ActionApi.Tests
         [Fact]
         public void GetSoapActionHeader_ReturnsSanitizedValueFromProperSoapActionHeader()
         {
-            var controller = new RestController(loggerMock.Object, anonymousServiceClientMock.Object, authenticatedServiceClientMock.Object, cacheMock.Object);
+            var controller = new RestController(_loggerMock.Object, _anonymousServiceClientMock.Object, _authenticatedServiceClientMock.Object, _cacheMock.Object);
 
             IHeaderDictionary headers = new HeaderDictionary(new Dictionary<string, StringValues> {
                 { "Content-Type", "application/json" },
@@ -105,9 +105,9 @@ namespace Kakadu.ActionApi.Tests
 
             var type = typeof(BaseActionApiController);
 
-            MethodInfo method = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
-                .Where(x => x.Name == "GetSoapActionHeader" && x.IsPrivate)
-                .First();
+            var method = type
+                .GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
+                .First(x => x.Name == "GetSoapActionHeader" && x.IsPrivate);
 
             var result = (string)method.Invoke(controller, new object[] { headers });
 
@@ -117,15 +117,15 @@ namespace Kakadu.ActionApi.Tests
         [Fact]
         public void GetRequestBodyAsync_Returns_Content_For_POST()
         {
-            var controller = new RestController(loggerMock.Object, anonymousServiceClientMock.Object, authenticatedServiceClientMock.Object, cacheMock.Object);
+            var controller = new RestController(_loggerMock.Object, _anonymousServiceClientMock.Object, _authenticatedServiceClientMock.Object, _cacheMock.Object);
 
              var type = typeof(BaseActionApiController);
 
-            MethodInfo method = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
-                .Where(x => x.Name == "GetRequestBodyAsync" && x.IsPrivate)
-                .First();
+            var method = type
+                .GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
+                .First(x => x.Name == "GetRequestBodyAsync" && x.IsPrivate);
 
-            string httpRequestMethod = "POST";
+            var httpRequestMethod = "POST";
             Stream body = new MemoryStream(Encoding.UTF8.GetBytes(@"
                 <soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/' xmlns:tem='http://tempuri.org/'>
                     <soapenv:Header/>
@@ -150,13 +150,13 @@ namespace Kakadu.ActionApi.Tests
         [Fact]
         public void GetRequestBodyAsync_Returns_EmptyString_For_GET()
         {
-            var controller = new RestController(loggerMock.Object, anonymousServiceClientMock.Object, authenticatedServiceClientMock.Object, cacheMock.Object);
+            var controller = new RestController(_loggerMock.Object, _anonymousServiceClientMock.Object, _authenticatedServiceClientMock.Object, _cacheMock.Object);
 
              var type = typeof(BaseActionApiController);
 
-            MethodInfo method = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
-                .Where(x => x.Name == "GetRequestBodyAsync" && x.IsPrivate)
-                .First();
+            var method = type
+                .GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
+                .First(x => x.Name == "GetRequestBodyAsync" && x.IsPrivate);
 
             string httpRequestMethod = "GET";
             Stream body = new MemoryStream(Encoding.UTF8.GetBytes(@"
@@ -183,13 +183,13 @@ namespace Kakadu.ActionApi.Tests
         [Fact]
         public void GetRequestBodyAsync_ThrowsException_WhenStream_Is_Null()
         {
-            var controller = new RestController(loggerMock.Object, anonymousServiceClientMock.Object, authenticatedServiceClientMock.Object, cacheMock.Object);
+            var controller = new RestController(_loggerMock.Object, _anonymousServiceClientMock.Object, _authenticatedServiceClientMock.Object, _cacheMock.Object);
 
             var type = typeof(BaseActionApiController);
 
-            MethodInfo method = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
-                .Where(x => x.Name == "GetRequestBodyAsync" && x.IsPrivate)
-                .First();
+            var method = type
+                .GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
+                .First(x => x.Name == "GetRequestBodyAsync" && x.IsPrivate);
 
             Assert.ThrowsAsync<ArgumentNullException>(() => 
                 (Task<string>)method.Invoke(controller, new object[] { "POST", null })
@@ -199,13 +199,13 @@ namespace Kakadu.ActionApi.Tests
         [Fact]
         public void GetRequestBodyAsync_ThrowsException_WhenMethod_Is_Null()
         {
-            var controller = new RestController(loggerMock.Object, anonymousServiceClientMock.Object, authenticatedServiceClientMock.Object, cacheMock.Object);
+            var controller = new RestController(_loggerMock.Object, _anonymousServiceClientMock.Object, _authenticatedServiceClientMock.Object, _cacheMock.Object);
 
             var type = typeof(BaseActionApiController);
 
-            MethodInfo method = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
-                .Where(x => x.Name == "GetRequestBodyAsync" && x.IsPrivate)
-                .First();
+            var method = type
+                .GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
+                .First(x => x.Name == "GetRequestBodyAsync" && x.IsPrivate);
 
             Assert.ThrowsAsync<ArgumentNullException>(() => 
                 (Task<string>)method.Invoke(controller, new object[] { null, null })
@@ -215,13 +215,13 @@ namespace Kakadu.ActionApi.Tests
         [Fact]
         public void CombinePaths_Throws_Exception_When_Param1_IsNull_Or_Whitespace()
         {
-            var controller = new RestController(loggerMock.Object, anonymousServiceClientMock.Object, authenticatedServiceClientMock.Object, cacheMock.Object);
+            var controller = new RestController(_loggerMock.Object, _anonymousServiceClientMock.Object, _authenticatedServiceClientMock.Object, _cacheMock.Object);
 
             var type = typeof(BaseActionApiController);
 
-            MethodInfo method = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
-                .Where(x => x.Name == "CombinePaths" && x.IsPrivate)
-                .First();
+            var method = type
+                .GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
+                .First(x => x.Name == "CombinePaths" && x.IsPrivate);
 
             Action act = () => method.Invoke(controller, new object[] { null, "abc" });
             act.Should().Throw<TargetInvocationException>()
@@ -243,13 +243,13 @@ namespace Kakadu.ActionApi.Tests
         [Fact]
         public void CombinePaths_Throws_Exception_When_Param2_IsNull_Or_Whitespace()
         {
-            var controller = new RestController(loggerMock.Object, anonymousServiceClientMock.Object, authenticatedServiceClientMock.Object, cacheMock.Object);
+            var controller = new RestController(_loggerMock.Object, _anonymousServiceClientMock.Object, _authenticatedServiceClientMock.Object, _cacheMock.Object);
 
             var type = typeof(BaseActionApiController);
 
-            MethodInfo method = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
-                .Where(x => x.Name == "CombinePaths" && x.IsPrivate)
-                .First();
+            var method = type
+                .GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
+                .First(x => x.Name == "CombinePaths" && x.IsPrivate);
 
             Action act = () => method.Invoke(controller, new object[] { "abc", null });
             act.Should().Throw<TargetInvocationException>()
@@ -271,13 +271,13 @@ namespace Kakadu.ActionApi.Tests
         [Fact]
         public void CombinePaths_ReturnsCorrectPath()
         {
-            var controller = new RestController(loggerMock.Object, anonymousServiceClientMock.Object, authenticatedServiceClientMock.Object, cacheMock.Object);
+            var controller = new RestController(_loggerMock.Object, _anonymousServiceClientMock.Object, _authenticatedServiceClientMock.Object, _cacheMock.Object);
 
             var type = typeof(BaseActionApiController);
 
-            MethodInfo method = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
-                .Where(x => x.Name == "CombinePaths" && x.IsPrivate)
-                .First();
+            var method = type
+                .GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
+                .First(x => x.Name == "CombinePaths" && x.IsPrivate);
 
             var result = (string)method.Invoke(controller, new object[] { "post", "comments" });
             Assert.Equal("post/comments", result);
@@ -290,14 +290,14 @@ namespace Kakadu.ActionApi.Tests
         [Fact]
         public void IntercepKnownRouteAsync_ThrowsExceptionForNullParameters()
         {
-            var controller = new RestController(loggerMock.Object, anonymousServiceClientMock.Object, authenticatedServiceClientMock.Object, cacheMock.Object);
+            var controller = new RestController(_loggerMock.Object, _anonymousServiceClientMock.Object, _authenticatedServiceClientMock.Object, _cacheMock.Object);
             var service = new ServiceDTO();
 
             var type = typeof(BaseActionApiController);
 
-            MethodInfo method = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
-                .Where(x => x.Name == "InterceptKnownRouteAsync" && x.IsPrivate)
-                .First();
+            var method = type
+                .GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
+                .First(x => x.Name == "InterceptKnownRouteAsync" && x.IsPrivate);
 
             var task = (Task<bool>)method.Invoke(controller, new object[] { null, null, "/comments", service });
             Assert.ThrowsAsync<ArgumentNullException>(async () => await task);
@@ -313,7 +313,7 @@ namespace Kakadu.ActionApi.Tests
         [Fact]
         public async Task InterceptKnownRouteAsync_ReturnsTrueWhenNoKnownRouteFoundAndCantPassThrough()
         {
-            var controller = new RestController(loggerMock.Object, anonymousServiceClientMock.Object, authenticatedServiceClientMock.Object, cacheMock.Object);
+            var controller = new RestController(_loggerMock.Object, _anonymousServiceClientMock.Object, _authenticatedServiceClientMock.Object, _cacheMock.Object);
             var service = new ServiceDTO {
                 Code = "dummy",
                 Name = "dummy",
@@ -325,9 +325,9 @@ namespace Kakadu.ActionApi.Tests
             var type = typeof(BaseActionApiController);
             var response = new Mock<HttpResponse>();
 
-            MethodInfo method = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
-                .Where(x => x.Name == "InterceptKnownRouteAsync" && x.IsPrivate)
-                .First();
+            var method = type
+                .GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
+                .First(x => x.Name == "InterceptKnownRouteAsync" && x.IsPrivate);
 
             var task = (Task<bool>)method.Invoke(controller, new object[] { null, response.Object, "/path", service });
             var result = await task;
@@ -338,7 +338,7 @@ namespace Kakadu.ActionApi.Tests
         [Fact]
         public async Task InterceptKnownRouteAsync_ReturnsFalseWhenNoKnownRouteFoundAndCanPassThrough()
         {
-            var controller = new RestController(loggerMock.Object, anonymousServiceClientMock.Object, authenticatedServiceClientMock.Object, cacheMock.Object);
+            var controller = new RestController(_loggerMock.Object, _anonymousServiceClientMock.Object, _authenticatedServiceClientMock.Object, _cacheMock.Object);
             var service = new ServiceDTO {
                 Code = "dummy",
                 Name = "dummy",
@@ -350,9 +350,9 @@ namespace Kakadu.ActionApi.Tests
             var type = typeof(BaseActionApiController);
             var response = new Mock<HttpResponse>();
 
-            MethodInfo method = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
-                .Where(x => x.Name == "InterceptKnownRouteAsync" && x.IsPrivate)
-                .First();
+            var method = type
+                .GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
+                .First(x => x.Name == "InterceptKnownRouteAsync" && x.IsPrivate);
 
             var task = (Task<bool>)method.Invoke(controller, new object[] { null, response.Object, "/path", service });
             var result = await task;
@@ -363,7 +363,7 @@ namespace Kakadu.ActionApi.Tests
         [Fact]
         public async Task InterceptKnownRouteAsync_ReturnsTrueWhenKnownRouteFoundAndCantPassThrough()
         {
-            var controller = new RestController(loggerMock.Object, anonymousServiceClientMock.Object, authenticatedServiceClientMock.Object, cacheMock.Object);
+            var controller = new RestController(_loggerMock.Object, _anonymousServiceClientMock.Object, _authenticatedServiceClientMock.Object, _cacheMock.Object);
             var service = new ServiceDTO {
                 Code = "dummy",
                 Name = "dummy",
@@ -382,9 +382,9 @@ namespace Kakadu.ActionApi.Tests
             var type = typeof(BaseActionApiController);
             var response = new Mock<HttpResponse>();
 
-            MethodInfo method = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
-                .Where(x => x.Name == "InterceptKnownRouteAsync" && x.IsPrivate)
-                .First();
+            var method = type
+                .GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
+                .First(x => x.Name == "InterceptKnownRouteAsync" && x.IsPrivate);
 
             var task = (Task<bool>)method.Invoke(controller, new object[] { null, response.Object, "/path", service });
             var result = await task;
@@ -395,7 +395,7 @@ namespace Kakadu.ActionApi.Tests
         [Fact]
         public async Task InterceptKnownRouteAsync_ReturnsFalseWhenKnownRouteFoundAndCanPassThrough()
         {
-            var controller = new RestController(loggerMock.Object, anonymousServiceClientMock.Object, authenticatedServiceClientMock.Object, cacheMock.Object);
+            var controller = new RestController(_loggerMock.Object, _anonymousServiceClientMock.Object, _authenticatedServiceClientMock.Object, _cacheMock.Object);
             var service = new ServiceDTO {
                 Code = "dummy",
                 Name = "dummy",
@@ -414,9 +414,9 @@ namespace Kakadu.ActionApi.Tests
             var type = typeof(BaseActionApiController);
             var response = new Mock<HttpResponse>();
 
-            MethodInfo method = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
-                .Where(x => x.Name == "InterceptKnownRouteAsync" && x.IsPrivate)
-                .First();
+            var method = type
+                .GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
+                .First(x => x.Name == "InterceptKnownRouteAsync" && x.IsPrivate);
 
             var task = (Task<bool>)method.Invoke(controller, new object[] { null, response.Object, "/path", service });
             var result = await task;
@@ -427,7 +427,7 @@ namespace Kakadu.ActionApi.Tests
         [Fact]
         public async Task InterceptKnownRouteAsync_ReturnsTrueWhenKnownRouteWithAReplyFound()
         {
-            var controller = new RestController(loggerMock.Object, anonymousServiceClientMock.Object, authenticatedServiceClientMock.Object, cacheMock.Object);
+            var controller = new RestController(_loggerMock.Object, _anonymousServiceClientMock.Object, _authenticatedServiceClientMock.Object, _cacheMock.Object);
             var service = new ServiceDTO {
                 Code = "dummy",
                 Name = "dummy",
@@ -455,9 +455,9 @@ namespace Kakadu.ActionApi.Tests
             var type = typeof(BaseActionApiController);
             var response = new Mock<HttpResponse>();
 
-            MethodInfo method = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
-                .Where(x => x.Name == "InterceptKnownRouteAsync" && x.IsPrivate)
-                .First();
+            var method = type
+                .GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
+                .First(x => x.Name == "InterceptKnownRouteAsync" && x.IsPrivate);
 
             var task = (Task<bool>)method.Invoke(controller, new object[] { null, response.Object, "/path", service });
             var result = await task;
@@ -468,7 +468,7 @@ namespace Kakadu.ActionApi.Tests
         [Fact]
         public void StoreReply_ThrowsExceptionsOnEmptyParameters()
         {
-            var controller = new RestController(loggerMock.Object, anonymousServiceClientMock.Object, authenticatedServiceClientMock.Object, cacheMock.Object);
+            var controller = new RestController(_loggerMock.Object, _anonymousServiceClientMock.Object, _authenticatedServiceClientMock.Object, _cacheMock.Object);
             var knownRoute = new KnownRouteDTO {
                 Id = Guid.NewGuid(),
                 MethodName = "GET",
@@ -485,11 +485,11 @@ namespace Kakadu.ActionApi.Tests
             };
 
             var type = typeof(BaseActionApiController);
-            MethodInfo method = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
-                .Where(x => x.Name == "StoreReply" && x.IsPrivate)
-                .First();
+            var method = type
+                .GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
+                .First(x => x.Name == "StoreReply" && x.IsPrivate);
 
-            CancellationTokenSource cts = new CancellationTokenSource(1000);
+            var cts = new CancellationTokenSource(1000);
 
             var task = (Task)method.Invoke(controller, new object[] { "", null, cts.Token });
             Assert.ThrowsAsync<ArgumentNullException>(async () => await task);
