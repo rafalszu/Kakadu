@@ -1,7 +1,10 @@
+import { history } from './history'
+
 export function handleResponse(response) {
     // if(response.status === 401) {
     //     localStorage.removeItem('user');
 
+    //     history.push('/login');
     //     return Promise.reject(response.statusText)
     // }
     return response.text().then(text => {
