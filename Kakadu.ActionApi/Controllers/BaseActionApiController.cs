@@ -178,7 +178,7 @@ namespace Kakadu.ActionApi.Controllers
             if(string.IsNullOrWhiteSpace(s) || string.IsNullOrWhiteSpace(v))
                 throw new Exception("Can't combine paths as at least one part is null or empty");
 
-            return string.Format("{0}/{1}", s.TrimEnd('/'), v.TrimStart('/'));
+            return $"{s.TrimEnd('/')}/{v.TrimStart('/')}";
         }
 
         private async Task<string> GetRequestBodyAsync(string httpRequestMethod, Stream httpRequestBody)
