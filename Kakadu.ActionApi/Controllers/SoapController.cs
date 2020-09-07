@@ -35,7 +35,7 @@ namespace Kakadu.ActionApi.Controllers
                 routeValues = Request.RouteValues["catchAll"];
             }
 
-            string relativePath = string.Format("/{0}{1}", routeValues ?? string.Empty, Request.QueryString.HasValue ? Request.QueryString.Value : string.Empty);
+            var relativePath = $"/{routeValues ?? string.Empty}{(Request.QueryString.HasValue ? Request.QueryString.Value : string.Empty)}";
 
             Request.EnableBuffering(); 
 

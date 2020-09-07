@@ -31,7 +31,7 @@ namespace Kakadu.ActionApi.Controllers
         private readonly IAuthenticatedServiceHttpClient _authenticatedServiceClient;
         private readonly IDistributedCache _cache;
 
-        public BaseActionApiController(ILogger<BaseActionApiController> logger, 
+        protected BaseActionApiController(ILogger<BaseActionApiController> logger, 
                                        IAnonymousServiceHttpClient anonymousServiceClient,
                                        IAuthenticatedServiceHttpClient authenticatedServiceClient,
                                        IDistributedCache cache)
@@ -45,7 +45,7 @@ namespace Kakadu.ActionApi.Controllers
         public abstract KnownRouteDTO GetKnownRoute(ServiceDTO service, string relativePath, string action = "");
 
         [NonAction]
-        public async Task ProxyCall(string serviceCode, string relativePath, CancellationToken cancellationToken)
+        protected async Task ProxyCall(string serviceCode, string relativePath, CancellationToken cancellationToken)
         {
             if(string.IsNullOrWhiteSpace(serviceCode))
                 throw new ArgumentNullException(serviceCode);
@@ -57,18 +57,14 @@ namespace Kakadu.ActionApi.Controllers
             var options = ProxyOptions.Instance
                 .WithHttpClientName("KakaduVirtualizationClient")
                 .WithShouldAddForwardedHeaders(true)
-                .WithIntercept(async (context) => await InterceptKnownRouteAsync(Request.Headers, context.Response, relativePath, service))                
-                //.WithBeforeSend
+                .WithIntercept(async (context) => await InterceptKnownRouteAsync(Request.Headers, context.Response, relativePath, service))
                 .WithAfterReceive(async (context, response) => {
-                    bool saveResponse = ShouldSaveResponse(serviceCode);
-                    if(saveResponse) {
+                    if(ShouldSaveResponse(serviceCode)) {
                         _logger.LogInformation($"Saving response from {relativePath}");
 
                         var dto = response.ToKnownRouteDTO();
                         await StoreReply(serviceCode, dto, cancellationToken);
                     }
-
-                    //return Task.CompletedTask;
                 });
 
             var url = CombinePaths(service.Address.AbsoluteUri, relativePath);
@@ -193,9 +189,9 @@ namespace Kakadu.ActionApi.Controllers
                 httpRequestMethod.Equals("DELETE", StringComparison.InvariantCultureIgnoreCase))
                 return string.Empty;
 
-            string body = string.Empty;
+            string body;
 
-            using (StreamReader reader  = new StreamReader(
+            using (var reader  = new StreamReader(
                 stream: httpRequestBody,
                 encoding: System.Text.Encoding.UTF8,
                 detectEncodingFromByteOrderMarks: true,

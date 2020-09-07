@@ -38,7 +38,7 @@ namespace Kakadu.ActionApi.Controllers
                 routeValues = Request.RouteValues["catchAll"];
             }
 
-            string relativePath = string.Format("/{0}{1}", routeValues ?? string.Empty, Request.QueryString.HasValue ? Request.QueryString.Value : string.Empty);
+            string relativePath = $"/{routeValues ?? string.Empty}{(Request.QueryString.HasValue ? Request.QueryString.Value : string.Empty)}";
 
             await ProxyCall(serviceCode, relativePath, cancellationToken).ConfigureAwait(false);
         }
