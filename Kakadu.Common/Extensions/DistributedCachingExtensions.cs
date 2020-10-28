@@ -29,6 +29,15 @@ namespace Kakadu.Common.Extensions
             return result.FromByteArray<T>();  
         }
 
+        public static T Get<T>(this IDistributedCache distributedCache, string key)
+        {
+            if(string.IsNullOrWhiteSpace(key))
+                throw new ArgumentNullException(nameof(key));
+
+            var result = distributedCache.Get(key);  
+            return result.FromByteArray<T>();
+        }
+
         public async static Task<T> GetOrAddAsync<T>(this IDistributedCache distributedCache, string key, Func<DistributedCacheEntryOptions, Task<T>> getDataDelegate, CancellationToken token = default(CancellationToken))
         {
             if(string.IsNullOrWhiteSpace(key))
