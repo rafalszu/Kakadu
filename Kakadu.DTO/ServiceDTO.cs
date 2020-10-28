@@ -22,6 +22,8 @@ namespace Kakadu.DTO
 
         public List<KnownRouteDTO> KnownRoutes { get; set; }
         
+        public List<string> Endpoints { get; set; }
+        
         public bool IsRecording { get; set; }
     }
 }

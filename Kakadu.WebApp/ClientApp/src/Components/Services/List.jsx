@@ -46,6 +46,7 @@ class List extends React.Component {
                         <tr>
                             <th>Code</th>
                             <th>Name</th>
+                            <th>Endpoints</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -57,6 +58,7 @@ class List extends React.Component {
                                     <Link to={`/services/edit/${service.code}`}>{service.code}</Link>
                                 </td>
                                 <td>{service.name}</td>
+                                <td>{service.endpoints && service.endpoints.map((endpoint, _) => <p>{endpoint}</p> )}</td>
                                 <td>
                                     {service.isRecording ?
                                         <FontAwesomeIcon
