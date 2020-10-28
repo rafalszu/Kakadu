@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Tracing;
 using System.Text;
 
 namespace Kakadu.DTO
@@ -41,6 +42,9 @@ namespace Kakadu.DTO
 
         public byte[] ContentRaw => string.IsNullOrEmpty(ContentBase64) ? null : Convert.FromBase64String(ContentBase64);
 
-        public string ContentString => textContentTypes.Contains(ContentType) ? Encoding.UTF8.GetString(Convert.FromBase64String(ContentBase64)) : string.Empty;
+        public string ContentString => textContentTypes.Contains(ContentType) ? GetFromBase64() : string.Empty;
+
+        private string GetFromBase64() =>
+            string.IsNullOrWhiteSpace(ContentBase64) ? string.Empty : Encoding.UTF8.GetString(Convert.FromBase64String(ContentBase64));
     }
 }
