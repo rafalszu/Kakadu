@@ -62,17 +62,6 @@ namespace Kakadu.Common.Extensions
             if (string.IsNullOrWhiteSpace(inputBase64) || streamFunc == null)
                 return string.Empty;
 
-            // using var outputStream = new MemoryStream();
-            // using var entry = new MemoryStream(Convert.FromBase64String(inputBase64));
-            // using var stream = streamFunc(entry);
-            //
-            // var buffer = new byte[1024];
-            // int nRead;
-            // while ((nRead = stream.Read(buffer, 0, buffer.Length)) > 0)
-            //     outputStream.Write(buffer, 0, nRead);
-
-            // //return Convert.ToBase64String(outputStream.ToArray());
-            
             var compressedStream = new MemoryStream(Convert.FromBase64String(inputBase64));
 
             using var decompressorStream = streamFunc(compressedStream);
