@@ -5,6 +5,7 @@ import { Formik, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import * as jsonpatch from 'fast-json-patch';
 import { List as KnownRoutesList } from '../KnownRoutes';
+import TextField from '../../UIComponents/TextField';
 
 class Edit extends React.Component {
     componentDidMount() {
@@ -52,53 +53,34 @@ class Edit extends React.Component {
                     <form onSubmit={handleSubmit}>
                         <div className="form-row">
                             <div className="form-group col-md-8">
-                                <label htmlFor="name">Name</label>
-                                <Field
-                                    type="text"
+                                <TextField
                                     name="name"
                                     placeholder="service name"
-                                    className={`form-control ${
-                                        touched.name && errors.name ? "is-invalid" : ""
-                                    }`}
-                                />
-                                <ErrorMessage
-                                    component="div"
-                                    name="name"
-                                    className="invalid-feedback"
+                                    label="Name"
+                                    renderErrorMessage
+                                    touched
+                                    errors
                                 />
                             </div>
                             <div className="form-group col-md-4">
-                                <label htmlFor="code">Code</label>
-                                <Field
-                                    type="text"
+                                <TextField
                                     name="code"
-                                    placeholder="service code"
-                                    className={`form-control ${
-                                        touched.code && errors.code ? "is-invalid" : ""
-                                    }`}
-                                    disabled
-                                />
-                                <ErrorMessage
-                                    component="div"
-                                    name="code"
-                                    className="invalid-feedback"
+                                    placeholder="code"
+                                    label="Code"
+                                    renderErrorMessage
+                                    touched
+                                    errors
                                 />
                             </div>
                         </div>
                         <div className="form-group">
-                            <label htmlFor="address">Address</label>
-                            <Field
-                                type="text"
+                            <TextField
                                 name="address"
-                                placeholder="service address"
-                                className={`form-control ${
-                                    touched.address && errors.address ? "is-invalid" : ""
-                                }`}
-                            />
-                            <ErrorMessage
-                                component="div"
-                                name="address"
-                                className="invalid-feedback"
+                                placeholder="address"
+                                label="Address"
+                                renderErrorMessage
+                                touched
+                                errors
                             />
                         </div>
                         <div className="form-group">

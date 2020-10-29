@@ -4,6 +4,7 @@ import { Formik, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 
 import { Tabs, Tab } from '../Tabs';
+import TextField from "../../UIComponents/TextField";
 
 class ReplyDetails extends React.Component {
     render() {
@@ -35,7 +36,7 @@ class ReplyDetails extends React.Component {
                 validationSchema={ReplyDetailsSchema}
                 >
                 {({ errors,
-                touched ,
+                touched,
                 handleSubmit,
                 isSubmitting,
                 values }) => (
@@ -43,53 +44,35 @@ class ReplyDetails extends React.Component {
                         <h5>Reply details</h5>
                         <div className="form-row">
                             <div className="form-group col-md-4">
-                                <label htmlFor="contentType">Content Type</label>
-                                <Field
-                                    type="text"
+                                <TextField
                                     name="contentType"
+                                    label="Content Type"
                                     placeholder="content type"
-                                    className={`form-control ${
-                                        touched.name && errors.name ? "is-invalid" : ""
-                                    }`}
-                                />
-                                <ErrorMessage
-                                    component="div"
-                                    name="contentType"
-                                    className="invalid-feedback"
+                                    renderErrorMessage
+                                    errors
+                                    touched
                                 />
                             </div>
                             <div className="form-group col-md-4">
-                                <label htmlFor="contentTypeCharset">Content Type Charset</label>
-                                <Field
-                                    type="text"
+                                <TextField
                                     name="contentTypeCharset"
+                                    label="Content Type Charset"
                                     placeholder="content type charset"
-                                    className={`form-control ${
-                                        touched.code && errors.code ? "is-invalid" : ""
-                                    }`}
+                                    renderErrorMessage
+                                    errors
+                                    touched
                                     disabled
-                                />
-                                <ErrorMessage
-                                    component="div"
-                                    name="contentTypeCharset"
-                                    className="invalid-feedback"
                                 />
                             </div>
                             <div className="form-group col-md-4">
-                                <label htmlFor="contentEncoding">Content Encoding</label>
-                                <Field
-                                    type="text"
+                                <TextField
                                     name="contentEncoding"
+                                    label="Content Encoding"
                                     placeholder="content encoding"
-                                    className={`form-control ${
-                                        touched.code && errors.code ? "is-invalid" : ""
-                                    }`}
+                                    renderErrorMessage
+                                    errors
+                                    touched
                                     disabled
-                                />
-                                <ErrorMessage
-                                    component="div"
-                                    name="contentEncoding"
-                                    className="invalid-feedback"
                                 />
                             </div>
                         </div>
