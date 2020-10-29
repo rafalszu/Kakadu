@@ -36,7 +36,7 @@ namespace Kakadu.ConfigurationApi
             CreateMap<KnownRouteReplyModel, KnownRouteReplyDTO>();
             CreateMap<KnownRouteReplyDTO, KnownRouteReplyModel>()
                 .IncludeBase<IEntityDTO, IModel>()
-                .ForMember(model => model.ContentBase64, opt => opt.MapFrom<HttpContentResolver>())
+                .ForMember(model => model.ContentBase64, opt => opt.MapFrom<HttpDecompressedContentResolver>())
                 ;
 
             CreateMap<KnownRouteModel, KnownRouteDTO>()
@@ -86,7 +86,7 @@ namespace Kakadu.ConfigurationApi
 
     }
 
-    public class HttpContentResolver : IValueResolver<KnownRouteReplyDTO, KnownRouteReplyModel, string>
+    public class HttpDecompressedContentResolver : IValueResolver<KnownRouteReplyDTO, KnownRouteReplyModel, string>
     {
         public string Resolve(KnownRouteReplyDTO source, KnownRouteReplyModel destination, string destMember, ResolutionContext context)
         {
@@ -94,39 +94,7 @@ namespace Kakadu.ConfigurationApi
                 return string.Empty;
 
             // decompress content if needed
-            return string.IsNullOrWhiteSpace(source.ContentEncoding) ? source.ContentBase64 : DecompressResponse(source);
-        }
-
-        private string DecompressResponse(KnownRouteReplyDTO dto)
-        {
-            if (dto == null)
-                return string.Empty;
-
-            if (dto.ContentEncoding.Equals("br", StringComparison.InvariantCultureIgnoreCase))
-                return Decompress(dto.ContentBase64, memoryStream => new BrotliStream(memoryStream, CompressionMode.Decompress, false));
-            if (dto.ContentEncoding.Equals("gzip", StringComparison.InvariantCultureIgnoreCase))
-                return Decompress(dto.ContentBase64, memoryStream => new GZipStream(memoryStream, CompressionMode.Decompress, false));
-            if (dto.ContentEncoding.Equals("deflate", StringComparison.InvariantCultureIgnoreCase))
-                return Decompress(dto.ContentBase64, memoryStream => new DeflateStream(memoryStream, CompressionMode.Decompress, false));
-            
-            return dto.ContentBase64;
-        }
-
-        private string Decompress(string base64, Func<Stream, Stream> streamFunc)
-        {
-            if (string.IsNullOrWhiteSpace(base64) || streamFunc == null)
-                return string.Empty;
-
-            using var outputStream = new MemoryStream();
-            using var entry = new MemoryStream(Convert.FromBase64String(base64));
-            using var stream = streamFunc(entry);
-            
-            var buffer = new byte[1024];
-            int nRead;
-            while ((nRead = stream.Read(buffer, 0, buffer.Length)) > 0)
-                outputStream.Write(buffer, 0, nRead);
-
-            return Convert.ToBase64String(outputStream.ToArray());
+            return string.IsNullOrWhiteSpace(source.ContentEncoding) ? source.ContentBase64 : source.Decompressed();
         }
     }
 }

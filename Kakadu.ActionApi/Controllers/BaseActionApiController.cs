@@ -137,8 +137,9 @@ namespace Kakadu.ActionApi.Controllers
                     if(!string.IsNullOrWhiteSpace(knownResponse.ContentEncoding) && httpResponse.Headers != null)
                         httpResponse.Headers["Content-Encoding"] = knownResponse.ContentEncoding;
 
-                    if(knownResponse.ContentRaw != null)
-                        await httpResponse.Body.WriteAsync(knownResponse.ContentRaw, 0, knownResponse.ContentRaw.Length);
+                    var content = Convert.FromBase64String(knownResponse.Compressed());
+                    
+                    await httpResponse.Body.WriteAsync(content, 0, content.Length);
 
                     return true;
                 }
